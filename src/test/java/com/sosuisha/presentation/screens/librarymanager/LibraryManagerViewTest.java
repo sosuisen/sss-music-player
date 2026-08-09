@@ -15,6 +15,8 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.ListViewMatchers;
 
+import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
+
 import javafx.stage.Stage;
 
 @ExtendWith(ApplicationExtension.class)
@@ -25,7 +27,7 @@ class LibraryManagerViewTest {
     @Start
     void setup(Stage stage) {
         this.stage = stage;
-        viewModel = new LibraryManagerViewModel();
+        viewModel = new LibraryManagerViewModel(new MusicLibraryAppModel());
         var view = new LibraryManagerView(viewModel);
         stage.setScene(view.getScene());
         stage.setTitle(view.getTitle());
@@ -48,5 +50,16 @@ class LibraryManagerViewTest {
         verifyThat("#fileList", ListViewMatchers.hasItems(2));
         verifyThat("#fileList", ListViewMatchers.hasListCell(Path.of("first.mp3")));
         verifyThat("#fileList", ListViewMatchers.hasListCell(Path.of("second.m4a")));
+    }
+
+    @Test
+    @org.junit.jupiter.api.Disabled("DuplicateListViewとWindowManagerの実装後に有効化する")
+    @DisplayName("FileメニューのRemove duplicate files...を選ぶと、重複リスト表示ウィンドウが開く")
+    void selecting_remove_duplicate_files_menu_opens_the_duplicate_list_window(FxRobot robot) {
+        robot.clickOn("File").clickOn("Remove duplicate files...");
+
+        var window = robot.window("Duplicate Files");
+
+        assertTrue(window.isShowing());
     }
 }

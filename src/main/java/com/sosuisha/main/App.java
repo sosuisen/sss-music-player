@@ -6,7 +6,9 @@ import java.util.Objects;
 
 import com.sosuisha.presentation.View;
 import com.sosuisha.presentation.WindowManager;
+import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
+import com.sosuisha.presentation.screens.duplicatelist.DuplicateListViewModel;
 import com.sosuisha.presentation.screens.librarymanager.LibraryManagerView;
 import com.sosuisha.presentation.screens.librarymanager.LibraryManagerViewModel;
 
@@ -31,11 +33,12 @@ public class App extends Application {
     public void start(Stage stage) {
         Objects.requireNonNull(stage, "stage must not be null");
         var windowManager = new WindowManager();
-        var viewModel = new LibraryManagerViewModel();
+        var appModel = new MusicLibraryAppModel();
+        var viewModel = new LibraryManagerViewModel(appModel);
         // Dummy data for development until the library scan is wired up.
-        viewModel.setFiles(List.of(Path.of("dummy1.mp3"), Path.of("dummy2.m4a")));
+        appModel.setFiles(List.of(Path.of("dummy1.mp3"), Path.of("dummy2.m4a")));
         windowManager.registerView(new LibraryManagerView(viewModel));
-        windowManager.registerView(new DuplicateListView());
+        windowManager.registerView(new DuplicateListView(new DuplicateListViewModel(appModel)));
         windowManager.showWindow(FIRST_VIEW, stage);
     }
 }

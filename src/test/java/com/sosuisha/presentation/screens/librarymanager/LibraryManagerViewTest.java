@@ -15,11 +15,16 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.ListViewMatchers;
 
+import com.sosuisha.domain.model.Settings;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
+import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListViewModel;
+import com.sosuisha.presentation.screens.settings.SettingsView;
+import com.sosuisha.presentation.screens.settings.SettingsViewModel;
 
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 @ExtendWith(ApplicationExtension.class)
@@ -36,6 +41,9 @@ class LibraryManagerViewTest {
         var view = new LibraryManagerView(viewModel);
         windowManager.registerView(view);
         windowManager.registerView(new DuplicateListView(new DuplicateListViewModel(appModel)));
+        var settingsAppModel = new SettingsAppModel();
+        settingsAppModel.setSettings(new Settings(Path.of("music")));
+        windowManager.registerView(new SettingsView(new SettingsViewModel(settingsAppModel)));
         stage.setScene(view.getScene());
         stage.setTitle(view.getTitle());
         stage.show();
@@ -67,5 +75,25 @@ class LibraryManagerViewTest {
         var window = robot.window("Duplicate Files");
 
         assertTrue(window.isShowing());
+    }
+
+    @Test
+    @DisplayName("FileメニューのSettings...を選ぶと、設定ウィンドウが開く")
+    void selecting_settings_menu_opens_the_settings_window(FxRobot robot) {
+        robot.clickOn("File").clickOn("Settings...");
+
+        var window = robot.window("Settings");
+
+        assertTrue(window.isShowing());
+    }
+
+    @Test
+    @DisplayName("設定ウィンドウはアプリケーションモーダルである")
+    void the_settings_window_is_application_modal(FxRobot robot) {
+        robot.clickOn("File").clickOn("Settings...");
+
+        var window = (Stage) robot.window("Settings");
+
+        assertEquals(Modality.APPLICATION_MODAL, window.getModality());
     }
 }

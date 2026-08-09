@@ -7,9 +7,11 @@ import java.util.Objects;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
+import com.sosuisha.presentation.screens.settings.SettingsView;
 
 import io.github.sosuisen.jfxbuilder.graphics.StageBuilder;
 import javafx.collections.ObservableList;
+import javafx.stage.Modality;
 
 /**
  * ViewModel for the library manager screen.
@@ -36,6 +38,17 @@ public class LibraryManagerViewModel {
      */
     public void openDuplicateListWindow() {
         windowManager.showWindow(DuplicateListView.class, StageBuilder.create().build());
+    }
+
+    /**
+     * Opens the settings window. The window is application modal.
+     */
+    public void openSettingsWindow() {
+        windowManager.showWindow(
+            SettingsView.class,
+            StageBuilder.create()
+                .apply(stage -> stage.initModality(Modality.APPLICATION_MODAL))
+                .build());
     }
 
     /**

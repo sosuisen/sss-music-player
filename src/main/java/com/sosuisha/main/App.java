@@ -1,5 +1,7 @@
 package com.sosuisha.main;
 
+import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
@@ -7,10 +9,14 @@ import java.util.Objects;
 import com.sosuisha.presentation.View;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
+import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListViewModel;
 import com.sosuisha.presentation.screens.librarymanager.LibraryManagerView;
 import com.sosuisha.presentation.screens.librarymanager.LibraryManagerViewModel;
+import com.sosuisha.presentation.screens.settings.SettingsView;
+import com.sosuisha.presentation.screens.settings.SettingsViewModel;
+import com.sosuisha.service.SettingsRepository;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
@@ -24,13 +30,15 @@ public class App extends Application {
 
     /**
      * Called when the application is started. Shows the library manager window
-     * as the first window.
+     * as the first window. When the settings file does not exist, the modal
+     * settings window is opened over the first window.
      *
      * @param stage the primary stage for this application
      * @throws NullPointerException if stage is null
+     * @throws IOException if the settings file cannot be read
      */
     @Override
-    public void start(Stage stage) {
+    public void start(Stage stage) throws IOException {
         Objects.requireNonNull(stage, "stage must not be null");
         var windowManager = new WindowManager();
         var appModel = new MusicLibraryAppModel();
@@ -46,6 +54,17 @@ public class App extends Application {
         );
         windowManager.registerView(new LibraryManagerView(viewModel));
         windowManager.registerView(new DuplicateListView(new DuplicateListViewModel(appModel)));
+        var settingsAppModel = new SettingsAppModel();
+        var settingsLoaded = true;
+        try {
+            settingsAppModel.setSettings(new SettingsRepository().load());
+        } catch (NoSuchFileException e) {
+            settingsLoaded = false;
+        }
+        windowManager.registerView(new SettingsView(new SettingsViewModel(settingsAppModel)));
         windowManager.showWindow(FIRST_VIEW, stage);
+        if (!settingsLoaded) {
+            viewModel.openSettingsWindow();
+        }
     }
 }

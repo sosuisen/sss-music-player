@@ -6,6 +6,7 @@ import java.util.Objects;
 import com.sosuisha.domain.model.DuplicatedItems;
 import com.sosuisha.domain.service.DuplicateDetector;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
+import com.sosuisha.service.FilenameDuplicateDetector;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -39,6 +40,13 @@ public class DuplicateListViewModel {
     public void detect(DuplicateDetector detector) {
         Objects.requireNonNull(detector, "detector must not be null");
         duplicatedItems.setAll(detector.detect());
+    }
+
+    /**
+     * Detects duplicated files by file name and stores the result.
+     */
+    public void detectByFilename() {
+        detect(new FilenameDuplicateDetector(appModel.getFiles()));
     }
 
     /**

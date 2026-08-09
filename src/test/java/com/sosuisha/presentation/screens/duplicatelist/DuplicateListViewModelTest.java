@@ -19,7 +19,10 @@ class DuplicateListViewModelTest {
     @DisplayName("detectで重複判定関数を呼び出して、重複リストをObservableListに格納する")
     void detect_stores_duplicated_items_in_observable_list() {
         var items = List.of(
-            new DuplicatedItems(List.of(Path.of("a/first.mp3"), Path.of("b/first.mp3")))
+            new DuplicatedItems(
+                "first.mp3",
+                List.of(Path.of("a/first.mp3"), Path.of("b/first.mp3"))
+            )
         );
         var viewModel = new DuplicateListViewModel(new MusicLibraryAppModel());
 

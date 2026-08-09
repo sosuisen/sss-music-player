@@ -36,7 +36,14 @@ public class App extends Application {
         var appModel = new MusicLibraryAppModel();
         var viewModel = new LibraryManagerViewModel(appModel);
         // Dummy data for development until the library scan is wired up.
-        appModel.setFiles(List.of(Path.of("dummy1.mp3"), Path.of("dummy2.m4a")));
+        // The same file name appears in two folders to exercise duplicate detection.
+        appModel.setFiles(
+            List.of(
+                Path.of("a/dummy1.mp3"),
+                Path.of("b/dummy1.mp3"),
+                Path.of("dummy2.m4a")
+            )
+        );
         windowManager.registerView(new LibraryManagerView(viewModel));
         windowManager.registerView(new DuplicateListView(new DuplicateListViewModel(appModel)));
         windowManager.showWindow(FIRST_VIEW, stage);

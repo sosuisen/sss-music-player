@@ -2,12 +2,15 @@ package com.sosuisha.presentation.screens.duplicatelist;
 
 import java.util.Objects;
 
+import com.sosuisha.domain.model.DuplicatedItems;
 import com.sosuisha.presentation.View;
 
+import io.github.sosuisen.jfxbuilder.controls.ButtonBuilder;
 import io.github.sosuisen.jfxbuilder.controls.ListViewBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.SceneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
 import javafx.scene.Scene;
+import javafx.scene.control.ListCell;
 
 /**
  * View for the duplicate file list screen.
@@ -46,6 +49,18 @@ public class DuplicateListView implements View {
                     .withChildren(
                         ListViewBuilder.create(viewModel.getDuplicatedItems())
                             .id("duplicateList")
+                            .cellFactory(_ -> new ListCell<>() {
+                                @Override
+                                protected void updateItem(DuplicatedItems item, boolean empty) {
+                                    super.updateItem(item, empty);
+                                    setText(empty || item == null ? null : item.title());
+                                }
+                            })
+                            .build(),
+                        ButtonBuilder.create()
+                            .text("Find by Filename")
+                            .id("findByFilename")
+                            .onAction(_ -> viewModel.detectByFilename())
                             .build()
                     )
                     .build()

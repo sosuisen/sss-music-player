@@ -11,7 +11,7 @@ TDDの作業用todoリスト（使い捨て）。
 - [ ] 重複判定関数
   - [ ] ファイル名とサイズに基づく判定
   - [ ] ID3タグの曲名、アーティストに基づく判定
-- [ ] DuplicateListViewを表示
+- [x] DuplicateListViewを表示
   - [x] WindowManagerにDuplicateListViewを登録
   - [x] WindowManagerからDuplicateListViewを開く
 - [x] アプリ起動時に最初に表示されるウィンドウを定数で変更できるようにする。

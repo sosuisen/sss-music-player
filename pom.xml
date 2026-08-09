@@ -10,8 +10,8 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <javafx.plugin.version>0.0.8</javafx.plugin.version>
-    <javafx.version>25.0.4</javafx.version>
-    <javafx.builder.version>25.0.0</javafx.builder.version>
+    <javafx.version>26.0.2</javafx.version>
+    <javafx.builder.version>26.0.0</javafx.builder.version>
     <maven.compiler.release>25</maven.compiler.release>
     <main.class>com.sosuisha.main.Launcher</main.class>
   </properties>
@@ -66,6 +66,11 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>3.5.6</version>
+        <configuration>
+          <systemPropertyVariables>
+            <glass.platform>Headless</glass.platform>
+          </systemPropertyVariables>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>net.revelc.code.formatter</groupId>

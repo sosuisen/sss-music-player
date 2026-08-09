@@ -2,6 +2,8 @@ package com.sosuisha.presentation.screens.librarymanager;
 
 import java.util.Objects;
 
+import com.sosuisha.presentation.View;
+
 import io.github.sosuisen.jfxbuilder.controls.ListViewBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.SceneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
@@ -10,7 +12,7 @@ import javafx.scene.Scene;
 /**
  * View for the library manager screen.
  */
-public class LibraryManagerView {
+public class LibraryManagerView implements View {
     private static final String TITLE = "Library Manager";
 
     private final LibraryManagerViewModel viewModel;
@@ -27,20 +29,12 @@ public class LibraryManagerView {
         this.scene = buildSceneGraph();
     }
 
-    /**
-     * Returns the scene of this view.
-     *
-     * @return scene of this view
-     */
+    @Override
     public Scene getScene() {
         return scene;
     }
 
-    /**
-     * Returns the window title of this view.
-     *
-     * @return window title
-     */
+    @Override
     public String getTitle() {
         return TITLE;
     }

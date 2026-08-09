@@ -5,6 +5,9 @@ import java.util.Objects;
 import com.sosuisha.presentation.View;
 
 import io.github.sosuisen.jfxbuilder.controls.ListViewBuilder;
+import io.github.sosuisen.jfxbuilder.controls.MenuBarBuilder;
+import io.github.sosuisen.jfxbuilder.controls.MenuBuilder;
+import io.github.sosuisen.jfxbuilder.controls.MenuItemBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.SceneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
 import javafx.scene.Scene;
@@ -44,6 +47,19 @@ public class LibraryManagerView implements View {
             .withRoot(
                 VBoxBuilder
                     .withChildren(
+                        MenuBarBuilder
+                            .withMenus(
+                                MenuBuilder
+                                    .withItems(
+                                        MenuItemBuilder.create()
+                                            .text("Remove duplicate files...")
+                                            .onAction(_ -> viewModel.openDuplicateListWindow())
+                                            .build()
+                                    )
+                                    .text("File")
+                                    .build()
+                            )
+                            .build(),
                         ListViewBuilder.create(viewModel.getFiles())
                             .id("fileList")
                             .build()

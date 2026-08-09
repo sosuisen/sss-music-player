@@ -20,7 +20,7 @@ import javafx.stage.Stage;
  */
 public class App extends Application {
     /** The view whose window is shown first at startup. Change this constant during development. */
-    static final Class<? extends View> FIRST_VIEW = DuplicateListView.class;
+    static final Class<? extends View> FIRST_VIEW = LibraryManagerView.class;
 
     /**
      * Called when the application is started. Shows the library manager window
@@ -34,7 +34,7 @@ public class App extends Application {
         Objects.requireNonNull(stage, "stage must not be null");
         var windowManager = new WindowManager();
         var appModel = new MusicLibraryAppModel();
-        var viewModel = new LibraryManagerViewModel(appModel);
+        var viewModel = new LibraryManagerViewModel(windowManager, appModel);
         // Dummy data for development until the library scan is wired up.
         // The same file name appears in two folders to exercise duplicate detection.
         appModel.setFiles(

@@ -26,6 +26,7 @@ import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListViewModel;
 import com.sosuisha.presentation.screens.settings.SettingsView;
 import com.sosuisha.presentation.screens.settings.SettingsViewModel;
+import com.sosuisha.service.DuplicateFileMover;
 import com.sosuisha.service.LibraryScanner;
 import com.sosuisha.service.SettingsRepository;
 
@@ -48,7 +49,13 @@ class LibraryManagerViewTest {
         var view = new LibraryManagerView(viewModel);
         windowManager.registerView(view);
         windowManager.registerView(
-            new DuplicateListView(new DuplicateListViewModel(appModel, new NullMusicPlayer()))
+            new DuplicateListView(
+                new DuplicateListViewModel(
+                    appModel,
+                    new NullMusicPlayer(),
+                    new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log"))
+                )
+            )
         );
         var settingsAppModel = new SettingsAppModel(new SettingsRepository());
         settingsAppModel.setSettings(new Settings(Path.of("music")));

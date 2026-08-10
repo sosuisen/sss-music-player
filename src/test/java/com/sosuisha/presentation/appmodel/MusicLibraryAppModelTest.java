@@ -77,6 +77,22 @@ class MusicLibraryAppModelTest {
     }
 
     @Test
+    @DisplayName("rescanを呼ぶと、最後に走査したフォルダが再走査され一覧が更新される")
+    void rescan_scans_the_last_scanned_folder_again(FxRobot robot) throws Exception {
+        Files.createFile(folder.resolve("song1.mp3"));
+        var appModel = new MusicLibraryAppModel(
+            new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
+        );
+        robot.interact(() -> appModel.scanFolder(folder));
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> appModel.getFiles().size() == 1);
+        Files.createFile(folder.resolve("song2.mp3"));
+
+        robot.interact(() -> appModel.rescan());
+
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> appModel.getFiles().size() == 2);
+    }
+
+    @Test
     @DisplayName("走査結果は、サイズ付きのMusicFileとして一覧に保持される")
     void the_scanned_files_are_held_in_the_list_as_music_files_with_their_sizes(FxRobot robot)
         throws Exception {

@@ -3,6 +3,8 @@ package com.sosuisha.presentation;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.file.Path;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,6 +16,7 @@ import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListViewModel;
+import com.sosuisha.service.DuplicateFileMover;
 import com.sosuisha.service.LibraryScanner;
 import com.sosuisha.service.SettingsRepository;
 
@@ -30,7 +33,8 @@ class WindowManagerTest {
                 new MusicLibraryAppModel(
                     new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
                 ),
-                new NullMusicPlayer()
+                new NullMusicPlayer(),
+                new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log"))
             )
         );
 
@@ -48,7 +52,8 @@ class WindowManagerTest {
                 new MusicLibraryAppModel(
                     new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
                 ),
-                new NullMusicPlayer()
+                new NullMusicPlayer(),
+                new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log"))
             )
         );
         windowManager.registerView(view);

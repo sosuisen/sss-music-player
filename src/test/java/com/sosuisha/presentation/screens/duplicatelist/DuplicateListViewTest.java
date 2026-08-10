@@ -1,6 +1,7 @@
 package com.sosuisha.presentation.screens.duplicatelist;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testfx.api.FxAssert.verifyThat;
 
@@ -24,9 +25,11 @@ import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
+import com.sosuisha.service.DuplicateFileMover;
 import com.sosuisha.service.LibraryScanner;
 import com.sosuisha.service.SettingsRepository;
 
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -37,6 +40,7 @@ class DuplicateListViewTest {
     private DuplicateListViewModel viewModel;
     private AtomicReference<Path> playedPath;
     private AtomicBoolean stopped;
+    private AtomicReference<List<DuplicatedItems>> movedGroups;
 
     @Start
     void setup(Stage stage) {
@@ -45,6 +49,7 @@ class DuplicateListViewTest {
         );
         playedPath = new AtomicReference<>();
         stopped = new AtomicBoolean(false);
+        movedGroups = new AtomicReference<>();
         viewModel = new DuplicateListViewModel(appModel, new MusicPlayer() {
             @Override
             public void play(Path path) {
@@ -54,6 +59,11 @@ class DuplicateListViewTest {
             @Override
             public void stop() {
                 stopped.set(true);
+            }
+        }, new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")) {
+            @Override
+            public void moveDuplicates(List<DuplicatedItems> groups) {
+                movedGroups.set(groups);
             }
         });
         var view = new DuplicateListView(viewModel);
@@ -273,6 +283,65 @@ class DuplicateListViewTest {
             buttonBottom <= listTop,
             "buttonBottom=" + buttonBottom + ", listTop=" + listTop
         );
+    }
+
+    @Test
+    @DisplayName("重複を除去するボタンは、重複候補リストの下に右端をそろえて置かれる")
+    void the_remove_duplicates_button_is_placed_below_the_duplicate_list_at_the_right_edge(
+        FxRobot robot) {
+        var button = robot.lookup("#removeDuplicates").query();
+        var list = robot.lookup("#duplicateList").query();
+
+        var listBottom = list.localToScene(list.getLayoutBounds()).getMaxY();
+        var buttonTop = button.localToScene(button.getLayoutBounds()).getMinY();
+        var listRight = list.localToScene(list.getLayoutBounds()).getMaxX();
+        var buttonRight = button.localToScene(button.getLayoutBounds()).getMaxX();
+        assertTrue(
+            listBottom <= buttonTop,
+            "listBottom=" + listBottom + ", buttonTop=" + buttonTop
+        );
+        assertEquals(listRight, buttonRight, 1.0);
+    }
+
+    @Test
+    @DisplayName("Remove Duplicatesボタンを押すと、チェックされたグループの重複除去が実行される")
+    void clicking_the_remove_duplicates_button_removes_the_checked_duplicates(FxRobot robot) {
+        var first = new DuplicatedItems(
+            "first.mp3",
+            List.of(
+                new MusicFile(Path.of("a/first.mp3"), 100),
+                new MusicFile(Path.of("b/first.mp3"), 100)
+            )
+        );
+        robot.interact(() -> {
+            viewModel.detect(() -> List.of(first));
+            viewModel.checkedProperty(first).set(true);
+        });
+
+        robot.clickOn("#removeDuplicates");
+
+        assertEquals(List.of(first), movedGroups.get());
+    }
+
+    @Test
+    @DisplayName("チェックが1つもないときRemove checked duplicatesボタンは無効で、チェックすると有効になる")
+    void the_remove_button_is_disabled_when_no_group_is_checked_and_enabled_when_one_is_checked(
+        FxRobot robot) {
+        var first = new DuplicatedItems(
+            "first.mp3",
+            List.of(
+                new MusicFile(Path.of("a/first.mp3"), 100),
+                new MusicFile(Path.of("b/first.mp3"), 100)
+            )
+        );
+        robot.interact(() -> viewModel.detect(() -> List.of(first)));
+        var button = robot.lookup("#removeDuplicates").queryAs(Button.class);
+
+        assertTrue(button.isDisabled());
+
+        robot.interact(() -> viewModel.checkedProperty(first).set(true));
+
+        assertFalse(button.isDisabled());
     }
 
     @Test

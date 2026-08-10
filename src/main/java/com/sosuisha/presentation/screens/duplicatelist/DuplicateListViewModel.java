@@ -1,5 +1,7 @@
 package com.sosuisha.presentation.screens.duplicatelist;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,11 +12,13 @@ import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.service.DuplicateDetector;
 import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
+import com.sosuisha.service.DuplicateFileMover;
 import com.sosuisha.service.FilenameAndSizeDuplicateDetector;
 import com.sosuisha.service.FilenameDuplicateDetector;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -26,6 +30,7 @@ import javafx.collections.ObservableList;
 public class DuplicateListViewModel {
     private final MusicLibraryAppModel appModel;
     private final MusicPlayer musicPlayer;
+    private final DuplicateFileMover duplicateFileMover;
 
     private final ObservableList<DuplicatedItems> duplicatedItems =
         FXCollections.observableArrayList();
@@ -33,20 +38,49 @@ public class DuplicateListViewModel {
     private final ObservableList<MusicFile> selectedFiles = FXCollections.observableArrayList();
     private final ObjectProperty<MusicFile> playingFile = new SimpleObjectProperty<>();
     private final Map<DuplicatedItems, BooleanProperty> checkedItems = new HashMap<>();
+    private final BooleanProperty anyChecked = new SimpleBooleanProperty(false);
+    private DuplicateDetector lastDetector;
 
     /**
      * Creates the view model.
      *
      * @param appModel application-wide state of the music library
      * @param musicPlayer player used to play audio files
-     * @throws NullPointerException if appModel or musicPlayer is null
+     * @param duplicateFileMover mover that moves duplicated files out of the library
+     * @throws NullPointerException if appModel, musicPlayer or duplicateFileMover is null
      */
-    public DuplicateListViewModel(MusicLibraryAppModel appModel, MusicPlayer musicPlayer) {
+    public DuplicateListViewModel(MusicLibraryAppModel appModel, MusicPlayer musicPlayer,
+        DuplicateFileMover duplicateFileMover) {
         this.appModel = Objects.requireNonNull(appModel, "appModel must not be null");
         this.musicPlayer = Objects.requireNonNull(musicPlayer, "musicPlayer must not be null");
+        this.duplicateFileMover =
+            Objects.requireNonNull(duplicateFileMover, "duplicateFileMover must not be null");
         selectedItem.subscribe(
             item -> selectedFiles.setAll(item == null ? List.of() : item.files())
         );
+        appModel.getFiles().subscribe(() -> {
+            if (lastDetector != null) {
+                detect(lastDetector);
+            }
+        });
+    }
+
+    /**
+     * Moves the duplicated files of the checked groups out of the library and
+     * rescans the library.
+     *
+     * @throws UncheckedIOException if a file cannot be moved
+     */
+    public void removeCheckedDuplicates() {
+        var checkedGroups = duplicatedItems.stream()
+            .filter(item -> checkedProperty(item).get())
+            .toList();
+        try {
+            duplicateFileMover.moveDuplicates(checkedGroups);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        appModel.rescan();
     }
 
     /**
@@ -105,7 +139,24 @@ public class DuplicateListViewModel {
      */
     public BooleanProperty checkedProperty(DuplicatedItems item) {
         Objects.requireNonNull(item, "item must not be null");
-        return checkedItems.computeIfAbsent(item, _ -> new SimpleBooleanProperty(false));
+        return checkedItems.computeIfAbsent(item, _ -> {
+            var property = new SimpleBooleanProperty(false);
+            property.subscribe(_ -> updateAnyChecked());
+            return property;
+        });
+    }
+
+    /**
+     * Returns whether at least one duplicated group is checked.
+     *
+     * @return read-only boolean property that is true when any group is checked
+     */
+    public ReadOnlyBooleanProperty anyCheckedProperty() {
+        return anyChecked;
+    }
+
+    private void updateAnyChecked() {
+        anyChecked.set(checkedItems.values().stream().anyMatch(BooleanProperty::get));
     }
 
     /**
@@ -131,14 +182,17 @@ public class DuplicateListViewModel {
     /**
      * Calls the given detector and stores the detected duplicated items. The
      * observable list instance is kept; its contents are replaced. All checked
-     * states are cleared.
+     * states are cleared. The detector is called again whenever the files of
+     * the music library change.
      *
      * @param detector duplicate detector to call
      * @throws NullPointerException if detector is null
      */
     public void detect(DuplicateDetector detector) {
         Objects.requireNonNull(detector, "detector must not be null");
+        lastDetector = detector;
         checkedItems.clear();
+        updateAnyChecked();
         duplicatedItems.setAll(detector.detect());
     }
 

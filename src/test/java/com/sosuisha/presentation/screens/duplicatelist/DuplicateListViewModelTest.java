@@ -3,9 +3,12 @@ package com.sosuisha.presentation.screens.duplicatelist;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -15,6 +18,7 @@ import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
+import com.sosuisha.service.DuplicateFileMover;
 import com.sosuisha.service.LibraryScanner;
 import com.sosuisha.service.SettingsRepository;
 
@@ -37,7 +41,8 @@ class DuplicateListViewModelTest {
             new MusicLibraryAppModel(
                 new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
             ),
-            new NullMusicPlayer()
+            new NullMusicPlayer(),
+            new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log"))
         );
 
         viewModel.detect(() -> items);
@@ -60,7 +65,8 @@ class DuplicateListViewModelTest {
             new MusicLibraryAppModel(
                 new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
             ),
-            new NullMusicPlayer()
+            new NullMusicPlayer(),
+            new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log"))
         );
         viewModel.detect(() -> List.of(item));
         viewModel.checkedProperty(item).set(true);
@@ -68,5 +74,93 @@ class DuplicateListViewModelTest {
         viewModel.detect(() -> List.of(item));
 
         assertFalse(viewModel.checkedProperty(item).get());
+    }
+
+    @Test
+    @DisplayName("チェックされたグループだけが、重複除去の移動に渡される")
+    void only_checked_groups_are_passed_to_the_duplicate_file_mover() {
+        var checked = new DuplicatedItems(
+            "first.mp3",
+            List.of(
+                new MusicFile(Path.of("a/first.mp3"), 100),
+                new MusicFile(Path.of("b/first.mp3"), 100)
+            )
+        );
+        var unchecked = new DuplicatedItems(
+            "second.m4a",
+            List.of(
+                new MusicFile(Path.of("c/second.m4a"), 200),
+                new MusicFile(Path.of("d/second.m4a"), 200)
+            )
+        );
+        // AtomicReference is a mutable box to capture the argument of the
+        // overridden method.
+        var movedGroups = new AtomicReference<List<DuplicatedItems>>();
+        var mover = new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")) {
+            @Override
+            public void moveDuplicates(List<DuplicatedItems> groups) {
+                movedGroups.set(groups);
+            }
+        };
+        var viewModel = new DuplicateListViewModel(
+            new MusicLibraryAppModel(
+                new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
+            ),
+            new NullMusicPlayer(),
+            mover
+        );
+        viewModel.detect(() -> List.of(checked, unchecked));
+        viewModel.checkedProperty(checked).set(true);
+
+        viewModel.removeCheckedDuplicates();
+
+        assertEquals(List.of(checked), movedGroups.get());
+    }
+
+    @Test
+    @DisplayName("ライブラリのファイル一覧が変わると、最後の判定条件で候補リストが更新される")
+    void the_candidate_list_is_updated_with_the_last_detector_when_the_library_files_change() {
+        var appModel = new MusicLibraryAppModel(
+            new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
+        );
+        var viewModel = new DuplicateListViewModel(
+            appModel,
+            new NullMusicPlayer(),
+            new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log"))
+        );
+        appModel.setFiles(
+            List.of(
+                new MusicFile(Path.of("a/dup.mp3"), 100),
+                new MusicFile(Path.of("b/dup.mp3"), 100)
+            )
+        );
+        viewModel.detectByFilename();
+
+        appModel.setFiles(List.of(new MusicFile(Path.of("a/dup.mp3"), 100)));
+
+        assertEquals(List.of(), viewModel.getDuplicatedItems());
+    }
+
+    @Test
+    @DisplayName("重複除去を実行すると、ライブラリが再スキャンされる")
+    void removing_checked_duplicates_rescans_the_library() {
+        var rescanned = new AtomicBoolean(false);
+        var appModel = new MusicLibraryAppModel(
+            new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
+        ) {
+            @Override
+            public void rescan() {
+                rescanned.set(true);
+            }
+        };
+        var mover = new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")) {
+            @Override
+            public void moveDuplicates(List<DuplicatedItems> groups) {}
+        };
+        var viewModel = new DuplicateListViewModel(appModel, new NullMusicPlayer(), mover);
+
+        viewModel.removeCheckedDuplicates();
+
+        assertTrue(rescanned.get());
     }
 }

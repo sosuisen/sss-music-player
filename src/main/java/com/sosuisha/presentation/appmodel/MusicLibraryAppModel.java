@@ -17,6 +17,7 @@ import javafx.concurrent.Task;
 public class MusicLibraryAppModel {
     private final ObservableList<MusicFile> files = FXCollections.observableArrayList();
     private final LibraryScanner scanner;
+    private Path lastScannedFolder;
 
     /**
      * Creates the app model. It follows the settings of the given settings app
@@ -48,6 +49,7 @@ public class MusicLibraryAppModel {
      */
     public void scanFolder(Path folderPath) {
         Objects.requireNonNull(folderPath, "folderPath must not be null");
+        lastScannedFolder = folderPath;
         var task = new Task<List<MusicFile>>() {
             @Override
             protected List<MusicFile> call() throws Exception {
@@ -56,6 +58,16 @@ public class MusicLibraryAppModel {
         };
         task.setOnSucceeded(_ -> files.setAll(task.getValue()));
         Thread.ofVirtual().start(task);
+    }
+
+    /**
+     * Scans the last scanned folder again in the background. Does nothing when
+     * no folder has been scanned yet.
+     */
+    public void rescan() {
+        if (lastScannedFolder != null) {
+            scanFolder(lastScannedFolder);
+        }
     }
 
     /**

@@ -11,6 +11,7 @@ import io.github.sosuisen.jfxbuilder.controls.SplitPaneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.HBoxBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.SceneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -78,7 +79,20 @@ public class DuplicateListView implements View {
                     )
                     .spacing(10)
                     .build(),
-                candidateList
+                candidateList,
+                HBoxBuilder
+                    .withChildren(
+                        ButtonBuilder.create()
+                            .text("Remove checked duplicates")
+                            .id("removeDuplicates")
+                            .onAction(_ -> viewModel.removeCheckedDuplicates())
+                            .disablePropertyApply(
+                                prop -> prop.bind(viewModel.anyCheckedProperty().not())
+                            )
+                            .build()
+                    )
+                    .alignment(Pos.CENTER_RIGHT)
+                    .build()
             )
             .build();
     }

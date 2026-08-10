@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import com.sosuisha.presentation.View;
 import com.sosuisha.presentation.screens.duplicatelist.components.CandidateList;
-import com.sosuisha.presentation.screens.duplicatelist.components.ConfirmPanel;
+import com.sosuisha.presentation.screens.duplicatelist.components.DetailedPanel;
 
 import io.github.sosuisen.jfxbuilder.controls.ButtonBuilder;
 import io.github.sosuisen.jfxbuilder.controls.SplitPaneBuilder;
@@ -52,7 +52,7 @@ public class DuplicateListView implements View {
                 SplitPaneBuilder
                     .withItems(
                         buildCandidatePane(),
-                        ConfirmPanel.getRoot(viewModel)
+                        DetailedPanel.getRoot(viewModel)
                     )
                     .build()
             )

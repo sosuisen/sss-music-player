@@ -25,7 +25,7 @@ import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
-import com.sosuisha.presentation.screens.duplicatelist.components.ConfirmPanel;
+import com.sosuisha.presentation.screens.duplicatelist.components.DetailedPanel;
 import com.sosuisha.service.DuplicateFileMover;
 import com.sosuisha.service.LibraryScanner;
 import com.sosuisha.service.SettingsRepository;
@@ -87,7 +87,7 @@ class DuplicateListViewTest {
 
         robot.clickOn("first.mp3");
 
-        var panel = robot.lookup("#confirmPanel").query();
+        var panel = robot.lookup("#detailedPanel").query();
         assertTrue(
             robot.from(panel).lookup(Path.of("a/first.mp3").toString()).tryQuery().isPresent()
         );
@@ -111,7 +111,7 @@ class DuplicateListViewTest {
 
         robot.clickOn("first.mp3");
 
-        var panel = robot.lookup("#confirmPanel").query();
+        var panel = robot.lookup("#detailedPanel").query();
         assertTrue(
             robot.from(panel).lookup(Path.of("a/first.mp3").toString()).tryQuery().isPresent()
         );
@@ -123,9 +123,9 @@ class DuplicateListViewTest {
     @Test
     @DisplayName("重複確認パネルの幅は固定値である")
     void the_width_of_the_confirm_panel_is_fixed(FxRobot robot) {
-        var panel = robot.lookup("#confirmPanel").queryAs(VBox.class);
+        var panel = robot.lookup("#detailedPanel").queryAs(VBox.class);
 
-        assertEquals(ConfirmPanel.WIDTH, panel.getWidth(), 0.001);
+        assertEquals(DetailedPanel.WIDTH, panel.getWidth(), 0.001);
     }
 
     @Test

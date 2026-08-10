@@ -17,13 +17,13 @@ import javafx.scene.layout.VBox;
  * Component that shows the files of the selected duplicated group. Each row
  * shows the file path, the size, and a play button.
  */
-public class ConfirmPanel {
-    /** Fixed width of the confirm panel. */
+public class DetailedPanel {
+    /** Fixed width of the detailed panel. */
     public static final double WIDTH = 300;
 
     private static final double ROW_WIDTH = 280;
 
-    private ConfirmPanel() {}
+    private DetailedPanel() {}
 
     /**
      * Returns the root node of the component.
@@ -37,7 +37,7 @@ public class ConfirmPanel {
         return VBoxBuilder
             .withChildren(
                 ListViewBuilder.create(viewModel.getSelectedFiles())
-                    .id("confirmFileList")
+                    .id("detailedFileList")
                     .cellFactory(_ -> new ListCell<>() {
                         @Override
                         protected void updateItem(MusicFile item, boolean empty) {
@@ -45,21 +45,21 @@ public class ConfirmPanel {
                             setGraphic(
                                 empty || item == null
                                     ? null
-                                    : buildConfirmRow(viewModel, item)
+                                    : buildDetailedRow(viewModel, item)
                             );
                         }
                     })
                     .vGrowInVBox(Priority.ALWAYS)
                     .build()
             )
-            .id("confirmPanel")
+            .id("detailedPanel")
             .minWidth(WIDTH)
             .prefWidth(WIDTH)
             .maxWidth(WIDTH)
             .build();
     }
 
-    private static VBox buildConfirmRow(DuplicateListViewModel viewModel, MusicFile item) {
+    private static VBox buildDetailedRow(DuplicateListViewModel viewModel, MusicFile item) {
         return VBoxBuilder
             .withChildren(
                 LabelBuilder.create()
@@ -82,7 +82,7 @@ public class ConfirmPanel {
                     .build()
             )
             .spacing(10)
-            .addStyleClass("confirm-row")
+            .addStyleClass("detailed-row")
             .prefWidth(ROW_WIDTH)
             .maxWidth(ROW_WIDTH)
             .build();

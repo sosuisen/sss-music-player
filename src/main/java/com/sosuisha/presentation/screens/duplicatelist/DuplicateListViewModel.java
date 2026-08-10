@@ -10,6 +10,7 @@ import java.util.Objects;
 import com.sosuisha.domain.model.DuplicatedItems;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.service.DuplicateDetector;
+import com.sosuisha.domain.service.FolderOpener;
 import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.service.DuplicateFileMover;
@@ -31,6 +32,7 @@ public class DuplicateListViewModel {
     private final MusicLibraryAppModel appModel;
     private final MusicPlayer musicPlayer;
     private final DuplicateFileMover duplicateFileMover;
+    private final FolderOpener folderOpener;
 
     private final ObservableList<DuplicatedItems> duplicatedItems =
         FXCollections.observableArrayList();
@@ -47,14 +49,17 @@ public class DuplicateListViewModel {
      * @param appModel application-wide state of the music library
      * @param musicPlayer player used to play audio files
      * @param duplicateFileMover mover that moves duplicated files out of the library
-     * @throws NullPointerException if appModel, musicPlayer or duplicateFileMover is null
+     * @param folderOpener opener that shows a folder in the file manager
+     * @throws NullPointerException if appModel, musicPlayer, duplicateFileMover or
+     *             folderOpener is null
      */
     public DuplicateListViewModel(MusicLibraryAppModel appModel, MusicPlayer musicPlayer,
-        DuplicateFileMover duplicateFileMover) {
+        DuplicateFileMover duplicateFileMover, FolderOpener folderOpener) {
         this.appModel = Objects.requireNonNull(appModel, "appModel must not be null");
         this.musicPlayer = Objects.requireNonNull(musicPlayer, "musicPlayer must not be null");
         this.duplicateFileMover =
             Objects.requireNonNull(duplicateFileMover, "duplicateFileMover must not be null");
+        this.folderOpener = Objects.requireNonNull(folderOpener, "folderOpener must not be null");
         selectedItem.subscribe(
             item -> selectedFiles.setAll(item == null ? List.of() : item.files())
         );
@@ -102,6 +107,17 @@ public class DuplicateListViewModel {
     public void stop() {
         musicPlayer.stop();
         playingFile.set(null);
+    }
+
+    /**
+     * Opens the folder that contains the given audio file.
+     *
+     * @param file audio file whose folder is opened
+     * @throws NullPointerException if file is null
+     */
+    public void openFolder(MusicFile file) {
+        Objects.requireNonNull(file, "file must not be null");
+        folderOpener.open(file.path().getParent());
     }
 
     /**

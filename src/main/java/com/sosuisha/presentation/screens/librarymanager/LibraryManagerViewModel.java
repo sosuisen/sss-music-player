@@ -34,6 +34,13 @@ public class LibraryManagerViewModel {
     }
 
     /**
+     * Rescans the music library.
+     */
+    public void rescan() {
+        appModel.rescan();
+    }
+
+    /**
      * Opens the duplicate file list window.
      */
     public void openDuplicateListWindow() {

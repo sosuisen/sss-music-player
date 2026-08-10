@@ -34,7 +34,9 @@ class WindowManagerTest {
                     new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
                 ),
                 new NullMusicPlayer(),
-                new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log"))
+                new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")),
+                _ -> {
+                }
             )
         );
 
@@ -53,7 +55,9 @@ class WindowManagerTest {
                     new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
                 ),
                 new NullMusicPlayer(),
-                new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log"))
+                new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")),
+                _ -> {
+                }
             )
         );
         windowManager.registerView(view);

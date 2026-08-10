@@ -7,6 +7,7 @@ import static org.testfx.api.FxAssert.verifyThat;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,14 +38,21 @@ import javafx.stage.Stage;
 class LibraryManagerViewTest {
     private Stage stage;
     private LibraryManagerViewModel viewModel;
+    private AtomicBoolean rescanned;
 
     @Start
     void setup(Stage stage) {
         this.stage = stage;
         var windowManager = new WindowManager();
+        rescanned = new AtomicBoolean(false);
         var appModel = new MusicLibraryAppModel(
             new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
-        );
+        ) {
+            @Override
+            public void rescan() {
+                rescanned.set(true);
+            }
+        };
         viewModel = new LibraryManagerViewModel(windowManager, appModel);
         var view = new LibraryManagerView(viewModel);
         windowManager.registerView(view);
@@ -53,7 +61,9 @@ class LibraryManagerViewTest {
                 new DuplicateListViewModel(
                     appModel,
                     new NullMusicPlayer(),
-                    new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log"))
+                    new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")),
+                    _ -> {
+                    }
                 )
             )
         );
@@ -90,6 +100,14 @@ class LibraryManagerViewTest {
         verifyThat(
             "#fileList", ListViewMatchers.hasListCell(new MusicFile(Path.of("second.m4a"), 200))
         );
+    }
+
+    @Test
+    @DisplayName("FileメニューのRescanを選ぶと、ライブラリが再スキャンされる")
+    void selecting_rescan_menu_rescans_the_library(FxRobot robot) {
+        robot.clickOn("File").clickOn("Rescan");
+
+        assertTrue(rescanned.get());
     }
 
     @Test

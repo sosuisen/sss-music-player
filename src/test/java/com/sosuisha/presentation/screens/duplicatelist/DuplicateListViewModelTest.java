@@ -42,7 +42,9 @@ class DuplicateListViewModelTest {
                 new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
             ),
             new NullMusicPlayer(),
-            new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log"))
+            new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")),
+            _ -> {
+            }
         );
 
         viewModel.detect(() -> items);
@@ -66,7 +68,9 @@ class DuplicateListViewModelTest {
                 new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
             ),
             new NullMusicPlayer(),
-            new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log"))
+            new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")),
+            _ -> {
+            }
         );
         viewModel.detect(() -> List.of(item));
         viewModel.checkedProperty(item).set(true);
@@ -107,7 +111,9 @@ class DuplicateListViewModelTest {
                 new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
             ),
             new NullMusicPlayer(),
-            mover
+            mover,
+            _ -> {
+            }
         );
         viewModel.detect(() -> List.of(checked, unchecked));
         viewModel.checkedProperty(checked).set(true);
@@ -126,7 +132,9 @@ class DuplicateListViewModelTest {
         var viewModel = new DuplicateListViewModel(
             appModel,
             new NullMusicPlayer(),
-            new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log"))
+            new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")),
+            _ -> {
+            }
         );
         appModel.setFiles(
             List.of(
@@ -157,7 +165,9 @@ class DuplicateListViewModelTest {
             @Override
             public void moveDuplicates(List<DuplicatedItems> groups) {}
         };
-        var viewModel = new DuplicateListViewModel(appModel, new NullMusicPlayer(), mover);
+        var viewModel =
+            new DuplicateListViewModel(appModel, new NullMusicPlayer(), mover, _ -> {
+            });
 
         viewModel.removeCheckedDuplicates();
 

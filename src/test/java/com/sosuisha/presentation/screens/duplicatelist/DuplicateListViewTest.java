@@ -41,6 +41,7 @@ class DuplicateListViewTest {
     private AtomicReference<Path> playedPath;
     private AtomicBoolean stopped;
     private AtomicReference<List<DuplicatedItems>> movedGroups;
+    private AtomicReference<Path> openedFolder;
 
     @Start
     void setup(Stage stage) {
@@ -50,6 +51,7 @@ class DuplicateListViewTest {
         playedPath = new AtomicReference<>();
         stopped = new AtomicBoolean(false);
         movedGroups = new AtomicReference<>();
+        openedFolder = new AtomicReference<>();
         viewModel = new DuplicateListViewModel(appModel, new MusicPlayer() {
             @Override
             public void play(Path path) {
@@ -65,7 +67,7 @@ class DuplicateListViewTest {
             public void moveDuplicates(List<DuplicatedItems> groups) {
                 movedGroups.set(groups);
             }
-        });
+        }, folder -> openedFolder.set(folder));
         var view = new DuplicateListView(viewModel);
         stage.setScene(view.getScene());
         stage.setTitle(view.getTitle());
@@ -115,9 +117,26 @@ class DuplicateListViewTest {
         assertTrue(
             robot.from(panel).lookup(Path.of("a/first.mp3").toString()).tryQuery().isPresent()
         );
-        assertTrue(robot.from(panel).lookup("100").tryQuery().isPresent());
-        assertTrue(robot.from(panel).lookup("200").tryQuery().isPresent());
+        assertTrue(robot.from(panel).lookup("0.00 MB (100 bytes)").tryQuery().isPresent());
+        assertTrue(robot.from(panel).lookup("0.00 MB (200 bytes)").tryQuery().isPresent());
         assertEquals(2, robot.from(panel).lookup(".play-button").queryAll().size());
+    }
+
+    @Test
+    @DisplayName("詳細パネルのファイルサイズは、MB（小数点2桁）とバイト数で表示される")
+    void the_file_size_in_the_detailed_panel_is_shown_in_megabytes_and_bytes(FxRobot robot) {
+        var first = new DuplicatedItems(
+            "first.mp3",
+            List.of(new MusicFile(Path.of("a/first.mp3"), 1_290_000))
+        );
+        robot.interact(() -> viewModel.detect(() -> List.of(first)));
+
+        robot.clickOn("first.mp3");
+
+        var panel = robot.lookup("#detailedPanel").query();
+        assertTrue(
+            robot.from(panel).lookup("1.23 MB (1290000 bytes)").tryQuery().isPresent()
+        );
     }
 
     @Test
@@ -293,6 +312,21 @@ class DuplicateListViewTest {
 
         assertFalse(viewModel.checkedProperty(first).get());
         assertFalse(viewModel.checkedProperty(second).get());
+    }
+
+    @Test
+    @DisplayName("Open Folderボタンを押すと、その行のファイルのあるフォルダを開くよう要求される")
+    void clicking_the_open_folder_button_requests_to_open_the_folder_of_the_file(FxRobot robot) {
+        var first = new DuplicatedItems(
+            "first.mp3",
+            List.of(new MusicFile(Path.of("a/first.mp3"), 100))
+        );
+        robot.interact(() -> viewModel.detect(() -> List.of(first)));
+        robot.clickOn("first.mp3");
+
+        robot.clickOn(".open-folder-button");
+
+        assertEquals(Path.of("a"), openedFolder.get());
     }
 
     @Test

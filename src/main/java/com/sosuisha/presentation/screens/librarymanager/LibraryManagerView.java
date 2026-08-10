@@ -54,6 +54,10 @@ public class LibraryManagerView implements View {
                                 MenuBuilder
                                     .withItems(
                                         MenuItemBuilder.create()
+                                            .text("Rescan")
+                                            .onAction(_ -> viewModel.rescan())
+                                            .build(),
+                                        MenuItemBuilder.create()
                                             .text("Remove duplicate files...")
                                             .onAction(_ -> viewModel.openDuplicateListWindow())
                                             .build(),

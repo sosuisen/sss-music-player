@@ -16,6 +16,7 @@ import com.sosuisha.presentation.screens.librarymanager.LibraryManagerView;
 import com.sosuisha.presentation.screens.librarymanager.LibraryManagerViewModel;
 import com.sosuisha.presentation.screens.settings.SettingsView;
 import com.sosuisha.presentation.screens.settings.SettingsViewModel;
+import com.sosuisha.service.DesktopFolderOpener;
 import com.sosuisha.service.DuplicateFileMover;
 import com.sosuisha.service.LibraryScanner;
 import com.sosuisha.service.MediaMusicPlayer;
@@ -61,7 +62,8 @@ public class App extends Application {
                     new DuplicateFileMover(
                         settingsFolder.resolve("duplicates"),
                         settingsFolder.resolve("duplicates.log")
-                    )
+                    ),
+                    new DesktopFolderOpener()
                 )
             )
         );

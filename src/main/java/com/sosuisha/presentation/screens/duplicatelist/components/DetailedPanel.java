@@ -1,5 +1,6 @@
 package com.sosuisha.presentation.screens.duplicatelist.components;
 
+import java.util.Locale;
 import java.util.Objects;
 
 import com.sosuisha.domain.model.MusicFile;
@@ -8,6 +9,7 @@ import com.sosuisha.presentation.screens.duplicatelist.DuplicateListViewModel;
 import io.github.sosuisen.jfxbuilder.controls.ButtonBuilder;
 import io.github.sosuisen.jfxbuilder.controls.LabelBuilder;
 import io.github.sosuisen.jfxbuilder.controls.ListViewBuilder;
+import io.github.sosuisen.jfxbuilder.graphics.HBoxBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.Priority;
@@ -67,18 +69,28 @@ public class DetailedPanel {
                     .wrapText(true)
                     .build(),
                 LabelBuilder.create()
-                    .text(String.valueOf(item.size()))
+                    .text(formatSize(item.size()))
                     .build(),
-                ButtonBuilder.create()
-                    .textPropertyApply(
-                        text -> text.bind(
-                            viewModel.playingFileProperty()
-                                .map(playing -> item.equals(playing) ? "■" : "▶")
-                                .orElse("▶")
-                        )
+                HBoxBuilder
+                    .withChildren(
+                        ButtonBuilder.create()
+                            .textPropertyApply(
+                                text -> text.bind(
+                                    viewModel.playingFileProperty()
+                                        .map(playing -> item.equals(playing) ? "■" : "▶")
+                                        .orElse("▶")
+                                )
+                            )
+                            .addStyleClass("play-button")
+                            .onAction(_ -> viewModel.togglePlay(item))
+                            .build(),
+                        ButtonBuilder.create()
+                            .text("Open Folder")
+                            .addStyleClass("open-folder-button")
+                            .onAction(_ -> viewModel.openFolder(item))
+                            .build()
                     )
-                    .addStyleClass("play-button")
-                    .onAction(_ -> viewModel.togglePlay(item))
+                    .spacing(10)
                     .build()
             )
             .spacing(10)
@@ -86,5 +98,9 @@ public class DetailedPanel {
             .prefWidth(ROW_WIDTH)
             .maxWidth(ROW_WIDTH)
             .build();
+    }
+
+    private static String formatSize(long size) {
+        return String.format(Locale.ROOT, "%.2f MB (%d bytes)", size / (1024.0 * 1024.0), size);
     }
 }

@@ -6,6 +6,7 @@ import java.util.Objects;
 import com.sosuisha.domain.model.DuplicatedItems;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.service.DuplicateDetector;
+import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.service.FilenameDuplicateDetector;
 
@@ -19,23 +20,73 @@ import javafx.collections.ObservableList;
  */
 public class DuplicateListViewModel {
     private final MusicLibraryAppModel appModel;
+    private final MusicPlayer musicPlayer;
 
     private final ObservableList<DuplicatedItems> duplicatedItems =
         FXCollections.observableArrayList();
     private final ObjectProperty<DuplicatedItems> selectedItem = new SimpleObjectProperty<>();
     private final ObservableList<MusicFile> selectedFiles = FXCollections.observableArrayList();
+    private final ObjectProperty<MusicFile> playingFile = new SimpleObjectProperty<>();
 
     /**
      * Creates the view model.
      *
      * @param appModel application-wide state of the music library
-     * @throws NullPointerException if appModel is null
+     * @param musicPlayer player used to play audio files
+     * @throws NullPointerException if appModel or musicPlayer is null
      */
-    public DuplicateListViewModel(MusicLibraryAppModel appModel) {
+    public DuplicateListViewModel(MusicLibraryAppModel appModel, MusicPlayer musicPlayer) {
         this.appModel = Objects.requireNonNull(appModel, "appModel must not be null");
+        this.musicPlayer = Objects.requireNonNull(musicPlayer, "musicPlayer must not be null");
         selectedItem.subscribe(
             item -> selectedFiles.setAll(item == null ? List.of() : item.files())
         );
+    }
+
+    /**
+     * Plays the given audio file. The file becomes the playing file.
+     *
+     * @param file audio file to play
+     * @throws NullPointerException if file is null
+     */
+    public void play(MusicFile file) {
+        Objects.requireNonNull(file, "file must not be null");
+        musicPlayer.play(file.path());
+        playingFile.set(file);
+    }
+
+    /**
+     * Stops the audio file that is currently playing. No file is the playing
+     * file afterwards.
+     */
+    public void stop() {
+        musicPlayer.stop();
+        playingFile.set(null);
+    }
+
+    /**
+     * Plays the given audio file, or stops it when it is the playing file.
+     *
+     * @param file audio file to play or stop
+     * @throws NullPointerException if file is null
+     */
+    public void togglePlay(MusicFile file) {
+        Objects.requireNonNull(file, "file must not be null");
+        if (file.equals(playingFile.get())) {
+            stop();
+        } else {
+            play(file);
+        }
+    }
+
+    /**
+     * Returns the audio file that is currently playing, or null when nothing
+     * is playing.
+     *
+     * @return object property of the playing audio file
+     */
+    public ObjectProperty<MusicFile> playingFileProperty() {
+        return playingFile;
     }
 
     /**

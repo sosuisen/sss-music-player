@@ -17,6 +17,7 @@ import com.sosuisha.presentation.screens.librarymanager.LibraryManagerViewModel;
 import com.sosuisha.presentation.screens.settings.SettingsView;
 import com.sosuisha.presentation.screens.settings.SettingsViewModel;
 import com.sosuisha.service.LibraryScanner;
+import com.sosuisha.service.MediaMusicPlayer;
 import com.sosuisha.service.SettingsRepository;
 
 import javafx.application.Application;
@@ -51,7 +52,9 @@ public class App extends Application {
         var libraryManagerViewModel = new LibraryManagerViewModel(windowManager, musicLibAppModel);
         windowManager.registerView(new LibraryManagerView(libraryManagerViewModel));
         windowManager.registerView(
-            new DuplicateListView(new DuplicateListViewModel(musicLibAppModel))
+            new DuplicateListView(
+                new DuplicateListViewModel(musicLibAppModel, new MediaMusicPlayer())
+            )
         );
         windowManager.registerView(
             new SettingsView(new SettingsViewModel(settingsAppModel, App::chooseDirectory))

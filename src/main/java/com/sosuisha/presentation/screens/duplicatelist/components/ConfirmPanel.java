@@ -40,7 +40,11 @@ public class ConfirmPanel {
                         @Override
                         protected void updateItem(MusicFile item, boolean empty) {
                             super.updateItem(item, empty);
-                            setGraphic(empty || item == null ? null : buildConfirmRow(item));
+                            setGraphic(
+                                empty || item == null
+                                    ? null
+                                    : buildConfirmRow(viewModel, item)
+                            );
                         }
                     })
                     .vGrowInVBox(Priority.ALWAYS)
@@ -53,7 +57,7 @@ public class ConfirmPanel {
             .build();
     }
 
-    private static VBox buildConfirmRow(MusicFile item) {
+    private static VBox buildConfirmRow(DuplicateListViewModel viewModel, MusicFile item) {
         return VBoxBuilder
             .withChildren(
                 LabelBuilder.create()
@@ -64,8 +68,15 @@ public class ConfirmPanel {
                     .text(String.valueOf(item.size()))
                     .build(),
                 ButtonBuilder.create()
-                    .text("▶")
+                    .textPropertyApply(
+                        text -> text.bind(
+                            viewModel.playingFileProperty()
+                                .map(playing -> item.equals(playing) ? "■" : "▶")
+                                .orElse("▶")
+                        )
+                    )
                     .addStyleClass("play-button")
+                    .onAction(_ -> viewModel.togglePlay(item))
                     .build()
             )
             .spacing(10)

@@ -6,6 +6,8 @@ import static org.testfx.api.FxAssert.verifyThat;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,10 +16,12 @@ import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.base.NodeMatchers;
+import org.testfx.matcher.control.LabeledMatchers;
 import org.testfx.matcher.control.ListViewMatchers;
 
 import com.sosuisha.domain.model.DuplicatedItems;
 import com.sosuisha.domain.model.MusicFile;
+import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.service.LibraryScanner;
@@ -31,13 +35,27 @@ import javafx.stage.Stage;
 class DuplicateListViewTest {
     private MusicLibraryAppModel appModel;
     private DuplicateListViewModel viewModel;
+    private AtomicReference<Path> playedPath;
+    private AtomicBoolean stopped;
 
     @Start
     void setup(Stage stage) {
         appModel = new MusicLibraryAppModel(
             new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
         );
-        viewModel = new DuplicateListViewModel(appModel);
+        playedPath = new AtomicReference<>();
+        stopped = new AtomicBoolean(false);
+        viewModel = new DuplicateListViewModel(appModel, new MusicPlayer() {
+            @Override
+            public void play(Path path) {
+                playedPath.set(path);
+            }
+
+            @Override
+            public void stop() {
+                stopped.set(true);
+            }
+        });
         var view = new DuplicateListView(viewModel);
         stage.setScene(view.getScene());
         stage.setTitle(view.getTitle());
@@ -167,6 +185,54 @@ class DuplicateListViewTest {
         var panel = robot.lookup("#confirmPanel").query();
         var row = robot.from(panel).lookup(".confirm-row").queryAs(VBox.class);
         assertEquals(280, row.getWidth(), 0.001);
+    }
+
+    @Test
+    @DisplayName("再生ボタンを押すと、その行のファイルの再生がプレイヤーに要求される")
+    void clicking_the_play_button_requests_the_player_to_play_the_file_of_the_row(FxRobot robot) {
+        var first = new DuplicatedItems(
+            "first.mp3",
+            List.of(new MusicFile(Path.of("a/first.mp3"), 100))
+        );
+        robot.interact(() -> viewModel.detect(() -> List.of(first)));
+        robot.clickOn("first.mp3");
+
+        robot.clickOn(".play-button");
+
+        assertEquals(Path.of("a/first.mp3"), playedPath.get());
+    }
+
+    @Test
+    @DisplayName("再生ボタンを押すと、そのボタンの表示が停止（■）に変わる")
+    void clicking_the_play_button_changes_the_button_to_a_stop_button(FxRobot robot) {
+        var first = new DuplicatedItems(
+            "first.mp3",
+            List.of(new MusicFile(Path.of("a/first.mp3"), 100))
+        );
+        robot.interact(() -> viewModel.detect(() -> List.of(first)));
+        robot.clickOn("first.mp3");
+
+        robot.clickOn(".play-button");
+
+        verifyThat(".play-button", LabeledMatchers.hasText("■"));
+    }
+
+    @Test
+    @DisplayName("停止ボタン（■）を押すと、プレイヤーに停止が要求され、ボタンは▶に戻る")
+    void clicking_the_stop_button_requests_the_player_to_stop_and_the_button_returns_to_play(
+        FxRobot robot) {
+        var first = new DuplicatedItems(
+            "first.mp3",
+            List.of(new MusicFile(Path.of("a/first.mp3"), 100))
+        );
+        robot.interact(() -> viewModel.detect(() -> List.of(first)));
+        robot.clickOn("first.mp3");
+        robot.clickOn(".play-button");
+
+        robot.clickOn(".play-button");
+
+        assertTrue(stopped.get());
+        verifyThat(".play-button", LabeledMatchers.hasText("▶"));
     }
 
     @Test

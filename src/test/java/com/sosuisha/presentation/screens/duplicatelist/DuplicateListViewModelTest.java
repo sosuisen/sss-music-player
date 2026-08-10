@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sosuisha.domain.model.DuplicatedItems;
 import com.sosuisha.domain.model.MusicFile;
+import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.service.LibraryScanner;
@@ -34,7 +35,8 @@ class DuplicateListViewModelTest {
         var viewModel = new DuplicateListViewModel(
             new MusicLibraryAppModel(
                 new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
-            )
+            ),
+            new NullMusicPlayer()
         );
 
         viewModel.detect(() -> items);

@@ -18,6 +18,7 @@ import org.testfx.matcher.control.ListViewMatchers;
 
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.Settings;
+import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
@@ -46,7 +47,9 @@ class LibraryManagerViewTest {
         viewModel = new LibraryManagerViewModel(windowManager, appModel);
         var view = new LibraryManagerView(viewModel);
         windowManager.registerView(view);
-        windowManager.registerView(new DuplicateListView(new DuplicateListViewModel(appModel)));
+        windowManager.registerView(
+            new DuplicateListView(new DuplicateListViewModel(appModel, new NullMusicPlayer()))
+        );
         var settingsAppModel = new SettingsAppModel(new SettingsRepository());
         settingsAppModel.setSettings(new Settings(Path.of("music")));
         windowManager.registerView(

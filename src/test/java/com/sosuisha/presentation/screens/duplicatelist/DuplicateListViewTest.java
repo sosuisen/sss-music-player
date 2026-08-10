@@ -236,6 +236,46 @@ class DuplicateListViewTest {
     }
 
     @Test
+    @DisplayName("重複候補リストの各行には、チェックボックスが表示される")
+    void each_row_of_the_duplicate_list_has_a_check_box(FxRobot robot) {
+        var first = new DuplicatedItems(
+            "first.mp3",
+            List.of(
+                new MusicFile(Path.of("a/first.mp3"), 100),
+                new MusicFile(Path.of("b/first.mp3"), 100)
+            )
+        );
+        var second = new DuplicatedItems(
+            "second.m4a",
+            List.of(
+                new MusicFile(Path.of("c/second.m4a"), 200),
+                new MusicFile(Path.of("d/second.m4a"), 200)
+            )
+        );
+
+        robot.interact(() -> viewModel.detect(() -> List.of(first, second)));
+
+        var list = robot.lookup("#duplicateList").query();
+        assertEquals(2, robot.from(list).lookup(".check-box").queryAll().size());
+    }
+
+    @Test
+    @DisplayName("検索ボタンは、重複候補リストの上側に置かれる")
+    void the_find_buttons_are_placed_above_the_duplicate_list(FxRobot robot) {
+        var button = robot.lookup("#findByFilename").query();
+        var list = robot.lookup("#duplicateList").query();
+
+        // Layout bounds exclude decorations such as the focus ring, which
+        // extends past the button edge and does not matter for placement.
+        var buttonBottom = button.localToScene(button.getLayoutBounds()).getMaxY();
+        var listTop = list.localToScene(list.getLayoutBounds()).getMinY();
+        assertTrue(
+            buttonBottom <= listTop,
+            "buttonBottom=" + buttonBottom + ", listTop=" + listTop
+        );
+    }
+
+    @Test
     @DisplayName("ウィンドウの重複リストには各グループのタイトルが表示される")
     void window_shows_the_title_of_each_duplicated_group(FxRobot robot) {
         var first = new DuplicatedItems(
@@ -258,6 +298,37 @@ class DuplicateListViewTest {
         verifyThat("#duplicateList", ListViewMatchers.hasItems(2));
         verifyThat("first.mp3", NodeMatchers.isVisible());
         verifyThat("second.m4a", NodeMatchers.isVisible());
+    }
+
+    @Test
+    @DisplayName("Find by Filename and Sizeボタンを押すと、ファイル名とサイズが同じファイルのグループが一覧に表示される")
+    void clicking_find_by_filename_and_size_shows_groups_of_files_with_the_same_name_and_size(
+        FxRobot robot) {
+        robot.interact(
+            () -> appModel.setFiles(
+                List.of(
+                    new MusicFile(Path.of("a/dup.mp3"), 100),
+                    new MusicFile(Path.of("b/dup.mp3"), 100),
+                    new MusicFile(Path.of("c/dup.mp3"), 200)
+                )
+            )
+        );
+
+        robot.clickOn("#findByFilenameAndSize");
+
+        verifyThat("#duplicateList", ListViewMatchers.hasItems(1));
+        verifyThat(
+            "#duplicateList",
+            ListViewMatchers.hasListCell(
+                new DuplicatedItems(
+                    "dup.mp3",
+                    List.of(
+                        new MusicFile(Path.of("a/dup.mp3"), 100),
+                        new MusicFile(Path.of("b/dup.mp3"), 100)
+                    )
+                )
+            )
+        );
     }
 
     @Test

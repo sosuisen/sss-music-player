@@ -8,10 +8,12 @@ import com.sosuisha.presentation.screens.duplicatelist.components.ConfirmPanel;
 
 import io.github.sosuisen.jfxbuilder.controls.ButtonBuilder;
 import io.github.sosuisen.jfxbuilder.controls.SplitPaneBuilder;
+import io.github.sosuisen.jfxbuilder.graphics.HBoxBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.SceneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
 import javafx.scene.Scene;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 
 /**
  * View for the duplicate file list screen.
@@ -46,22 +48,37 @@ public class DuplicateListView implements View {
     private Scene buildSceneGraph() {
         return SceneBuilder
             .withRoot(
-                VBoxBuilder
+                SplitPaneBuilder
+                    .withItems(
+                        buildCandidatePane(),
+                        ConfirmPanel.getRoot(viewModel)
+                    )
+                    .build()
+            )
+            .build();
+    }
+
+    private VBox buildCandidatePane() {
+        var candidateList = CandidateList.getRoot(viewModel);
+        VBox.setVgrow(candidateList, Priority.ALWAYS);
+        return VBoxBuilder
+            .withChildren(
+                HBoxBuilder
                     .withChildren(
-                        SplitPaneBuilder
-                            .withItems(
-                                CandidateList.getRoot(viewModel),
-                                ConfirmPanel.getRoot(viewModel)
-                            )
-                            .vGrowInVBox(Priority.ALWAYS)
-                            .build(),
                         ButtonBuilder.create()
                             .text("Find by Filename")
                             .id("findByFilename")
                             .onAction(_ -> viewModel.detectByFilename())
+                            .build(),
+                        ButtonBuilder.create()
+                            .text("Find by Filename and Size")
+                            .id("findByFilenameAndSize")
+                            .onAction(_ -> viewModel.detectByFilenameAndSize())
                             .build()
                     )
-                    .build()
+                    .spacing(10)
+                    .build(),
+                candidateList
             )
             .build();
     }

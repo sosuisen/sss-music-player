@@ -1,6 +1,8 @@
 package com.sosuisha.presentation.screens.duplicatelist;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import com.sosuisha.domain.model.DuplicatedItems;
@@ -8,9 +10,12 @@ import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.service.DuplicateDetector;
 import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
+import com.sosuisha.service.FilenameAndSizeDuplicateDetector;
 import com.sosuisha.service.FilenameDuplicateDetector;
 
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -27,6 +32,7 @@ public class DuplicateListViewModel {
     private final ObjectProperty<DuplicatedItems> selectedItem = new SimpleObjectProperty<>();
     private final ObservableList<MusicFile> selectedFiles = FXCollections.observableArrayList();
     private final ObjectProperty<MusicFile> playingFile = new SimpleObjectProperty<>();
+    private final Map<DuplicatedItems, BooleanProperty> checkedItems = new HashMap<>();
 
     /**
      * Creates the view model.
@@ -90,6 +96,19 @@ public class DuplicateListViewModel {
     }
 
     /**
+     * Returns the checked state of the given duplicated group. The state is
+     * kept per group in this view model.
+     *
+     * @param item duplicated group
+     * @return boolean property of the checked state of the group
+     * @throws NullPointerException if item is null
+     */
+    public BooleanProperty checkedProperty(DuplicatedItems item) {
+        Objects.requireNonNull(item, "item must not be null");
+        return checkedItems.computeIfAbsent(item, _ -> new SimpleBooleanProperty(false));
+    }
+
+    /**
      * Returns the selected duplicated group. The files of the group are
      * published through {@link #getSelectedFiles()}.
      *
@@ -111,13 +130,15 @@ public class DuplicateListViewModel {
 
     /**
      * Calls the given detector and stores the detected duplicated items. The
-     * observable list instance is kept; its contents are replaced.
+     * observable list instance is kept; its contents are replaced. All checked
+     * states are cleared.
      *
      * @param detector duplicate detector to call
      * @throws NullPointerException if detector is null
      */
     public void detect(DuplicateDetector detector) {
         Objects.requireNonNull(detector, "detector must not be null");
+        checkedItems.clear();
         duplicatedItems.setAll(detector.detect());
     }
 
@@ -126,6 +147,13 @@ public class DuplicateListViewModel {
      */
     public void detectByFilename() {
         detect(new FilenameDuplicateDetector(appModel.getFiles()));
+    }
+
+    /**
+     * Detects duplicated files by file name and size and stores the result.
+     */
+    public void detectByFilenameAndSize() {
+        detect(new FilenameAndSizeDuplicateDetector(appModel.getFiles()));
     }
 
     /**

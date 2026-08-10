@@ -1,6 +1,7 @@
 package com.sosuisha.presentation.screens.duplicatelist;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 
 import java.nio.file.Path;
@@ -43,5 +44,29 @@ class DuplicateListViewModelTest {
 
         assertInstanceOf(ObservableList.class, viewModel.getDuplicatedItems());
         assertEquals(items, viewModel.getDuplicatedItems());
+    }
+
+    @Test
+    @DisplayName("detectを呼ぶと、チェック状態はすべてクリアされる")
+    void detect_clears_all_checked_states() {
+        var item = new DuplicatedItems(
+            "first.mp3",
+            List.of(
+                new MusicFile(Path.of("a/first.mp3"), 100),
+                new MusicFile(Path.of("b/first.mp3"), 100)
+            )
+        );
+        var viewModel = new DuplicateListViewModel(
+            new MusicLibraryAppModel(
+                new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
+            ),
+            new NullMusicPlayer()
+        );
+        viewModel.detect(() -> List.of(item));
+        viewModel.checkedProperty(item).set(true);
+
+        viewModel.detect(() -> List.of(item));
+
+        assertFalse(viewModel.checkedProperty(item).get());
     }
 }

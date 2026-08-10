@@ -83,6 +83,11 @@ public class DuplicateListView implements View {
                 HBoxBuilder
                     .withChildren(
                         ButtonBuilder.create()
+                            .text("Toggle all")
+                            .id("toggleAll")
+                            .onAction(_ -> viewModel.toggleAllChecks())
+                            .build(),
+                        ButtonBuilder.create()
                             .text("Remove checked duplicates")
                             .id("removeDuplicates")
                             .onAction(_ -> viewModel.removeCheckedDuplicates())
@@ -91,6 +96,7 @@ public class DuplicateListView implements View {
                             )
                             .build()
                     )
+                    .spacing(10)
                     .alignment(Pos.CENTER_RIGHT)
                     .build()
             )

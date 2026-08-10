@@ -155,6 +155,17 @@ public class DuplicateListViewModel {
         return anyChecked;
     }
 
+    /**
+     * Checks all duplicated groups, or unchecks all of them when at least one
+     * group is checked.
+     */
+    public void toggleAllChecks() {
+        var newValue = !anyChecked.get();
+        for (var item : duplicatedItems) {
+            checkedProperty(item).set(newValue);
+        }
+    }
+
     private void updateAnyChecked() {
         anyChecked.set(checkedItems.values().stream().anyMatch(BooleanProperty::get));
     }

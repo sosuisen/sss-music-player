@@ -345,6 +345,74 @@ class DuplicateListViewTest {
     }
 
     @Test
+    @DisplayName("Toggle allボタンは、Remove checked duplicatesボタンの左隣に置かれる")
+    void the_toggle_all_button_is_placed_to_the_left_of_the_remove_duplicates_button(
+        FxRobot robot) {
+        var toggleAll = robot.lookup("#toggleAll").query();
+        var remove = robot.lookup("#removeDuplicates").query();
+
+        var toggleAllRight = toggleAll.localToScene(toggleAll.getLayoutBounds()).getMaxX();
+        var removeLeft = remove.localToScene(remove.getLayoutBounds()).getMinX();
+        assertTrue(
+            toggleAllRight <= removeLeft,
+            "toggleAllRight=" + toggleAllRight + ", removeLeft=" + removeLeft
+        );
+    }
+
+    @Test
+    @DisplayName("チェックが1つもない状態でToggle allを押すと、すべてのグループがチェックされる")
+    void clicking_toggle_all_checks_all_groups_when_none_is_checked(FxRobot robot) {
+        var first = new DuplicatedItems(
+            "first.mp3",
+            List.of(
+                new MusicFile(Path.of("a/first.mp3"), 100),
+                new MusicFile(Path.of("b/first.mp3"), 100)
+            )
+        );
+        var second = new DuplicatedItems(
+            "second.m4a",
+            List.of(
+                new MusicFile(Path.of("c/second.m4a"), 200),
+                new MusicFile(Path.of("d/second.m4a"), 200)
+            )
+        );
+        robot.interact(() -> viewModel.detect(() -> List.of(first, second)));
+
+        robot.clickOn("#toggleAll");
+
+        assertTrue(viewModel.checkedProperty(first).get());
+        assertTrue(viewModel.checkedProperty(second).get());
+    }
+
+    @Test
+    @DisplayName("チェックが1つでもある状態でToggle allを押すと、すべてのグループのチェックが外れる")
+    void clicking_toggle_all_unchecks_all_groups_when_any_is_checked(FxRobot robot) {
+        var first = new DuplicatedItems(
+            "first.mp3",
+            List.of(
+                new MusicFile(Path.of("a/first.mp3"), 100),
+                new MusicFile(Path.of("b/first.mp3"), 100)
+            )
+        );
+        var second = new DuplicatedItems(
+            "second.m4a",
+            List.of(
+                new MusicFile(Path.of("c/second.m4a"), 200),
+                new MusicFile(Path.of("d/second.m4a"), 200)
+            )
+        );
+        robot.interact(() -> {
+            viewModel.detect(() -> List.of(first, second));
+            viewModel.checkedProperty(first).set(true);
+        });
+
+        robot.clickOn("#toggleAll");
+
+        assertFalse(viewModel.checkedProperty(first).get());
+        assertFalse(viewModel.checkedProperty(second).get());
+    }
+
+    @Test
     @DisplayName("ウィンドウの重複リストには各グループのタイトルが表示される")
     void window_shows_the_title_of_each_duplicated_group(FxRobot robot) {
         var first = new DuplicatedItems(

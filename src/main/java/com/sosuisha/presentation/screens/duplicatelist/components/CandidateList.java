@@ -47,8 +47,8 @@ public class CandidateList {
                 )
             )
             .apply(
-                listView -> viewModel.selectedItemProperty()
-                    .bind(listView.getSelectionModel().selectedItemProperty())
+                listView -> listView.getSelectionModel().selectedItemProperty()
+                    .subscribe(item -> viewModel.select(item))
             )
             .build();
     }

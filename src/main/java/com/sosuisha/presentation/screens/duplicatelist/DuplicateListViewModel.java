@@ -187,13 +187,13 @@ public class DuplicateListViewModel {
     }
 
     /**
-     * Returns the selected duplicated group. The files of the group are
-     * published through {@link #getSelectedFiles()}.
+     * Selects the given duplicated group. The files of the group are published
+     * through {@link #getSelectedFiles()}.
      *
-     * @return object property of the selected duplicated group
+     * @param item duplicated group to select, or null to clear the selection
      */
-    public ObjectProperty<DuplicatedItems> selectedItemProperty() {
-        return selectedItem;
+    public void select(DuplicatedItems item) {
+        selectedItem.set(item);
     }
 
     /**

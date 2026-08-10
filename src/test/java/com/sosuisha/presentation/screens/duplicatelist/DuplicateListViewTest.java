@@ -16,6 +16,7 @@ import org.testfx.matcher.control.ListViewMatchers;
 
 import com.sosuisha.domain.model.DuplicatedItems;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
+import com.sosuisha.service.LibraryScanner;
 
 import javafx.stage.Stage;
 
@@ -26,7 +27,7 @@ class DuplicateListViewTest {
 
     @Start
     void setup(Stage stage) {
-        appModel = new MusicLibraryAppModel();
+        appModel = new MusicLibraryAppModel(new LibraryScanner());
         viewModel = new DuplicateListViewModel(appModel);
         var view = new DuplicateListView(viewModel);
         stage.setScene(view.getScene());

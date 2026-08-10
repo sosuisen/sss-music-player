@@ -24,6 +24,7 @@ import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListViewModel;
 import com.sosuisha.presentation.screens.settings.SettingsView;
 import com.sosuisha.presentation.screens.settings.SettingsViewModel;
+import com.sosuisha.service.LibraryScanner;
 import com.sosuisha.service.SettingsRepository;
 
 import javafx.stage.Modality;
@@ -38,7 +39,7 @@ class LibraryManagerViewTest {
     void setup(Stage stage) {
         this.stage = stage;
         var windowManager = new WindowManager();
-        var appModel = new MusicLibraryAppModel();
+        var appModel = new MusicLibraryAppModel(new LibraryScanner());
         viewModel = new LibraryManagerViewModel(windowManager, appModel);
         var view = new LibraryManagerView(viewModel);
         windowManager.registerView(view);

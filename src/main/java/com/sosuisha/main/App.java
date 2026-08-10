@@ -3,7 +3,6 @@ package com.sosuisha.main;
 import java.io.File;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -17,6 +16,7 @@ import com.sosuisha.presentation.screens.librarymanager.LibraryManagerView;
 import com.sosuisha.presentation.screens.librarymanager.LibraryManagerViewModel;
 import com.sosuisha.presentation.screens.settings.SettingsView;
 import com.sosuisha.presentation.screens.settings.SettingsViewModel;
+import com.sosuisha.service.LibraryScanner;
 import com.sosuisha.service.SettingsRepository;
 
 import javafx.application.Application;
@@ -44,21 +44,13 @@ public class App extends Application {
     public void start(Stage stage) {
         Objects.requireNonNull(stage, "stage must not be null");
         var windowManager = new WindowManager();
-        var appModel = new MusicLibraryAppModel();
+        var appModel = new MusicLibraryAppModel(new LibraryScanner());
         var viewModel = new LibraryManagerViewModel(windowManager, appModel);
-        // Dummy data for development until the library scan is wired up.
-        // The same file name appears in two folders to exercise duplicate detection.
-        appModel.setFiles(
-            List.of(
-                Path.of("a/dummy1.mp3"),
-                Path.of("b/dummy1.mp3"),
-                Path.of("dummy2.m4a")
-            )
-        );
         windowManager.registerView(new LibraryManagerView(viewModel));
         windowManager.registerView(new DuplicateListView(new DuplicateListViewModel(appModel)));
         var settingsAppModel = new SettingsAppModel(new SettingsRepository());
         var loadedSettings = settingsAppModel.loadSettings();
+        loadedSettings.ifPresent(settings -> appModel.scanFolder(settings.musicLibraryPath()));
         windowManager.registerView(
             new SettingsView(new SettingsViewModel(settingsAppModel, App::chooseDirectory))
         );

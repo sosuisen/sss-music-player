@@ -12,6 +12,7 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListViewModel;
+import com.sosuisha.service.LibraryScanner;
 
 import javafx.stage.Stage;
 
@@ -21,7 +22,9 @@ class WindowManagerTest {
     @DisplayName("登録したDuplicateListViewをクラス指定で取得できる")
     void returns_registered_duplicate_list_view_by_its_class() {
         var windowManager = new WindowManager();
-        var view = new DuplicateListView(new DuplicateListViewModel(new MusicLibraryAppModel()));
+        var view = new DuplicateListView(
+            new DuplicateListViewModel(new MusicLibraryAppModel(new LibraryScanner()))
+        );
 
         windowManager.registerView(view);
 
@@ -32,7 +35,9 @@ class WindowManagerTest {
     @DisplayName("showWindowすると、DuplicateListViewのウィンドウがタイトルDuplicate Filesで表示される")
     void show_window_displays_the_duplicate_list_view_window(FxRobot robot) {
         var windowManager = new WindowManager();
-        var view = new DuplicateListView(new DuplicateListViewModel(new MusicLibraryAppModel()));
+        var view = new DuplicateListView(
+            new DuplicateListViewModel(new MusicLibraryAppModel(new LibraryScanner()))
+        );
         windowManager.registerView(view);
 
         robot.interact(() -> windowManager.showWindow(DuplicateListView.class, new Stage()));

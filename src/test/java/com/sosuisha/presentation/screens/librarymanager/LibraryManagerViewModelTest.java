@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
+import com.sosuisha.service.LibraryScanner;
 
 import javafx.collections.ObservableList;
 
@@ -20,7 +21,9 @@ class LibraryManagerViewModelTest {
     @DisplayName("受け取った初期リストをObservableListに格納する")
     void stores_received_initial_list_in_observable_list() {
         var viewModel =
-            new LibraryManagerViewModel(new WindowManager(), new MusicLibraryAppModel());
+            new LibraryManagerViewModel(
+                new WindowManager(), new MusicLibraryAppModel(new LibraryScanner())
+            );
         var files = List.of(Path.of("first.mp3"), Path.of("second.m4a"));
 
         viewModel.setFiles(files);
@@ -32,7 +35,7 @@ class LibraryManagerViewModelTest {
     @Test
     @DisplayName("AppModelのファイルリストをそのまま返す")
     void returns_the_file_list_of_the_app_model() {
-        var appModel = new MusicLibraryAppModel();
+        var appModel = new MusicLibraryAppModel(new LibraryScanner());
         var viewModel = new LibraryManagerViewModel(new WindowManager(), appModel);
 
         assertSame(appModel.getFiles(), viewModel.getFiles());

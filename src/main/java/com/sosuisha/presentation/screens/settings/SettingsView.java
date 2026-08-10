@@ -6,10 +6,13 @@ import com.sosuisha.presentation.View;
 
 import io.github.sosuisen.jfxbuilder.controls.ButtonBuilder;
 import io.github.sosuisen.jfxbuilder.controls.LabelBuilder;
+import io.github.sosuisen.jfxbuilder.graphics.ColumnConstraintsBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.GridPaneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.SceneBuilder;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 
 /**
  * View for the settings screen.
@@ -50,6 +53,10 @@ public class SettingsView implements View {
                     .hgap(10)
                     .vgap(10)
                     .padding(new Insets(10))
+                    .addColumnConstraints(
+                        ColumnConstraintsBuilder.create().build(),
+                        ColumnConstraintsBuilder.create().hgrow(Priority.ALWAYS).build()
+                    )
                     .addRow(
                         0,
                         LabelBuilder.create()
@@ -65,6 +72,16 @@ public class SettingsView implements View {
                             .text("Select folder...")
                             .id("selectFolder")
                             .onAction(_ -> viewModel.selectMusicLibraryFolder(scene.getWindow()))
+                            .build()
+                    )
+                    .addRow(
+                        1,
+                        LabelBuilder.create()
+                            .textPropertyApply(
+                                text -> text.bind(viewModel.errorMessageProperty())
+                            )
+                            .id("errorMessage")
+                            .columnSpanInGridPane(GridPane.REMAINING)
                             .build()
                     )
                     .build(),

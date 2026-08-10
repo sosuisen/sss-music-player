@@ -3,6 +3,7 @@ package com.sosuisha.presentation.screens.settings;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.testfx.api.FxAssert.verifyThat;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Optional;
 
@@ -20,6 +21,9 @@ import com.sosuisha.domain.model.Settings;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.service.SettingsRepository;
 
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 @ExtendWith(ApplicationExtension.class)
@@ -28,9 +32,11 @@ class SettingsViewTest {
     Path folder;
 
     private SettingsAppModel appModel;
+    private Stage stage;
 
     @Start
     void setup(Stage stage) {
+        this.stage = stage;
         System.setProperty(
             "sss.settings.file",
             folder.resolve("settings.properties").toString()
@@ -62,6 +68,37 @@ class SettingsViewTest {
         robot.interact(() -> appModel.setSettings(new Settings(Path.of("changed"))));
 
         verifyThat("#musicLibraryPath", LabeledMatchers.hasText("changed"));
+    }
+
+    @Test
+    @DisplayName("エラーが発生すると、設定ウィンドウにエラーメッセージが表示される")
+    void the_error_message_is_shown_in_the_settings_window_when_an_error_occurs(FxRobot robot) {
+        robot.interact(() -> appModel.errorProperty().set(new IOException("read-only-path")));
+
+        verifyThat(
+            "#errorMessage",
+            LabeledMatchers.hasText("Failed to save the settings file: read-only-path")
+        );
+    }
+
+    @Test
+    @DisplayName("エラーラベルのcolumnSpanは行の残り全列である")
+    void the_column_span_of_the_error_label_is_all_the_remaining_columns(FxRobot robot) {
+        var errorLabel = robot.lookup("#errorMessage").queryAs(Label.class);
+
+        assertEquals(Integer.valueOf(GridPane.REMAINING), GridPane.getColumnSpan(errorLabel));
+    }
+
+    @Test
+    @DisplayName("ウィンドウの幅を広げると、広がった分は音楽ライブラリのパスの列が受け取る")
+    void the_music_library_path_column_takes_all_the_extra_width_when_the_window_gets_wider(
+        FxRobot robot) {
+        var button = robot.lookup("#selectFolder").queryAs(Button.class);
+        var buttonXBefore = button.getLayoutX();
+
+        robot.interact(() -> stage.setWidth(stage.getWidth() + 200));
+
+        assertEquals(buttonXBefore + 200, button.getLayoutX(), 0.001);
     }
 
     @Test

@@ -3,6 +3,7 @@ package com.sosuisha.presentation.screens.settings;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -57,5 +58,18 @@ class SettingsViewModelTest {
 
         assertEquals(new Settings(Path.of("music")), appModel.getSettings());
         assertFalse(Files.exists(folder.resolve("settings.properties")));
+    }
+
+    @Test
+    @DisplayName("エラーのとき、エラーメッセージは保存失敗の説明に例外のメッセージを続けたものである")
+    void the_error_message_is_the_failed_to_save_text_followed_by_the_exception_message() {
+        var appModel = new SettingsAppModel(new SettingsRepository());
+        var viewModel = new SettingsViewModel(appModel, _ -> Optional.empty());
+        appModel.errorProperty().set(new IOException("C:\\somewhere\\settings.properties"));
+
+        assertEquals(
+            "Failed to save the settings file: C:\\somewhere\\settings.properties",
+            viewModel.errorMessageProperty().getValue()
+        );
     }
 }

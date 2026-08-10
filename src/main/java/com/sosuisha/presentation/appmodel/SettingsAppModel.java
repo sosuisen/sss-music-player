@@ -17,6 +17,7 @@ import javafx.beans.property.SimpleObjectProperty;
  */
 public class SettingsAppModel {
     private final ObjectProperty<Settings> settings = new SimpleObjectProperty<>();
+    private final ObjectProperty<Throwable> error = new SimpleObjectProperty<>();
     private final SettingsRepository repository;
 
     /**
@@ -78,18 +79,30 @@ public class SettingsAppModel {
     }
 
     /**
-     * Sets the given settings and saves them to the settings file.
+     * Sets the given settings and saves them to the settings file. When the
+     * settings file cannot be written, the error is set to the error property;
+     * when it is saved, the error property is cleared.
      *
      * @param settings settings to save
      * @throws NullPointerException if settings is null
-     * @throws UncheckedIOException if the settings file cannot be written
      */
     public void saveSettings(Settings settings) {
         setSettings(settings);
         try {
             repository.save(settings);
+            error.set(null);
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            error.set(e);
         }
+    }
+
+    /**
+     * Returns the error property. It holds the latest error of a settings
+     * service call, or null when no error has occurred.
+     *
+     * @return object property of the error
+     */
+    public ObjectProperty<Throwable> errorProperty() {
+        return error;
     }
 }

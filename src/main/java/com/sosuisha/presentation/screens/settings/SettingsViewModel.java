@@ -46,6 +46,19 @@ public class SettingsViewModel {
     }
 
     /**
+     * Returns the error message as an observable string. The value follows the
+     * error of the app model, and is an empty string when no error has
+     * occurred.
+     *
+     * @return observable string of the error message
+     */
+    public ObservableValue<String> errorMessageProperty() {
+        return appModel.errorProperty()
+            .map(error -> "Failed to save the settings file: " + error.getMessage())
+            .orElse("");
+    }
+
+    /**
      * Lets the user choose the music library folder and saves the chosen path
      * to the settings. Does nothing when the user cancels.
      *

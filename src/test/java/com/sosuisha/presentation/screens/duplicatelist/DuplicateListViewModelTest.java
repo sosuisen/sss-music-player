@@ -10,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.sosuisha.domain.model.DuplicatedItems;
+import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.service.LibraryScanner;
@@ -24,7 +25,10 @@ class DuplicateListViewModelTest {
         var items = List.of(
             new DuplicatedItems(
                 "first.mp3",
-                List.of(Path.of("a/first.mp3"), Path.of("b/first.mp3"))
+                List.of(
+                    new MusicFile(Path.of("a/first.mp3"), 100),
+                    new MusicFile(Path.of("b/first.mp3"), 100)
+                )
             )
         );
         var viewModel = new DuplicateListViewModel(

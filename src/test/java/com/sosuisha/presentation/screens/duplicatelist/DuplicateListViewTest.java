@@ -1,5 +1,7 @@
 package com.sosuisha.presentation.screens.duplicatelist;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testfx.api.FxAssert.verifyThat;
 
 import java.nio.file.Path;
@@ -21,6 +23,8 @@ import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.service.LibraryScanner;
 import com.sosuisha.service.SettingsRepository;
 
+import javafx.scene.control.Label;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 @ExtendWith(ApplicationExtension.class)
@@ -41,15 +45,146 @@ class DuplicateListViewTest {
     }
 
     @Test
+    @DisplayName("重複確認パネルは、重複候補リストの右側に置かれる")
+    void the_confirm_panel_is_placed_to_the_right_of_the_duplicate_list(FxRobot robot) {
+        var list = robot.lookup("#duplicateList").query();
+        var panel = robot.lookup("#confirmPanel").query();
+
+        var listRightEdge = list.localToScene(list.getBoundsInLocal()).getMaxX();
+        var panelLeftEdge = panel.localToScene(panel.getBoundsInLocal()).getMinX();
+        assertTrue(panelLeftEdge >= listRightEdge);
+    }
+
+    @Test
+    @DisplayName("重複候補リストの項目を選択すると、右のパネルに選択したグループのファイルパスが表示される")
+    void selecting_an_item_in_the_duplicate_list_shows_the_paths_of_the_group_in_the_confirm_panel(
+        FxRobot robot) {
+        var first = new DuplicatedItems(
+            "first.mp3",
+            List.of(
+                new MusicFile(Path.of("a/first.mp3"), 100),
+                new MusicFile(Path.of("b/first.mp3"), 100)
+            )
+        );
+        robot.interact(() -> viewModel.detect(() -> List.of(first)));
+
+        robot.clickOn("first.mp3");
+
+        var panel = robot.lookup("#confirmPanel").query();
+        assertTrue(
+            robot.from(panel).lookup(Path.of("a/first.mp3").toString()).tryQuery().isPresent()
+        );
+        assertTrue(
+            robot.from(panel).lookup(Path.of("b/first.mp3").toString()).tryQuery().isPresent()
+        );
+    }
+
+    @Test
+    @DisplayName("重複確認パネルの各行には、ファイルパスとサイズと再生ボタンが表示される")
+    void each_row_of_the_confirm_panel_shows_the_file_path_the_size_and_a_play_button(
+        FxRobot robot) {
+        var first = new DuplicatedItems(
+            "first.mp3",
+            List.of(
+                new MusicFile(Path.of("a/first.mp3"), 100),
+                new MusicFile(Path.of("b/first.mp3"), 200)
+            )
+        );
+        robot.interact(() -> viewModel.detect(() -> List.of(first)));
+
+        robot.clickOn("first.mp3");
+
+        var panel = robot.lookup("#confirmPanel").query();
+        assertTrue(
+            robot.from(panel).lookup(Path.of("a/first.mp3").toString()).tryQuery().isPresent()
+        );
+        assertTrue(robot.from(panel).lookup("100").tryQuery().isPresent());
+        assertTrue(robot.from(panel).lookup("200").tryQuery().isPresent());
+        assertEquals(2, robot.from(panel).lookup(".play-button").queryAll().size());
+    }
+
+    @Test
+    @DisplayName("重複確認パネルの行の中では、ファイルパス、サイズ、再生ボタンが縦に並ぶ")
+    void the_file_path_the_size_and_the_play_button_are_stacked_vertically_in_a_confirm_panel_row(
+        FxRobot robot) {
+        var first = new DuplicatedItems(
+            "first.mp3",
+            List.of(new MusicFile(Path.of("a/first.mp3"), 100))
+        );
+        robot.interact(() -> viewModel.detect(() -> List.of(first)));
+
+        robot.clickOn("first.mp3");
+
+        var panel = robot.lookup("#confirmPanel").query();
+        var path = robot.from(panel).lookup(Path.of("a/first.mp3").toString()).query();
+        var size = robot.from(panel).lookup("100").query();
+        var play = robot.from(panel).lookup(".play-button").query();
+        var pathBottom = path.localToScene(path.getBoundsInLocal()).getMaxY();
+        var sizeTop = size.localToScene(size.getBoundsInLocal()).getMinY();
+        var sizeBottom = size.localToScene(size.getBoundsInLocal()).getMaxY();
+        var playTop = play.localToScene(play.getBoundsInLocal()).getMinY();
+        assertTrue(pathBottom <= sizeTop);
+        assertTrue(sizeBottom <= playTop);
+    }
+
+    @Test
+    @DisplayName("重複確認パネルのファイルパスのラベルは、折り返しが有効である")
+    void the_file_path_label_in_the_confirm_panel_wraps_its_text(FxRobot robot) {
+        var first = new DuplicatedItems(
+            "first.mp3",
+            List.of(new MusicFile(Path.of("a/first.mp3"), 100))
+        );
+        robot.interact(() -> viewModel.detect(() -> List.of(first)));
+
+        robot.clickOn("first.mp3");
+
+        var panel = robot.lookup("#confirmPanel").query();
+        var path = robot.from(panel)
+            .lookup(Path.of("a/first.mp3").toString())
+            .queryAs(Label.class);
+        assertTrue(path.isWrapText());
+    }
+
+    @Test
+    @DisplayName("重複確認パネルの幅は300である")
+    void the_width_of_the_confirm_panel_is_300(FxRobot robot) {
+        var panel = robot.lookup("#confirmPanel").queryAs(VBox.class);
+
+        assertEquals(300, panel.getWidth(), 0.001);
+    }
+
+    @Test
+    @DisplayName("重複確認パネルの行の幅は280である")
+    void the_width_of_a_confirm_panel_row_is_280(FxRobot robot) {
+        var first = new DuplicatedItems(
+            "first.mp3",
+            List.of(new MusicFile(Path.of("a/first.mp3"), 100))
+        );
+        robot.interact(() -> viewModel.detect(() -> List.of(first)));
+
+        robot.clickOn("first.mp3");
+
+        var panel = robot.lookup("#confirmPanel").query();
+        var row = robot.from(panel).lookup(".confirm-row").queryAs(VBox.class);
+        assertEquals(280, row.getWidth(), 0.001);
+    }
+
+    @Test
     @DisplayName("ウィンドウの重複リストには各グループのタイトルが表示される")
     void window_shows_the_title_of_each_duplicated_group(FxRobot robot) {
         var first = new DuplicatedItems(
             "first.mp3",
-            List.of(Path.of("a/first.mp3"), Path.of("b/first.mp3"))
+            List.of(
+                new MusicFile(Path.of("a/first.mp3"), 100),
+                new MusicFile(Path.of("b/first.mp3"), 100)
+            )
         );
         var second = new DuplicatedItems(
             "second.m4a",
-            List.of(Path.of("c/second.m4a"), Path.of("d/second.m4a"))
+            List.of(
+                new MusicFile(Path.of("c/second.m4a"), 200),
+                new MusicFile(Path.of("d/second.m4a"), 200)
+            )
         );
 
         robot.interact(() -> viewModel.detect(() -> List.of(first, second)));
@@ -77,7 +212,13 @@ class DuplicateListViewTest {
         verifyThat("#duplicateList", ListViewMatchers.hasItems(1));
         verifyThat(
             "#duplicateList", ListViewMatchers.hasListCell(
-                new DuplicatedItems("dup.mp3", List.of(Path.of("a/dup.mp3"), Path.of("b/dup.mp3")))
+                new DuplicatedItems(
+                    "dup.mp3",
+                    List.of(
+                        new MusicFile(Path.of("a/dup.mp3"), 100),
+                        new MusicFile(Path.of("b/dup.mp3"), 100)
+                    )
+                )
             )
         );
     }

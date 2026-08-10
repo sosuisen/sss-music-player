@@ -1,13 +1,16 @@
 package com.sosuisha.presentation.screens.duplicatelist;
 
+import java.util.List;
 import java.util.Objects;
 
-
 import com.sosuisha.domain.model.DuplicatedItems;
+import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.service.DuplicateDetector;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.service.FilenameDuplicateDetector;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -19,6 +22,8 @@ public class DuplicateListViewModel {
 
     private final ObservableList<DuplicatedItems> duplicatedItems =
         FXCollections.observableArrayList();
+    private final ObjectProperty<DuplicatedItems> selectedItem = new SimpleObjectProperty<>();
+    private final ObservableList<MusicFile> selectedFiles = FXCollections.observableArrayList();
 
     /**
      * Creates the view model.
@@ -28,6 +33,29 @@ public class DuplicateListViewModel {
      */
     public DuplicateListViewModel(MusicLibraryAppModel appModel) {
         this.appModel = Objects.requireNonNull(appModel, "appModel must not be null");
+        selectedItem.subscribe(
+            item -> selectedFiles.setAll(item == null ? List.of() : item.files())
+        );
+    }
+
+    /**
+     * Returns the selected duplicated group. The files of the group are
+     * published through {@link #getSelectedFiles()}.
+     *
+     * @return object property of the selected duplicated group
+     */
+    public ObjectProperty<DuplicatedItems> selectedItemProperty() {
+        return selectedItem;
+    }
+
+    /**
+     * Returns the files of the selected duplicated group. The list is empty
+     * when no group is selected.
+     *
+     * @return observable list of the files of the selected group
+     */
+    public ObservableList<MusicFile> getSelectedFiles() {
+        return selectedFiles;
     }
 
     /**

@@ -38,7 +38,7 @@ public class FilenameDuplicateDetector implements DuplicateDetector {
                 Collectors.groupingBy(
                     file -> file.path().getFileName().toString(),
                     LinkedHashMap::new,
-                    Collectors.mapping(MusicFile::path, Collectors.toList())
+                    Collectors.toList()
                 )
             );
         return groups.entrySet().stream()

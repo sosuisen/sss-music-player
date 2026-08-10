@@ -16,6 +16,7 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.ListViewMatchers;
 
+import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
@@ -66,12 +67,19 @@ class LibraryManagerViewTest {
     @Test
     @DisplayName("ウィンドウにファイルリストが表示される")
     void window_shows_the_file_list(FxRobot robot) {
-        var files = List.of(Path.of("first.mp3"), Path.of("second.m4a"));
+        var files = List.of(
+            new MusicFile(Path.of("first.mp3"), 100),
+            new MusicFile(Path.of("second.m4a"), 200)
+        );
         robot.interact(() -> viewModel.setFiles(files));
 
         verifyThat("#fileList", ListViewMatchers.hasItems(2));
-        verifyThat("#fileList", ListViewMatchers.hasListCell(Path.of("first.mp3")));
-        verifyThat("#fileList", ListViewMatchers.hasListCell(Path.of("second.m4a")));
+        verifyThat(
+            "#fileList", ListViewMatchers.hasListCell(new MusicFile(Path.of("first.mp3"), 100))
+        );
+        verifyThat(
+            "#fileList", ListViewMatchers.hasListCell(new MusicFile(Path.of("second.m4a"), 200))
+        );
     }
 
     @Test

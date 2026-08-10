@@ -1,27 +1,27 @@
 package com.sosuisha.service;
 
-import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.sosuisha.domain.model.DuplicatedItems;
+import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.service.DuplicateDetector;
 
 /**
  * Detects duplicated files by their file name.
  */
 public class FilenameDuplicateDetector implements DuplicateDetector {
-    private final List<Path> files;
+    private final List<MusicFile> files;
 
     /**
      * Creates the detector.
      *
-     * @param files paths of the files to examine
+     * @param files files to examine
      * @throws NullPointerException if files is null
      */
-    public FilenameDuplicateDetector(List<Path> files) {
+    public FilenameDuplicateDetector(List<MusicFile> files) {
         this.files = Objects.requireNonNull(files, "files must not be null");
     }
 
@@ -36,9 +36,9 @@ public class FilenameDuplicateDetector implements DuplicateDetector {
         var groups = files.stream()
             .collect(
                 Collectors.groupingBy(
-                    path -> path.getFileName().toString(),
+                    file -> file.path().getFileName().toString(),
                     LinkedHashMap::new,
-                    Collectors.toList()
+                    Collectors.mapping(MusicFile::path, Collectors.toList())
                 )
             );
         return groups.entrySet().stream()

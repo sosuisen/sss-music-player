@@ -10,6 +10,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import com.sosuisha.domain.model.MusicFile;
+
 class LibraryScannerTest {
     @TempDir
     Path folder;
@@ -23,9 +25,12 @@ class LibraryScannerTest {
         var third = Files.createFile(sub.resolve("third.mp3"));
 
         var scanner = new LibraryScanner();
-        List<Path> paths = scanner.scan(folder);
+        var musicFiles = scanner.scan(folder);
 
-        assertEquals(List.of(first, third), paths.stream().sorted().toList());
+        assertEquals(
+            List.of(first, third),
+            musicFiles.stream().map(MusicFile::path).sorted().toList()
+        );
     }
 
     @Test
@@ -34,9 +39,9 @@ class LibraryScannerTest {
         var upper = Files.createFile(folder.resolve("fourth.MP3"));
 
         var scanner = new LibraryScanner();
-        List<Path> paths = scanner.scan(folder);
+        var musicFiles = scanner.scan(folder);
 
-        assertEquals(List.of(upper), paths);
+        assertEquals(List.of(upper), musicFiles.stream().map(MusicFile::path).toList());
     }
 
     @Test
@@ -45,9 +50,9 @@ class LibraryScannerTest {
         var mp3 = Files.createFile(folder.resolve("first.mp3"));
 
         var scanner = new LibraryScanner();
-        List<Path> paths = scanner.scan(folder);
+        var musicFiles = scanner.scan(folder);
 
-        assertEquals(List.of(mp3), paths);
+        assertEquals(List.of(mp3), musicFiles.stream().map(MusicFile::path).toList());
     }
 
     @Test
@@ -56,8 +61,20 @@ class LibraryScannerTest {
         var m4a = Files.createFile(folder.resolve("fifth.m4a"));
 
         var scanner = new LibraryScanner();
-        List<Path> paths = scanner.scan(folder);
+        var musicFiles = scanner.scan(folder);
 
-        assertEquals(List.of(m4a), paths);
+        assertEquals(List.of(m4a), musicFiles.stream().map(MusicFile::path).toList());
+    }
+
+    @Test
+    @DisplayName("走査結果の各ファイルは、そのファイルサイズを持つ")
+    void each_scanned_file_has_its_file_size() throws Exception {
+        var file = folder.resolve("first.mp3");
+        Files.write(file, new byte[123]);
+
+        var scanner = new LibraryScanner();
+        List<MusicFile> musicFiles = scanner.scan(folder);
+
+        assertEquals(List.of(new MusicFile(file, 123)), musicFiles);
     }
 }

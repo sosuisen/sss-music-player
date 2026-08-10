@@ -1,9 +1,9 @@
 package com.sosuisha.presentation.screens.librarymanager;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
+import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
@@ -55,19 +55,19 @@ public class LibraryManagerViewModel {
     /**
      * Sets the list of audio files in the library.
      *
-     * @param files list of audio file paths
+     * @param files list of audio files
      * @throws NullPointerException if files is null
      */
-    public void setFiles(List<Path> files) {
+    public void setFiles(List<MusicFile> files) {
         appModel.setFiles(files);
     }
 
     /**
      * Returns the list of audio files in the library.
      *
-     * @return observable list of audio file paths
+     * @return observable list of audio files
      */
-    public ObservableList<Path> getFiles() {
+    public ObservableList<MusicFile> getFiles() {
         return appModel.getFiles();
     }
 }

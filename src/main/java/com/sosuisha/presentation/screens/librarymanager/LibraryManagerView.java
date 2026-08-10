@@ -2,6 +2,7 @@ package com.sosuisha.presentation.screens.librarymanager;
 
 import java.util.Objects;
 
+import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.presentation.View;
 
 import io.github.sosuisen.jfxbuilder.controls.ListViewBuilder;
@@ -11,6 +12,7 @@ import io.github.sosuisen.jfxbuilder.controls.MenuItemBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.SceneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
 import javafx.scene.Scene;
+import javafx.scene.control.ListCell;
 
 /**
  * View for the library manager screen.
@@ -66,6 +68,13 @@ public class LibraryManagerView implements View {
                             .build(),
                         ListViewBuilder.create(viewModel.getFiles())
                             .id("fileList")
+                            .cellFactory(_ -> new ListCell<>() {
+                                @Override
+                                protected void updateItem(MusicFile item, boolean empty) {
+                                    super.updateItem(item, empty);
+                                    setText(empty || item == null ? null : item.path().toString());
+                                }
+                            })
                             .build()
                     )
                     .build()

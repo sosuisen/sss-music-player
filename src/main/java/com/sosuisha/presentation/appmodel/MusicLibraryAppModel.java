@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
+import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.service.LibraryScanner;
 
 import javafx.collections.FXCollections;
@@ -14,7 +15,7 @@ import javafx.concurrent.Task;
  * Application-wide state of the music library shared by multiple screens.
  */
 public class MusicLibraryAppModel {
-    private final ObservableList<Path> files = FXCollections.observableArrayList();
+    private final ObservableList<MusicFile> files = FXCollections.observableArrayList();
     private final LibraryScanner scanner;
 
     /**
@@ -47,9 +48,9 @@ public class MusicLibraryAppModel {
      */
     public void scanFolder(Path folderPath) {
         Objects.requireNonNull(folderPath, "folderPath must not be null");
-        var task = new Task<List<Path>>() {
+        var task = new Task<List<MusicFile>>() {
             @Override
-            protected List<Path> call() throws Exception {
+            protected List<MusicFile> call() throws Exception {
                 return scanner.scan(folderPath);
             }
         };
@@ -61,10 +62,10 @@ public class MusicLibraryAppModel {
      * Sets the list of audio files in the library. The observable list instance
      * is kept; its contents are replaced.
      *
-     * @param files list of audio file paths
+     * @param files list of audio files
      * @throws NullPointerException if files is null
      */
-    public void setFiles(List<Path> files) {
+    public void setFiles(List<MusicFile> files) {
         Objects.requireNonNull(files, "files must not be null");
         this.files.setAll(files);
     }
@@ -72,9 +73,9 @@ public class MusicLibraryAppModel {
     /**
      * Returns the list of audio files in the library.
      *
-     * @return observable list of audio file paths
+     * @return observable list of audio files
      */
-    public ObservableList<Path> getFiles() {
+    public ObservableList<MusicFile> getFiles() {
         return files;
     }
 }

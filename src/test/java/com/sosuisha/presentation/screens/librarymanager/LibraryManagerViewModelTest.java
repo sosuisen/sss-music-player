@@ -10,6 +10,7 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
@@ -28,7 +29,10 @@ class LibraryManagerViewModelTest {
                     new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
                 )
             );
-        var files = List.of(Path.of("first.mp3"), Path.of("second.m4a"));
+        var files = List.of(
+            new MusicFile(Path.of("first.mp3"), 100),
+            new MusicFile(Path.of("second.m4a"), 200)
+        );
 
         viewModel.setFiles(files);
 

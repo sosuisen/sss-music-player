@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -16,6 +17,7 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.util.WaitForAsyncUtils;
 
+import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.service.LibraryScanner;
 import com.sosuisha.service.SettingsRepository;
@@ -72,5 +74,22 @@ class MusicLibraryAppModelTest {
 
         robot.interact(() -> settingsAppModel.setSettings(new Settings(folderB)));
         WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> appModel.getFiles().size() == 2);
+    }
+
+    @Test
+    @DisplayName("走査結果は、サイズ付きのMusicFileとして一覧に保持される")
+    void the_scanned_files_are_held_in_the_list_as_music_files_with_their_sizes(FxRobot robot)
+        throws Exception {
+        var file = folder.resolve("song1.mp3");
+        Files.write(file, new byte[42]);
+        var appModel = new MusicLibraryAppModel(
+            new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
+        );
+
+        robot.interact(() -> appModel.scanFolder(folder));
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> !appModel.getFiles().isEmpty());
+
+        List<MusicFile> files = appModel.getFiles();
+        assertEquals(List.of(new MusicFile(file, 42)), files);
     }
 }

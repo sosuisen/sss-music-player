@@ -15,6 +15,7 @@ import org.testfx.matcher.base.NodeMatchers;
 import org.testfx.matcher.control.ListViewMatchers;
 
 import com.sosuisha.domain.model.DuplicatedItems;
+import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.service.LibraryScanner;
@@ -64,7 +65,9 @@ class DuplicateListViewTest {
         robot.interact(
             () -> appModel.setFiles(
                 List.of(
-                    Path.of("a/dup.mp3"), Path.of("b/dup.mp3"), Path.of("c/unique.mp3")
+                    new MusicFile(Path.of("a/dup.mp3"), 100),
+                    new MusicFile(Path.of("b/dup.mp3"), 100),
+                    new MusicFile(Path.of("c/unique.mp3"), 100)
                 )
             )
         );

@@ -43,20 +43,22 @@ public class App extends Application {
     @Override
     public void start(Stage stage) {
         Objects.requireNonNull(stage, "stage must not be null");
-        var windowManager = new WindowManager();
-        var appModel = new MusicLibraryAppModel(new LibraryScanner());
-        var viewModel = new LibraryManagerViewModel(windowManager, appModel);
-        windowManager.registerView(new LibraryManagerView(viewModel));
-        windowManager.registerView(new DuplicateListView(new DuplicateListViewModel(appModel)));
         var settingsAppModel = new SettingsAppModel(new SettingsRepository());
         var loadedSettings = settingsAppModel.loadSettings();
-        loadedSettings.ifPresent(settings -> appModel.scanFolder(settings.musicLibraryPath()));
+        var musicLibAppModel = new MusicLibraryAppModel(new LibraryScanner(), settingsAppModel);
+
+        var windowManager = new WindowManager();
+        var libraryManagerViewModel = new LibraryManagerViewModel(windowManager, musicLibAppModel);
+        windowManager.registerView(new LibraryManagerView(libraryManagerViewModel));
+        windowManager.registerView(
+            new DuplicateListView(new DuplicateListViewModel(musicLibAppModel))
+        );
         windowManager.registerView(
             new SettingsView(new SettingsViewModel(settingsAppModel, App::chooseDirectory))
         );
         windowManager.showWindow(FIRST_VIEW, stage);
         if (loadedSettings.isEmpty()) {
-            viewModel.openSettingsWindow();
+            libraryManagerViewModel.openSettingsWindow();
         }
     }
 

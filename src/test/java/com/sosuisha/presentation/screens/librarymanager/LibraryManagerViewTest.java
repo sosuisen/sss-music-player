@@ -39,7 +39,9 @@ class LibraryManagerViewTest {
     void setup(Stage stage) {
         this.stage = stage;
         var windowManager = new WindowManager();
-        var appModel = new MusicLibraryAppModel(new LibraryScanner());
+        var appModel = new MusicLibraryAppModel(
+            new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
+        );
         viewModel = new LibraryManagerViewModel(windowManager, appModel);
         var view = new LibraryManagerView(viewModel);
         windowManager.registerView(view);

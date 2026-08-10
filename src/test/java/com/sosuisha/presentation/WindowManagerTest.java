@@ -10,9 +10,11 @@ import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
+import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListViewModel;
 import com.sosuisha.service.LibraryScanner;
+import com.sosuisha.service.SettingsRepository;
 
 import javafx.stage.Stage;
 
@@ -23,7 +25,11 @@ class WindowManagerTest {
     void returns_registered_duplicate_list_view_by_its_class() {
         var windowManager = new WindowManager();
         var view = new DuplicateListView(
-            new DuplicateListViewModel(new MusicLibraryAppModel(new LibraryScanner()))
+            new DuplicateListViewModel(
+                new MusicLibraryAppModel(
+                    new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
+                )
+            )
         );
 
         windowManager.registerView(view);
@@ -36,7 +42,11 @@ class WindowManagerTest {
     void show_window_displays_the_duplicate_list_view_window(FxRobot robot) {
         var windowManager = new WindowManager();
         var view = new DuplicateListView(
-            new DuplicateListViewModel(new MusicLibraryAppModel(new LibraryScanner()))
+            new DuplicateListViewModel(
+                new MusicLibraryAppModel(
+                    new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
+                )
+            )
         );
         windowManager.registerView(view);
 

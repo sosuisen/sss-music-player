@@ -11,7 +11,9 @@ import org.junit.jupiter.api.Test;
 
 import com.sosuisha.domain.model.DuplicatedItems;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
+import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.service.LibraryScanner;
+import com.sosuisha.service.SettingsRepository;
 
 import javafx.collections.ObservableList;
 
@@ -25,7 +27,11 @@ class DuplicateListViewModelTest {
                 List.of(Path.of("a/first.mp3"), Path.of("b/first.mp3"))
             )
         );
-        var viewModel = new DuplicateListViewModel(new MusicLibraryAppModel(new LibraryScanner()));
+        var viewModel = new DuplicateListViewModel(
+            new MusicLibraryAppModel(
+                new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
+            )
+        );
 
         viewModel.detect(() -> items);
 

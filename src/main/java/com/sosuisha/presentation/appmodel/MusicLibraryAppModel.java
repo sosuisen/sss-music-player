@@ -18,13 +18,23 @@ public class MusicLibraryAppModel {
     private final LibraryScanner scanner;
 
     /**
-     * Creates the app model.
+     * Creates the app model. It follows the settings of the given settings app
+     * model: whenever the settings hold a music library path (at creation and
+     * on every change), that folder is scanned and the list of audio files is
+     * updated.
      *
      * @param scanner scanner that lists the audio files in a library folder
-     * @throws NullPointerException if scanner is null
+     * @param settingsAppModel application-wide state of the settings
+     * @throws NullPointerException if scanner or settingsAppModel is null
      */
-    public MusicLibraryAppModel(LibraryScanner scanner) {
+    public MusicLibraryAppModel(LibraryScanner scanner, SettingsAppModel settingsAppModel) {
         this.scanner = Objects.requireNonNull(scanner, "scanner must not be null");
+        Objects.requireNonNull(settingsAppModel, "settingsAppModel must not be null");
+        settingsAppModel.settingsProperty().subscribe(settings -> {
+            if (settings != null) {
+                scanFolder(settings.musicLibraryPath());
+            }
+        });
     }
 
     /**

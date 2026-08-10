@@ -6,6 +6,7 @@ import static org.testfx.api.FxAssert.verifyThat;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,7 @@ import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListViewModel;
 import com.sosuisha.presentation.screens.settings.SettingsView;
 import com.sosuisha.presentation.screens.settings.SettingsViewModel;
+import com.sosuisha.service.SettingsRepository;
 
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -41,9 +43,11 @@ class LibraryManagerViewTest {
         var view = new LibraryManagerView(viewModel);
         windowManager.registerView(view);
         windowManager.registerView(new DuplicateListView(new DuplicateListViewModel(appModel)));
-        var settingsAppModel = new SettingsAppModel();
+        var settingsAppModel = new SettingsAppModel(new SettingsRepository());
         settingsAppModel.setSettings(new Settings(Path.of("music")));
-        windowManager.registerView(new SettingsView(new SettingsViewModel(settingsAppModel)));
+        windowManager.registerView(
+            new SettingsView(new SettingsViewModel(settingsAppModel, _ -> Optional.empty()))
+        );
         stage.setScene(view.getScene());
         stage.setTitle(view.getTitle());
         stage.show();

@@ -48,7 +48,8 @@ public class LibraryManagerViewModel {
             SettingsView.class,
             StageBuilder.create()
                 .apply(stage -> stage.initModality(Modality.APPLICATION_MODAL))
-                .build());
+                .build()
+        );
     }
 
     /**

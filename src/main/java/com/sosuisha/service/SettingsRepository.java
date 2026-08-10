@@ -30,9 +30,7 @@ public class SettingsRepository {
      */
     static Path resolveFile() {
         var override = System.getProperty(FILE_PROPERTY);
-        if (override != null) {
-            return Path.of(override);
-        }
+        if (override != null) { return Path.of(override); }
         return DEFAULT_FILE;
     }
 

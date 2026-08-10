@@ -46,8 +46,9 @@ class SettingsRepositoryTest {
     @DisplayName("デフォルトの保存先は、ユーザホームの.sss-music-player/settings.propertiesである")
     void default_file_is_settings_properties_in_the_sss_music_player_folder_in_the_user_home() {
         assertEquals(
-                Path.of(System.getProperty("user.home"), ".sss-music-player", "settings.properties"),
-                SettingsRepository.DEFAULT_FILE);
+            Path.of(System.getProperty("user.home"), ".sss-music-player", "settings.properties"),
+            SettingsRepository.DEFAULT_FILE
+        );
     }
 
     @Test

@@ -1,8 +1,13 @@
 package com.sosuisha.presentation.appmodel;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.NoSuchFileException;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.sosuisha.domain.model.Settings;
+import com.sosuisha.service.SettingsRepository;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -12,6 +17,17 @@ import javafx.beans.property.SimpleObjectProperty;
  */
 public class SettingsAppModel {
     private final ObjectProperty<Settings> settings = new SimpleObjectProperty<>();
+    private final SettingsRepository repository;
+
+    /**
+     * Creates the app model.
+     *
+     * @param repository repository that persists the settings
+     * @throws NullPointerException if repository is null
+     */
+    public SettingsAppModel(SettingsRepository repository) {
+        this.repository = Objects.requireNonNull(repository, "repository must not be null");
+    }
 
     /**
      * Returns the settings property.
@@ -39,5 +55,41 @@ public class SettingsAppModel {
      */
     public Settings getSettings() {
         return settings.get();
+    }
+
+    /**
+     * Loads the settings from the settings file and applies them to this app
+     * model.
+     *
+     * @return loaded settings, or an empty optional when the settings file
+     *         does not exist
+     * @throws UncheckedIOException if the settings file exists but cannot be read
+     */
+    public Optional<Settings> loadSettings() {
+        try {
+            var loaded = repository.load();
+            setSettings(loaded);
+            return Optional.of(loaded);
+        } catch (NoSuchFileException e) {
+            return Optional.empty();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    /**
+     * Sets the given settings and saves them to the settings file.
+     *
+     * @param settings settings to save
+     * @throws NullPointerException if settings is null
+     * @throws UncheckedIOException if the settings file cannot be written
+     */
+    public void saveSettings(Settings settings) {
+        setSettings(settings);
+        try {
+            repository.save(settings);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }

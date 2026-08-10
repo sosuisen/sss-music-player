@@ -50,19 +50,23 @@ public class SettingsView implements View {
                     .hgap(10)
                     .vgap(10)
                     .padding(new Insets(10))
-                    .addRow(0,
+                    .addRow(
+                        0,
                         LabelBuilder.create()
                             .text("Library path:")
                             .build(),
                         LabelBuilder.create()
                             .textPropertyApply(
-                                text -> text.bind(viewModel.musicLibraryPathProperty()))
+                                text -> text.bind(viewModel.musicLibraryPathProperty())
+                            )
                             .id("musicLibraryPath")
                             .build(),
                         ButtonBuilder.create()
                             .text("Select folder...")
                             .id("selectFolder")
-                            .build())
+                            .onAction(_ -> viewModel.selectMusicLibraryFolder(scene.getWindow()))
+                            .build()
+                    )
                     .build(),
                 WIDTH,
                 HEIGHT

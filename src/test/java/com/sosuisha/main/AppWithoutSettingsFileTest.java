@@ -36,7 +36,7 @@ class AppWithoutSettingsFileTest {
     @Test
     @DisplayName("設定ファイルがない場合、ライブラリ管理ウィンドウの上にモーダルの設定ウィンドウが開く")
     void the_modal_settings_window_is_opened_over_the_library_manager_window_when_the_settings_file_does_not_exist(
-            FxRobot robot) {
+        FxRobot robot) {
         var settingsWindow = (Stage) robot.window("Settings");
 
         assertTrue(stage.isShowing());

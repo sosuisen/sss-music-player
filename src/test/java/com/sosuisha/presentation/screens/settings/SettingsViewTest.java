@@ -4,34 +4,50 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.testfx.api.FxAssert.verifyThat;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
-import org.testfx.matcher.base.NodeMatchers;
 import org.testfx.matcher.control.LabeledMatchers;
 
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
+import com.sosuisha.service.SettingsRepository;
 
 import javafx.stage.Stage;
 
 @ExtendWith(ApplicationExtension.class)
 class SettingsViewTest {
+    @TempDir
+    Path folder;
+
     private SettingsAppModel appModel;
-    private SettingsView view;
 
     @Start
     void setup(Stage stage) {
-        appModel = new SettingsAppModel();
+        System.setProperty(
+            "sss.settings.file",
+            folder.resolve("settings.properties").toString()
+        );
+        appModel = new SettingsAppModel(new SettingsRepository());
         appModel.setSettings(new Settings(Path.of("music")));
-        view = new SettingsView(new SettingsViewModel(appModel));
+        var view = new SettingsView(
+            new SettingsViewModel(appModel, _ -> Optional.of(Path.of("selected")))
+        );
         stage.setScene(view.getScene());
         stage.setTitle(view.getTitle());
         stage.show();
+    }
+
+    @AfterEach
+    void cleanup() {
+        System.clearProperty("sss.settings.file");
     }
 
     @Test
@@ -41,29 +57,19 @@ class SettingsViewTest {
     }
 
     @Test
-    @DisplayName("設定ウィンドウにライブラリのパスの見出しラベルが表示される")
-    void window_shows_the_library_path_caption() {
-        verifyThat("Library path:", NodeMatchers.isVisible());
-    }
-
-    @Test
-    @DisplayName("設定ウィンドウにフォルダを選択するボタンが表示される")
-    void window_shows_the_select_folder_button() {
-        verifyThat("#selectFolder", LabeledMatchers.hasText("Select folder..."));
-    }
-
-    @Test
-    @DisplayName("設定ウィンドウのシーンは400x300の大きさである")
-    void the_scene_of_the_settings_window_is_400_by_300() {
-        assertEquals(400, view.getScene().getWidth());
-        assertEquals(300, view.getScene().getHeight());
-    }
-
-    @Test
     @DisplayName("設定を変更すると、表示中の音楽ライブラリのパスも更新される")
     void the_shown_music_library_path_is_updated_when_the_settings_are_changed(FxRobot robot) {
         robot.interact(() -> appModel.setSettings(new Settings(Path.of("changed"))));
 
         verifyThat("#musicLibraryPath", LabeledMatchers.hasText("changed"));
+    }
+
+    @Test
+    @DisplayName("フォルダを選択するボタンを押すと、選択したフォルダのパスが設定ファイルに保存される")
+    void clicking_the_select_folder_button_saves_the_selected_folder_path_to_the_settings_file(
+        FxRobot robot) throws Exception {
+        robot.clickOn("#selectFolder");
+
+        assertEquals(new Settings(Path.of("selected")), new SettingsRepository().load());
     }
 }

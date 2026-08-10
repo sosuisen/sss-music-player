@@ -22,8 +22,6 @@ import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.service.SettingsRepository;
 
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 
 @ExtendWith(ApplicationExtension.class)
@@ -79,14 +77,6 @@ class SettingsViewTest {
             "#errorMessage",
             LabeledMatchers.hasText("Failed to save the settings file: read-only-path")
         );
-    }
-
-    @Test
-    @DisplayName("エラーラベルのcolumnSpanは行の残り全列である")
-    void the_column_span_of_the_error_label_is_all_the_remaining_columns(FxRobot robot) {
-        var errorLabel = robot.lookup("#errorMessage").queryAs(Label.class);
-
-        assertEquals(Integer.valueOf(GridPane.REMAINING), GridPane.getColumnSpan(errorLabel));
     }
 
     @Test

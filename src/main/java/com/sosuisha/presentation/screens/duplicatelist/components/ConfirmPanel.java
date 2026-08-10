@@ -18,7 +18,9 @@ import javafx.scene.layout.VBox;
  * shows the file path, the size, and a play button.
  */
 public class ConfirmPanel {
-    private static final double WIDTH = 300;
+    /** Fixed width of the confirm panel. */
+    public static final double WIDTH = 300;
+
     private static final double ROW_WIDTH = 280;
 
     private ConfirmPanel() {}

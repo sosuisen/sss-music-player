@@ -75,6 +75,10 @@ public class DuplicateListView implements View {
                             .text("Find by Filename and Size")
                             .id("findByFilenameAndSize")
                             .onAction(_ -> viewModel.detectByFilenameAndSize())
+                            .build(),
+                        ButtonBuilder.create()
+                            .text("Find by Metadata")
+                            .id("findByMetadata")
                             .build()
                     )
                     .spacing(10)

@@ -386,6 +386,12 @@ class DuplicateListViewTest {
     }
 
     @Test
+    @DisplayName("Find by Metadataボタンが表示される")
+    void find_by_metadata_button_is_shown(FxRobot robot) {
+        verifyThat("#findByMetadata", LabeledMatchers.hasText("Find by Metadata"));
+    }
+
+    @Test
     @DisplayName("Find by Filenameボタンを押すと、ファイル名が同じファイルのグループが一覧に表示される")
     void clicking_find_by_filename_shows_groups_of_files_with_the_same_name(FxRobot robot) {
         robot.interact(

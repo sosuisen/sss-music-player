@@ -9,7 +9,11 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.tag.FieldKey;
+
 import com.sosuisha.domain.model.MusicFile;
+import com.sosuisha.domain.model.TrackMetadata;
 
 /**
  * Scans a music library folder.
@@ -18,8 +22,10 @@ public class LibraryScanner {
     private static final Set<String> SUPPORTED_EXTENSIONS = Set.of(".mp3", ".m4a");
 
     /**
-     * Returns all supported audio files (mp3 and m4a) with their sizes in the
-     * given folder and its subfolders. The extension is matched ignoring case.
+     * Returns all supported audio files (mp3 and m4a) with their sizes and
+     * track metadata in the given folder and its subfolders. The extension is
+     * matched ignoring case. A file whose tag cannot be read gets
+     * {@link TrackMetadata#EMPTY}.
      *
      * @param folderPath path of the folder to scan
      * @return list of audio files in the folder and its subfolders
@@ -40,9 +46,27 @@ public class LibraryScanner {
 
     private static MusicFile toMusicFile(Path path) {
         try {
-            return new MusicFile(path, Files.size(path));
+            return new MusicFile(path, Files.size(path), readTrackMetadata(path));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    private static TrackMetadata readTrackMetadata(Path path) {
+        try {
+            var tag = AudioFileIO.read(path.toFile()).getTag();
+            if (tag == null) { return TrackMetadata.EMPTY; }
+            return new TrackMetadata(
+                tag.getFirst(FieldKey.TITLE),
+                tag.getFirst(FieldKey.ARTIST),
+                tag.getFirst(FieldKey.ALBUM),
+                tag.getFirst(FieldKey.ALBUM_ARTIST),
+                tag.getFirst(FieldKey.TRACK),
+                tag.getFirst(FieldKey.YEAR)
+            );
+        } catch (Exception e) {
+            // A file whose tag cannot be read is kept in the library with empty metadata.
+            return TrackMetadata.EMPTY;
         }
     }
 

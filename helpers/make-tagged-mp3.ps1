@@ -1,5 +1,19 @@
-# Generates minimal mp3 files with ID3v2.3 tags for test resources.
+# Generates minimal mp3 files for test resources:
+# - tagged.mp3 / tagged2.mp3: with an ID3v2.3 tag
+# - untagged.mp3: valid MPEG frames only, without any tag
 $enc = [System.Text.Encoding]::GetEncoding('ISO-8859-1')
+
+# Minimal MPEG-1 Layer III frames: 128kbps, 44.1kHz, no padding -> 417 bytes each.
+# The leading comma keeps PowerShell from unrolling the byte array into Object[].
+function Get-MpegFrames {
+    $frame = New-Object byte[] 417
+    $frame[0] = 0xFF; $frame[1] = 0xFB; $frame[2] = 0x90; $frame[3] = 0x00
+    $bytes = New-Object byte[] (417 * 4)
+    for ($i = 0; $i -lt 4; $i++) {
+        [Array]::Copy($frame, 0, $bytes, $i * 417, 417)
+    }
+    return , $bytes
+}
 
 function New-TaggedMp3 {
     param(
@@ -32,17 +46,21 @@ function New-TaggedMp3 {
         (($len -shr 7) -band 0x7F),
         ($len -band 0x7F))
 
-    # Minimal MPEG-1 Layer III frame: 128kbps, 44.1kHz, no padding -> 417 bytes
-    $mpegFrame = New-Object byte[] 417
-    $mpegFrame[0] = 0xFF; $mpegFrame[1] = 0xFB; $mpegFrame[2] = 0x90; $mpegFrame[3] = 0x00
-
     $out = [System.Collections.Generic.List[byte]]::new()
     $out.AddRange($header)
     $out.AddRange($body)
-    1..4 | ForEach-Object { $out.AddRange($mpegFrame) }
+    $out.AddRange((Get-MpegFrames))
 
     [System.IO.File]::WriteAllBytes($Path, $out.ToArray())
     Write-Host "Wrote $Path ($($out.Count) bytes)"
+}
+
+function New-UntaggedMp3 {
+    param([string]$Path)
+
+    $bytes = Get-MpegFrames
+    [System.IO.File]::WriteAllBytes($Path, $bytes)
+    Write-Host "Wrote $Path ($($bytes.Length) bytes)"
 }
 
 $dir = Join-Path $PSScriptRoot '..\src\test\resources\id3'
@@ -65,3 +83,5 @@ New-TaggedMp3 -Path (Join-Path $dir 'tagged2.mp3') -Tags ([ordered]@{
     TRCK = '7'
     TYER = '1999'
 })
+
+New-UntaggedMp3 -Path (Join-Path $dir 'untagged.mp3')

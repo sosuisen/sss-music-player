@@ -2,7 +2,7 @@ package com.sosuisha.presentation.screens.librarymanager;
 
 import java.util.Objects;
 
-import com.sosuisha.domain.model.MusicFile;
+import com.sosuisha.domain.model.Album;
 import com.sosuisha.presentation.View;
 
 import io.github.sosuisen.jfxbuilder.controls.LabelBuilder;
@@ -125,13 +125,17 @@ public class LibraryManagerView implements View {
                                     .build()
                             )
                             .build(),
-                        ListViewBuilder.create(viewModel.getFiles())
-                            .id("fileList")
+                        ListViewBuilder.create(viewModel.getAlbums())
+                            .id("albumList")
                             .cellFactory(_ -> new ListCell<>() {
                                 @Override
-                                protected void updateItem(MusicFile item, boolean empty) {
+                                protected void updateItem(Album item, boolean empty) {
                                     super.updateItem(item, empty);
-                                    setText(empty || item == null ? null : item.path().toString());
+                                    setText(
+                                        empty || item == null
+                                            ? null
+                                            : item.name() + " - " + item.artist()
+                                    );
                                 }
                             })
                             .build()

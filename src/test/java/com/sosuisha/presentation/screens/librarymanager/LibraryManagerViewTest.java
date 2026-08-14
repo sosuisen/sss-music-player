@@ -27,6 +27,7 @@ import org.testfx.util.WaitForAsyncUtils;
 
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.Settings;
+import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.service.NullLibraryDatabase;
 import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.WindowManager;
@@ -98,24 +99,6 @@ class LibraryManagerViewTest {
     void window_is_shown_with_title_library_manager() {
         assertTrue(stage.isShowing());
         assertEquals("Library Manager", stage.getTitle());
-    }
-
-    @Test
-    @DisplayName("ウィンドウにファイルリストが表示される")
-    void window_shows_the_file_list(FxRobot robot) {
-        var files = List.of(
-            new MusicFile(Path.of("first.mp3"), 100),
-            new MusicFile(Path.of("second.m4a"), 200)
-        );
-        robot.interact(() -> viewModel.setFiles(files));
-
-        verifyThat("#fileList", ListViewMatchers.hasItems(2));
-        verifyThat(
-            "#fileList", ListViewMatchers.hasListCell(new MusicFile(Path.of("first.mp3"), 100))
-        );
-        verifyThat(
-            "#fileList", ListViewMatchers.hasListCell(new MusicFile(Path.of("second.m4a"), 200))
-        );
     }
 
     @Test
@@ -239,6 +222,25 @@ class LibraryManagerViewTest {
         });
 
         assertEquals(stage, owner.get());
+    }
+
+    @Test
+    @DisplayName("ライブラリ一覧は、1行につき1アルバムを「アルバム名 - アルバムアーティスト」で表示する")
+    void the_library_list_shows_one_album_per_row_as_album_name_and_album_artist(FxRobot robot) {
+        var files = List.of(
+            new MusicFile(Path.of("a/one.mp3"), 100, albumTag("Album A", "Artist X")),
+            new MusicFile(Path.of("a/two.mp3"), 200, albumTag("Album A", "Artist X")),
+            new MusicFile(Path.of("b/three.mp3"), 300, albumTag("Album B", "Artist Y"))
+        );
+        robot.interact(() -> viewModel.setFiles(files));
+
+        verifyThat("#albumList", ListViewMatchers.hasItems(2));
+        assertTrue(robot.lookup("Album A - Artist X").tryQuery().isPresent());
+        assertTrue(robot.lookup("Album B - Artist Y").tryQuery().isPresent());
+    }
+
+    private static TrackMetadata albumTag(String album, String albumArtist) {
+        return new TrackMetadata("", "", album, albumArtist, "", "");
     }
 
     private static Optional<Stage> findScanningWindow(FxRobot robot) {

@@ -68,11 +68,13 @@ class AppWithMusicLibraryTest {
     void the_files_scanned_from_the_music_library_folder_are_shown_in_the_list_at_startup(
         FxRobot robot) throws Exception {
         // The scan runs in the background, so wait until the result arrives.
+        // The two files have no album tag and are in different folders, so
+        // they are shown as two folder-recognized albums.
         WaitForAsyncUtils.waitFor(
             5,
             TimeUnit.SECONDS,
-            () -> robot.lookup("#fileList").queryListView().getItems().size() == 2
+            () -> robot.lookup("#albumList").queryListView().getItems().size() == 2
         );
-        verifyThat("#fileList", ListViewMatchers.hasItems(2));
+        verifyThat("#albumList", ListViewMatchers.hasItems(2));
     }
 }

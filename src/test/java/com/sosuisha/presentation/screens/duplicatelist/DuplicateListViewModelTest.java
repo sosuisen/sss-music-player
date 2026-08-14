@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sosuisha.domain.model.DuplicatedItems;
 import com.sosuisha.domain.model.MusicFile;
+import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.service.NullLibraryDatabase;
 import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
@@ -125,6 +126,37 @@ class DuplicateListViewModelTest {
         viewModel.removeCheckedDuplicates();
 
         assertEquals(List.of(checked), movedGroups.get());
+    }
+
+    @Test
+    @DisplayName("detectByMetadataは、曲名とアーティストの一致で重複を判定して格納する")
+    void detect_by_metadata_stores_duplicates_detected_by_title_and_artist() {
+        var appModel = new MusicLibraryAppModel(
+            new LibraryScanner(new NullLibraryDatabase()),
+            new SettingsAppModel(new SettingsRepository())
+        );
+        var viewModel = new DuplicateListViewModel(
+            appModel,
+            new NullMusicPlayer(),
+            new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")),
+            _ -> {
+            }
+        );
+        var sameA = new MusicFile(Path.of("a/one.mp3"), 100, tag("Song", "Artist"));
+        var sameB = new MusicFile(Path.of("b/two.mp3"), 100, tag("Song", "Artist"));
+        var differentArtist = new MusicFile(Path.of("c/three.mp3"), 300, tag("Song", "Other"));
+        appModel.setFiles(List.of(sameA, sameB, differentArtist));
+
+        viewModel.detectByMetadata();
+
+        assertEquals(
+            List.of(new DuplicatedItems("Song - Artist", List.of(sameA, sameB))),
+            viewModel.getDuplicatedItems()
+        );
+    }
+
+    private static TrackMetadata tag(String title, String artist) {
+        return new TrackMetadata(title, artist, "", "", "", "");
     }
 
     @Test

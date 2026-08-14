@@ -22,6 +22,7 @@ import org.testfx.matcher.control.ListViewMatchers;
 
 import com.sosuisha.domain.model.DuplicatedItems;
 import com.sosuisha.domain.model.MusicFile;
+import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.domain.service.NullLibraryDatabase;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
@@ -420,5 +421,29 @@ class DuplicateListViewTest {
                 )
             )
         );
+    }
+
+    @Test
+    @DisplayName("Find by Metadataボタンを押すと、曲名とアーティストが同じファイルのグループが一覧に表示される")
+    void clicking_find_by_metadata_shows_groups_of_files_with_the_same_title_and_artist(
+        FxRobot robot) {
+        var sameA = new MusicFile(Path.of("a/one.mp3"), 100, tag("Song", "Artist"));
+        var sameB = new MusicFile(Path.of("b/two.mp3"), 100, tag("Song", "Artist"));
+        var differentArtist = new MusicFile(Path.of("c/three.mp3"), 300, tag("Song", "Other"));
+        robot.interact(() -> appModel.setFiles(List.of(sameA, sameB, differentArtist)));
+
+        robot.clickOn("#findByMetadata");
+
+        verifyThat("#duplicateList", ListViewMatchers.hasItems(1));
+        verifyThat(
+            "#duplicateList",
+            ListViewMatchers.hasListCell(
+                new DuplicatedItems("Song - Artist", List.of(sameA, sameB))
+            )
+        );
+    }
+
+    private static TrackMetadata tag(String title, String artist) {
+        return new TrackMetadata(title, artist, "", "", "", "");
     }
 }

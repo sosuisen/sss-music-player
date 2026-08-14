@@ -79,6 +79,7 @@ public class DuplicateListView implements View {
                         ButtonBuilder.create()
                             .text("Find by Metadata")
                             .id("findByMetadata")
+                            .onAction(_ -> viewModel.detectByMetadata())
                             .build()
                     )
                     .spacing(10)

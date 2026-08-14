@@ -16,6 +16,7 @@ import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.service.DuplicateFileMover;
 import com.sosuisha.service.FilenameAndSizeDuplicateDetector;
 import com.sosuisha.service.FilenameDuplicateDetector;
+import com.sosuisha.service.MetadataDuplicateDetector;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -235,6 +236,14 @@ public class DuplicateListViewModel {
      */
     public void detectByFilenameAndSize() {
         detect(new FilenameAndSizeDuplicateDetector(appModel.getFiles()));
+    }
+
+    /**
+     * Detects duplicated files by the title and the artist of their track
+     * metadata and stores the result.
+     */
+    public void detectByMetadata() {
+        detect(new MetadataDuplicateDetector(appModel.getFiles()));
     }
 
     /**

@@ -7,6 +7,7 @@ import static org.testfx.api.FxAssert.verifyThat;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -74,6 +75,11 @@ class DuplicateListViewTest {
 
             @Override
             public void setOnFinished(Runnable onFinished) {}
+
+            @Override
+            public Optional<Path> playingPath() {
+                return Optional.empty();
+            }
         }, new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")) {
             @Override
             public void moveDuplicates(List<DuplicatedItems> groups) {

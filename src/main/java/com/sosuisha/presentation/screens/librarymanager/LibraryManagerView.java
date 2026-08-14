@@ -137,6 +137,14 @@ public class LibraryManagerView implements View {
         return ListViewBuilder.create(viewModel.getSelectedTracks())
             .id("trackList")
             .cellFactory(_ -> new ListCell<>() {
+                {
+                    setOnMouseClicked(event -> {
+                        if (event.getClickCount() == 2 && getItem() != null) {
+                            viewModel.playTrack(getItem());
+                        }
+                    });
+                }
+
                 @Override
                 protected void updateItem(MusicFile item, boolean empty) {
                     super.updateItem(item, empty);

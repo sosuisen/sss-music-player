@@ -64,6 +64,7 @@ class LibraryManagerViewTest {
     private AtomicBoolean playbackPaused;
     private AtomicBoolean playbackResumed;
     private AtomicReference<Runnable> trackFinishedCallback;
+    private AtomicReference<Path> loadedPath;
 
     @Start
     void setup(Stage stage) {
@@ -84,15 +85,18 @@ class LibraryManagerViewTest {
         playbackPaused = new AtomicBoolean(false);
         playbackResumed = new AtomicBoolean(false);
         trackFinishedCallback = new AtomicReference<>();
+        loadedPath = new AtomicReference<>();
         viewModel = new LibraryManagerViewModel(windowManager, appModel, new MusicPlayer() {
             @Override
             public void play(Path path) {
                 playedPath.set(path);
+                loadedPath.set(path);
             }
 
             @Override
             public void stop() {
                 playbackStopped.set(true);
+                loadedPath.set(null);
             }
 
             @Override
@@ -108,6 +112,11 @@ class LibraryManagerViewTest {
             @Override
             public void setOnFinished(Runnable onFinished) {
                 trackFinishedCallback.set(onFinished);
+            }
+
+            @Override
+            public Optional<Path> playingPath() {
+                return Optional.ofNullable(loadedPath.get());
             }
         });
         var view = new LibraryManagerView(viewModel);
@@ -545,6 +554,28 @@ class LibraryManagerViewTest {
 
         robot.interact(() -> trackFinishedCallback.get().run());
         assertEquals(Path.of("a/one.mp3"), playedPath.get());
+    }
+
+    @Test
+    @DisplayName("再生中に別の曲をダブルクリックすると、その曲の再生が開始される")
+    void double_clicking_another_track_while_playing_starts_playing_that_track(FxRobot robot) {
+        var trackOne = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("Song One", "", "Album A", "Artist X", "1", "")
+        );
+        var trackTwo = new MusicFile(
+            Path.of("a/two.mp3"), 200,
+            new TrackMetadata("Song Two", "", "Album A", "Artist X", "2", "")
+        );
+        robot.interact(() -> viewModel.setFiles(List.of(trackOne, trackTwo)));
+        robot.clickOn("Album A - Artist X");
+        robot.clickOn("1. Song One");
+        robot.clickOn("#playButton");
+
+        robot.doubleClickOn("2. Song Two");
+
+        assertEquals(Path.of("a/two.mp3"), playedPath.get());
+        assertEquals(PlayerState.PLAYING, viewModel.playerStateProperty().get());
     }
 
     @Test

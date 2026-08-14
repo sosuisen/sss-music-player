@@ -3,6 +3,7 @@ package com.sosuisha.presentation.screens.librarymanager;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
@@ -35,7 +36,6 @@ public class LibraryManagerViewModel {
     private final ObjectProperty<PlayerState> playerState =
         new SimpleObjectProperty<>(PlayerState.STOPPED);
     private final ObjectProperty<MusicFile> selectedTrack = new SimpleObjectProperty<>();
-    private MusicFile playingTrack;
 
     /**
      * Creates the view model.
@@ -190,8 +190,21 @@ public class LibraryManagerViewModel {
         selectedTrack.set(movedTo);
         if (playerState.get() == PlayerState.PLAYING) {
             musicPlayer.play(movedTo.path());
-            playingTrack = movedTo;
         }
+    }
+
+    /**
+     * Plays the given track from the beginning, stopping the current playback.
+     * The track becomes the selected track.
+     *
+     * @param track track to play
+     * @throws NullPointerException if track is null
+     */
+    public void playTrack(MusicFile track) {
+        Objects.requireNonNull(track, "track must not be null");
+        selectedTrack.set(track);
+        musicPlayer.play(track.path());
+        playerState.set(PlayerState.PLAYING);
     }
 
     /**
@@ -206,20 +219,20 @@ public class LibraryManagerViewModel {
                 playerState.set(PlayerState.PAUSED);
             }
             case PAUSED -> {
-                if (Objects.equals(selectedTrack.get(), playingTrack)) {
+                var selected = selectedTrack.get();
+                if (selected == null
+                    || musicPlayer.playingPath().equals(Optional.of(selected.path()))) {
                     musicPlayer.resume();
                 } else {
-                    // The selection moved while paused, so the resume target
-                    // is gone; the selected track starts from the beginning.
-                    musicPlayer.play(selectedTrack.get().path());
-                    playingTrack = selectedTrack.get();
+                    // The selection moved while paused; the selected track
+                    // starts from the beginning.
+                    musicPlayer.play(selected.path());
                 }
                 playerState.set(PlayerState.PLAYING);
             }
             case STOPPED -> {
                 if (selectedTrack.get() != null) {
                     musicPlayer.play(selectedTrack.get().path());
-                    playingTrack = selectedTrack.get();
                     playerState.set(PlayerState.PLAYING);
                 }
             }

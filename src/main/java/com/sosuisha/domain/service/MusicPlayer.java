@@ -1,6 +1,7 @@
 package com.sosuisha.domain.service;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * Plays audio files.
@@ -38,4 +39,13 @@ public interface MusicPlayer {
      * @param onFinished callback invoked at the end of the audio file
      */
     void setOnFinished(Runnable onFinished);
+
+    /**
+     * Returns the path of the audio file loaded in the player, whether it is
+     * playing or paused.
+     *
+     * @return path of the loaded audio file, or an empty Optional when nothing
+     *     is loaded
+     */
+    Optional<Path> playingPath();
 }

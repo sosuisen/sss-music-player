@@ -1,6 +1,7 @@
 package com.sosuisha.domain.service;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * A music player that does nothing. For tests that need a {@link MusicPlayer}
@@ -21,4 +22,9 @@ public class NullMusicPlayer implements MusicPlayer {
 
     @Override
     public void setOnFinished(Runnable onFinished) {}
+
+    @Override
+    public Optional<Path> playingPath() {
+        return Optional.empty();
+    }
 }

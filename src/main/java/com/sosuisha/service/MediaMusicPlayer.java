@@ -2,6 +2,7 @@ package com.sosuisha.service;
 
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.Optional;
 
 import com.sosuisha.domain.service.MusicPlayer;
 
@@ -15,6 +16,7 @@ import javafx.scene.media.MediaPlayer;
 public class MediaMusicPlayer implements MusicPlayer {
     private MediaPlayer mediaPlayer;
     private Runnable onFinished;
+    private Path playingPath;
 
     /**
      * Plays the audio file at the given path.
@@ -34,6 +36,7 @@ public class MediaMusicPlayer implements MusicPlayer {
             mediaPlayer.setOnEndOfMedia(onFinished);
         }
         mediaPlayer.play();
+        playingPath = path;
     }
 
     /**
@@ -46,6 +49,7 @@ public class MediaMusicPlayer implements MusicPlayer {
         mediaPlayer.stop();
         mediaPlayer.dispose();
         mediaPlayer = null;
+        playingPath = null;
     }
 
     /**
@@ -77,5 +81,17 @@ public class MediaMusicPlayer implements MusicPlayer {
     @Override
     public void setOnFinished(Runnable onFinished) {
         this.onFinished = onFinished;
+    }
+
+    /**
+     * Returns the path of the audio file loaded in the player, whether it is
+     * playing or paused.
+     *
+     * @return path of the loaded audio file, or an empty Optional when nothing
+     *     is loaded
+     */
+    @Override
+    public Optional<Path> playingPath() {
+        return Optional.ofNullable(playingPath);
     }
 }

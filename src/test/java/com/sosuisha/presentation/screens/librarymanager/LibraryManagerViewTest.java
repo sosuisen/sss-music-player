@@ -27,6 +27,7 @@ import org.testfx.matcher.control.LabeledMatchers;
 import org.testfx.matcher.control.ListViewMatchers;
 import org.testfx.util.WaitForAsyncUtils;
 
+import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.model.TrackMetadata;
@@ -281,6 +282,28 @@ class LibraryManagerViewTest {
 
     private static TrackMetadata albumTag(String album, String albumArtist) {
         return new TrackMetadata("", "", album, albumArtist, "", "");
+    }
+
+    @Test
+    @DisplayName("ソートキーのComboBox（初期値Album）が表示され、アルバムリストはアルバム名の昇順（大文字小文字無視）で並ぶ")
+    void the_album_list_is_sorted_by_album_name_ignoring_case_with_album_as_the_default_key(
+        FxRobot robot) {
+        var banana = new MusicFile(Path.of("a/one.mp3"), 100, albumTag("banana", "X"));
+        var apple = new MusicFile(Path.of("b/two.mp3"), 200, albumTag("Apple", "X"));
+        var cherry = new MusicFile(Path.of("c/three.mp3"), 300, albumTag("Cherry", "X"));
+        robot.interact(() -> viewModel.setFiles(List.of(banana, apple, cherry)));
+
+        var sortKey = robot.lookup("#sortKey").queryComboBox();
+        assertEquals("Album", sortKey.getValue());
+        var albumList = robot.lookup("#albumList").queryListView();
+        assertEquals(
+            List.of(
+                new Album("Apple", "X", List.of(apple)),
+                new Album("banana", "X", List.of(banana)),
+                new Album("Cherry", "X", List.of(cherry))
+            ),
+            albumList.getItems()
+        );
     }
 
     @Test

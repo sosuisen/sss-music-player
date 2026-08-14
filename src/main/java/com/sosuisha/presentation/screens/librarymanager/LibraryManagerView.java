@@ -7,6 +7,7 @@ import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.presentation.View;
 
 import io.github.sosuisen.jfxbuilder.controls.ButtonBuilder;
+import io.github.sosuisen.jfxbuilder.controls.ComboBoxBuilder;
 import io.github.sosuisen.jfxbuilder.controls.LabelBuilder;
 import io.github.sosuisen.jfxbuilder.controls.ListViewBuilder;
 import io.github.sosuisen.jfxbuilder.controls.MenuBarBuilder;
@@ -24,6 +25,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -94,6 +96,23 @@ public class LibraryManagerView implements View {
                     stage.initOwner(scene.getWindow());
                 }
             })
+            .build();
+    }
+
+    private VBox buildAlbumPane() {
+        var albumList = buildAlbumList();
+        VBox.setVgrow(albumList, Priority.ALWAYS);
+        return VBoxBuilder
+            .withChildren(
+                ComboBoxBuilder.<String>create()
+                    .id("sortKey")
+                    .apply(comboBox -> {
+                        comboBox.getItems().add("Album");
+                        comboBox.setValue("Album");
+                    })
+                    .build(),
+                albumList
+            )
             .build();
     }
 
@@ -215,7 +234,7 @@ public class LibraryManagerView implements View {
                             )
                             .build(),
                         SplitPaneBuilder
-                            .withItems(buildAlbumList(), buildTrackList())
+                            .withItems(buildAlbumPane(), buildTrackList())
                             .vGrowInVBox(Priority.ALWAYS)
                             .build(),
                         buildPlayerPanel()

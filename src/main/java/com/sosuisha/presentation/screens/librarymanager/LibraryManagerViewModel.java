@@ -63,7 +63,11 @@ public class LibraryManagerViewModel {
     }
 
     private void updateAlbums() {
-        albums.setAll(new AlbumDetector(appModel.getFiles()).detect());
+        albums.setAll(
+            new AlbumDetector(appModel.getFiles()).detect().stream()
+                .sorted(Comparator.comparing(Album::name, String.CASE_INSENSITIVE_ORDER))
+                .toList()
+        );
     }
 
     /**

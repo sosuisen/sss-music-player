@@ -24,6 +24,7 @@ class AppWithoutSettingsFileTest {
     void setup(Stage stage) throws Exception {
         var folder = Files.createTempDirectory("sss-music-player-test");
         System.setProperty("sss.settings.file", folder.resolve("settings.properties").toString());
+        System.setProperty("sss.library.db", folder.resolve("library.db").toString());
         this.stage = stage;
         new App().start(stage);
     }
@@ -31,6 +32,7 @@ class AppWithoutSettingsFileTest {
     @AfterEach
     void cleanup() {
         System.clearProperty("sss.settings.file");
+        System.clearProperty("sss.library.db");
     }
 
     @Test

@@ -19,6 +19,7 @@ import org.testfx.matcher.control.ListViewMatchers;
 
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.Settings;
+import com.sosuisha.domain.service.NullLibraryDatabase;
 import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
@@ -46,7 +47,7 @@ class LibraryManagerViewTest {
         var windowManager = new WindowManager();
         rescanned = new AtomicBoolean(false);
         var appModel = new MusicLibraryAppModel(
-            new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
+            new LibraryScanner(new NullLibraryDatabase()), new SettingsAppModel(new SettingsRepository())
         ) {
             @Override
             public void rescan() {

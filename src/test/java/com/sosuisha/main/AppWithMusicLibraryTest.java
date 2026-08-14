@@ -35,12 +35,14 @@ class AppWithMusicLibraryTest {
             properties.store(writer, null);
         }
         System.setProperty("sss.settings.file", file.toString());
+        System.setProperty("sss.library.db", folder.resolve("library.db").toString());
         new App().start(stage);
     }
 
     @AfterEach
     void cleanup() {
         System.clearProperty("sss.settings.file");
+        System.clearProperty("sss.library.db");
     }
 
     @Test

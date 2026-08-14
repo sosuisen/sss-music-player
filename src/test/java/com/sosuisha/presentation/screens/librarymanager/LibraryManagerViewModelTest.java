@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.sosuisha.domain.model.MusicFile;
+import com.sosuisha.domain.service.NullLibraryDatabase;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
@@ -26,7 +27,7 @@ class LibraryManagerViewModelTest {
         var viewModel =
             new LibraryManagerViewModel(
                 new WindowManager(), new MusicLibraryAppModel(
-                    new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
+                    new LibraryScanner(new NullLibraryDatabase()), new SettingsAppModel(new SettingsRepository())
                 )
             );
         var files = List.of(
@@ -44,7 +45,7 @@ class LibraryManagerViewModelTest {
     @DisplayName("AppModelのファイルリストをそのまま返す")
     void returns_the_file_list_of_the_app_model() {
         var appModel = new MusicLibraryAppModel(
-            new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
+            new LibraryScanner(new NullLibraryDatabase()), new SettingsAppModel(new SettingsRepository())
         );
         var viewModel = new LibraryManagerViewModel(new WindowManager(), appModel);
 

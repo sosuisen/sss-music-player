@@ -14,12 +14,25 @@ import org.jaudiotagger.tag.FieldKey;
 
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
+import com.sosuisha.domain.service.LibraryDatabase;
 
 /**
  * Scans a music library folder.
  */
 public class LibraryScanner {
     private static final Set<String> SUPPORTED_EXTENSIONS = Set.of(".mp3", ".m4a");
+
+    private final LibraryDatabase database;
+
+    /**
+     * Creates the scanner.
+     *
+     * @param database library database used as a metadata cache
+     * @throws NullPointerException if database is null
+     */
+    public LibraryScanner(LibraryDatabase database) {
+        this.database = Objects.requireNonNull(database, "database must not be null");
+    }
 
     /**
      * Returns all supported audio files (mp3 and m4a) with their sizes and
@@ -39,14 +52,22 @@ public class LibraryScanner {
             return files
                 .filter(Files::isRegularFile)
                 .filter(LibraryScanner::isSupportedAudioFile)
-                .map(LibraryScanner::toMusicFile)
+                .map(this::toMusicFile)
                 .toList();
         }
     }
 
-    private static MusicFile toMusicFile(Path path) {
+    private MusicFile toMusicFile(Path path) {
         try {
-            return new MusicFile(path, Files.size(path), readTrackMetadata(path));
+            var size = Files.size(path);
+            var lastModified = Files.getLastModifiedTime(path);
+            var cached = database.find(path, size, lastModified);
+            if (cached.isPresent()) {
+                return new MusicFile(path, size, cached.get());
+            }
+            var musicFile = new MusicFile(path, size, readTrackMetadata(path));
+            database.save(musicFile, lastModified);
+            return musicFile;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -23,6 +23,7 @@ import org.testfx.matcher.control.ListViewMatchers;
 import com.sosuisha.domain.model.DuplicatedItems;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.service.MusicPlayer;
+import com.sosuisha.domain.service.NullLibraryDatabase;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.presentation.screens.duplicatelist.components.DetailedPanel;
@@ -46,7 +47,7 @@ class DuplicateListViewTest {
     @Start
     void setup(Stage stage) {
         appModel = new MusicLibraryAppModel(
-            new LibraryScanner(), new SettingsAppModel(new SettingsRepository())
+            new LibraryScanner(new NullLibraryDatabase()), new SettingsAppModel(new SettingsRepository())
         );
         playedPath = new AtomicReference<>();
         stopped = new AtomicBoolean(false);

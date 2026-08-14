@@ -21,6 +21,7 @@ import com.sosuisha.service.DuplicateFileMover;
 import com.sosuisha.service.LibraryScanner;
 import com.sosuisha.service.MediaMusicPlayer;
 import com.sosuisha.service.SettingsRepository;
+import com.sosuisha.service.SqliteLibraryDatabase;
 
 import javafx.application.Application;
 import javafx.stage.DirectoryChooser;
@@ -48,7 +49,9 @@ public class App extends Application {
         Objects.requireNonNull(stage, "stage must not be null");
         var settingsAppModel = new SettingsAppModel(new SettingsRepository());
         var loadedSettings = settingsAppModel.loadSettings();
-        var musicLibAppModel = new MusicLibraryAppModel(new LibraryScanner(), settingsAppModel);
+        var musicLibAppModel = new MusicLibraryAppModel(
+            new LibraryScanner(new SqliteLibraryDatabase()), settingsAppModel
+        );
 
         var windowManager = new WindowManager();
         var libraryManagerViewModel = new LibraryManagerViewModel(windowManager, musicLibAppModel);

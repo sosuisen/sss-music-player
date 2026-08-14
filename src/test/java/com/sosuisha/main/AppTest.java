@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testfx.api.FxAssert.verifyThat;
 
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 
 import org.junit.jupiter.api.AfterEach;
@@ -25,6 +26,7 @@ import javafx.stage.Stage;
 @ExtendWith(ApplicationExtension.class)
 class AppTest {
     private Stage stage;
+    private Path dbFile;
 
     @Start
     void setup(Stage stage) throws Exception {
@@ -32,6 +34,8 @@ class AppTest {
         var file = folder.resolve("settings.properties");
         Files.writeString(file, "musicLibraryPath=loaded-music");
         System.setProperty("sss.settings.file", file.toString());
+        dbFile = folder.resolve("library.db");
+        System.setProperty("sss.library.db", dbFile.toString());
         this.stage = stage;
         new App().start(stage);
     }
@@ -39,6 +43,7 @@ class AppTest {
     @AfterEach
     void cleanup() {
         System.clearProperty("sss.settings.file");
+        System.clearProperty("sss.library.db");
     }
 
     @Test
@@ -51,6 +56,12 @@ class AppTest {
 
         assertTrue(stage.isShowing());
         assertEquals(expectedTitles.get(App.FIRST_VIEW), stage.getTitle());
+    }
+
+    @Test
+    @DisplayName("アプリを起動すると、解決されたパスにライブラリDBファイルが作られる")
+    void app_startup_creates_the_library_database_file_at_the_resolved_path() {
+        assertTrue(Files.exists(dbFile));
     }
 
     @Test

@@ -32,7 +32,8 @@ class WindowManagerTest {
         var view = new DuplicateListView(
             new DuplicateListViewModel(
                 new MusicLibraryAppModel(
-                    new LibraryScanner(new NullLibraryDatabase()), new SettingsAppModel(new SettingsRepository())
+                    new LibraryScanner(new NullLibraryDatabase()),
+                    new SettingsAppModel(new SettingsRepository())
                 ),
                 new NullMusicPlayer(),
                 new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")),
@@ -53,7 +54,8 @@ class WindowManagerTest {
         var view = new DuplicateListView(
             new DuplicateListViewModel(
                 new MusicLibraryAppModel(
-                    new LibraryScanner(new NullLibraryDatabase()), new SettingsAppModel(new SettingsRepository())
+                    new LibraryScanner(new NullLibraryDatabase()),
+                    new SettingsAppModel(new SettingsRepository())
                 ),
                 new NullMusicPlayer(),
                 new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")),

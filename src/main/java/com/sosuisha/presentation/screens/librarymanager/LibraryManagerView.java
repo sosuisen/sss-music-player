@@ -5,14 +5,18 @@ import java.util.Objects;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.presentation.View;
 
+import io.github.sosuisen.jfxbuilder.controls.LabelBuilder;
 import io.github.sosuisen.jfxbuilder.controls.ListViewBuilder;
 import io.github.sosuisen.jfxbuilder.controls.MenuBarBuilder;
 import io.github.sosuisen.jfxbuilder.controls.MenuBuilder;
 import io.github.sosuisen.jfxbuilder.controls.MenuItemBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.SceneBuilder;
+import io.github.sosuisen.jfxbuilder.graphics.StageBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
 import javafx.scene.Scene;
 import javafx.scene.control.ListCell;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
 /**
  * View for the library manager screen.
@@ -22,6 +26,7 @@ public class LibraryManagerView implements View {
 
     private final LibraryManagerViewModel viewModel;
     private final Scene scene;
+    private Stage scanningDialog;
 
     /**
      * Creates the view.
@@ -32,6 +37,44 @@ public class LibraryManagerView implements View {
     public LibraryManagerView(LibraryManagerViewModel viewModel) {
         this.viewModel = Objects.requireNonNull(viewModel, "viewModel must not be null");
         this.scene = buildSceneGraph();
+        viewModel.scanningProperty().subscribe(this::updateScanningDialog);
+    }
+
+    private void updateScanningDialog(boolean scanning) {
+        if (scanning) {
+            if (scanningDialog == null) {
+                scanningDialog = buildScanningDialog();
+            }
+            scanningDialog.show();
+        } else if (scanningDialog != null) {
+            scanningDialog.close();
+        }
+    }
+
+    private Stage buildScanningDialog() {
+        return StageBuilder.create()
+            .title("Scanning")
+            .scene(
+                SceneBuilder
+                    .withRoot(
+                        VBoxBuilder
+                            .withChildren(
+                                LabelBuilder.create()
+                                    .text("Scanning the music library...")
+                                    .build(),
+                                LabelBuilder.create()
+                                    .id("scanningFile")
+                                    .textPropertyApply(
+                                        prop -> prop.bind(viewModel.scanningFileProperty())
+                                    )
+                                    .build()
+                            )
+                            .build()
+                    )
+                    .build()
+            )
+            .apply(stage -> stage.initModality(Modality.APPLICATION_MODAL))
+            .build();
     }
 
     @Override

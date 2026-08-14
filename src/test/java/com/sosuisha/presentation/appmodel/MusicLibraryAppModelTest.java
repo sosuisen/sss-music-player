@@ -1,11 +1,13 @@
 package com.sosuisha.presentation.appmodel;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.DisplayName;
@@ -43,7 +45,8 @@ class MusicLibraryAppModelTest {
         Files.createFile(folder.resolve("song1.mp3"));
         Files.createFile(folder.resolve("song2.m4a"));
         var appModel = new MusicLibraryAppModel(
-            new LibraryScanner(new NullLibraryDatabase()), new SettingsAppModel(new SettingsRepository())
+            new LibraryScanner(new NullLibraryDatabase()),
+            new SettingsAppModel(new SettingsRepository())
         );
 
         // AtomicInteger is a mutable box to carry the size measured on the FX
@@ -59,6 +62,60 @@ class MusicLibraryAppModelTest {
     }
 
     @Test
+    @DisplayName("スキャン中はscanningがtrueになり、完了するとfalseになる")
+    void scanning_is_true_while_a_scan_runs_and_false_when_it_finishes(FxRobot robot)
+        throws Exception {
+        Files.createFile(folder.resolve("song1.mp3"));
+        var appModel = new MusicLibraryAppModel(
+            new LibraryScanner(new NullLibraryDatabase()),
+            new SettingsAppModel(new SettingsRepository())
+        );
+
+        var scanningRightAfterCall = new AtomicBoolean(false);
+        robot.interact(() -> {
+            appModel.scanFolder(folder);
+            scanningRightAfterCall.set(appModel.scanningProperty().get());
+        });
+
+        assertTrue(scanningRightAfterCall.get());
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> !appModel.scanningProperty().get());
+    }
+
+    @Test
+    @DisplayName("スキャンが失敗してもscanningはfalseに戻る")
+    void scanning_returns_to_false_when_the_scan_fails(FxRobot robot) throws Exception {
+        var appModel = new MusicLibraryAppModel(
+            new LibraryScanner(new NullLibraryDatabase()),
+            new SettingsAppModel(new SettingsRepository())
+        );
+
+        robot.interact(() -> appModel.scanFolder(folder.resolve("missing")));
+
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> !appModel.scanningProperty().get());
+    }
+
+    @Test
+    @DisplayName("スキャン中に読み込んだファイルのパスがscanningFileに反映される")
+    void the_path_of_the_file_being_read_is_reflected_in_scanning_file(FxRobot robot)
+        throws Exception {
+        var file = Files.createFile(folder.resolve("song1.mp3"));
+        var appModel = new MusicLibraryAppModel(
+            new LibraryScanner(new NullLibraryDatabase()),
+            new SettingsAppModel(new SettingsRepository())
+        );
+
+        robot.interact(() -> appModel.scanFolder(folder));
+
+        // Updates are coalesced on the FX thread, so the property eventually
+        // holds the path of the last read file.
+        WaitForAsyncUtils.waitFor(
+            5,
+            TimeUnit.SECONDS,
+            () -> file.toString().equals(appModel.scanningFileProperty().get())
+        );
+    }
+
+    @Test
     @DisplayName("設定のライブラリフォルダが変更されると、新しいフォルダが走査され一覧が更新される")
     void changing_the_music_library_folder_in_the_settings_scans_the_new_folder(FxRobot robot)
         throws Exception {
@@ -68,7 +125,9 @@ class MusicLibraryAppModelTest {
         Files.createFile(folderB.resolve("song2.mp3"));
         Files.createFile(folderB.resolve("song3.m4a"));
         var settingsAppModel = new SettingsAppModel(new SettingsRepository());
-        var appModel = new MusicLibraryAppModel(new LibraryScanner(new NullLibraryDatabase()), settingsAppModel);
+        var appModel = new MusicLibraryAppModel(
+            new LibraryScanner(new NullLibraryDatabase()), settingsAppModel
+        );
 
         robot.interact(() -> settingsAppModel.setSettings(new Settings(folderA)));
         WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> appModel.getFiles().size() == 1);
@@ -82,7 +141,8 @@ class MusicLibraryAppModelTest {
     void rescan_scans_the_last_scanned_folder_again(FxRobot robot) throws Exception {
         Files.createFile(folder.resolve("song1.mp3"));
         var appModel = new MusicLibraryAppModel(
-            new LibraryScanner(new NullLibraryDatabase()), new SettingsAppModel(new SettingsRepository())
+            new LibraryScanner(new NullLibraryDatabase()),
+            new SettingsAppModel(new SettingsRepository())
         );
         robot.interact(() -> appModel.scanFolder(folder));
         WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> appModel.getFiles().size() == 1);
@@ -100,7 +160,8 @@ class MusicLibraryAppModelTest {
         var file = folder.resolve("song1.mp3");
         Files.write(file, new byte[42]);
         var appModel = new MusicLibraryAppModel(
-            new LibraryScanner(new NullLibraryDatabase()), new SettingsAppModel(new SettingsRepository())
+            new LibraryScanner(new NullLibraryDatabase()),
+            new SettingsAppModel(new SettingsRepository())
         );
 
         robot.interact(() -> appModel.scanFolder(folder));

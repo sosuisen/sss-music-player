@@ -7,6 +7,12 @@ import java.util.Objects;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.service.LibraryScanner;
 
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -16,6 +22,8 @@ import javafx.concurrent.Task;
  */
 public class MusicLibraryAppModel {
     private final ObservableList<MusicFile> files = FXCollections.observableArrayList();
+    private final BooleanProperty scanning = new SimpleBooleanProperty(false);
+    private final StringProperty scanningFile = new SimpleStringProperty("");
     private final LibraryScanner scanner;
     private Path lastScannedFolder;
 
@@ -50,13 +58,21 @@ public class MusicLibraryAppModel {
     public void scanFolder(Path folderPath) {
         Objects.requireNonNull(folderPath, "folderPath must not be null");
         lastScannedFolder = folderPath;
+        scanning.set(true);
         var task = new Task<List<MusicFile>>() {
             @Override
             protected List<MusicFile> call() throws Exception {
-                return scanner.scan(folderPath);
+                // updateMessage publishes the value to messageProperty on the
+                // FX thread, coalescing rapid updates.
+                return scanner.scan(folderPath, path -> updateMessage(path.toString()));
             }
         };
-        task.setOnSucceeded(_ -> files.setAll(task.getValue()));
+        scanningFile.bind(task.messageProperty());
+        task.setOnSucceeded(_ -> {
+            files.setAll(task.getValue());
+            scanning.set(false);
+        });
+        task.setOnFailed(_ -> scanning.set(false));
         Thread.ofVirtual().start(task);
     }
 
@@ -89,5 +105,23 @@ public class MusicLibraryAppModel {
      */
     public ObservableList<MusicFile> getFiles() {
         return files;
+    }
+
+    /**
+     * Returns whether a scan is running.
+     *
+     * @return read-only property that is true while a scan is running
+     */
+    public ReadOnlyBooleanProperty scanningProperty() {
+        return scanning;
+    }
+
+    /**
+     * Returns the path of the file that the running scan is reading.
+     *
+     * @return read-only property holding the path of the file being read
+     */
+    public ReadOnlyStringProperty scanningFileProperty() {
+        return scanningFile;
     }
 }

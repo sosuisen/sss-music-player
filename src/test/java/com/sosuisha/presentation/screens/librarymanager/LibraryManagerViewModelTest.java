@@ -27,7 +27,8 @@ class LibraryManagerViewModelTest {
         var viewModel =
             new LibraryManagerViewModel(
                 new WindowManager(), new MusicLibraryAppModel(
-                    new LibraryScanner(new NullLibraryDatabase()), new SettingsAppModel(new SettingsRepository())
+                    new LibraryScanner(new NullLibraryDatabase()),
+                    new SettingsAppModel(new SettingsRepository())
                 )
             );
         var files = List.of(
@@ -45,7 +46,8 @@ class LibraryManagerViewModelTest {
     @DisplayName("AppModelのファイルリストをそのまま返す")
     void returns_the_file_list_of_the_app_model() {
         var appModel = new MusicLibraryAppModel(
-            new LibraryScanner(new NullLibraryDatabase()), new SettingsAppModel(new SettingsRepository())
+            new LibraryScanner(new NullLibraryDatabase()),
+            new SettingsAppModel(new SettingsRepository())
         );
         var viewModel = new LibraryManagerViewModel(new WindowManager(), appModel);
 

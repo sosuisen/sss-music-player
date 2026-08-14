@@ -4,18 +4,26 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testfx.api.FxAssert.verifyThat;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.ListViewMatchers;
+import org.testfx.util.WaitForAsyncUtils;
 
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.Settings;
@@ -32,13 +40,18 @@ import com.sosuisha.service.DuplicateFileMover;
 import com.sosuisha.service.LibraryScanner;
 import com.sosuisha.service.SettingsRepository;
 
+import javafx.scene.control.Label;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 @ExtendWith(ApplicationExtension.class)
 class LibraryManagerViewTest {
+    @TempDir
+    Path folder;
+
     private Stage stage;
     private LibraryManagerViewModel viewModel;
+    private MusicLibraryAppModel appModel;
     private AtomicBoolean rescanned;
 
     @Start
@@ -46,8 +59,9 @@ class LibraryManagerViewTest {
         this.stage = stage;
         var windowManager = new WindowManager();
         rescanned = new AtomicBoolean(false);
-        var appModel = new MusicLibraryAppModel(
-            new LibraryScanner(new NullLibraryDatabase()), new SettingsAppModel(new SettingsRepository())
+        appModel = new MusicLibraryAppModel(
+            new LibraryScanner(new NullLibraryDatabase()),
+            new SettingsAppModel(new SettingsRepository())
         ) {
             @Override
             public void rescan() {
@@ -139,5 +153,85 @@ class LibraryManagerViewTest {
         var window = (Stage) robot.window("Settings");
 
         assertEquals(Modality.APPLICATION_MODAL, window.getModality());
+    }
+
+    @Test
+    @DisplayName("スキャン中はモーダルなScanningウィンドウが表示され、完了すると閉じる")
+    void modal_scanning_window_is_shown_while_a_scan_runs_and_closed_when_it_finishes(
+        FxRobot robot) throws Exception {
+        var shownDuringScan = new AtomicBoolean(false);
+        var modality = new AtomicReference<Modality>();
+        robot.interact(() -> {
+            appModel.scanFolder(folder);
+            findScanningWindow(robot).ifPresent(window -> {
+                shownDuringScan.set(window.isShowing());
+                modality.set(window.getModality());
+            });
+        });
+
+        assertTrue(shownDuringScan.get());
+        assertEquals(Modality.APPLICATION_MODAL, modality.get());
+        WaitForAsyncUtils.waitFor(
+            5,
+            TimeUnit.SECONDS,
+            () -> findScanningWindow(robot).map(window -> !window.isShowing()).orElse(true)
+        );
+    }
+
+    @Test
+    @DisplayName("スキャン中ダイアログに、読み込み中のファイルパスが表示される")
+    void the_scanning_dialog_shows_the_path_of_the_file_being_read(FxRobot robot)
+        throws Exception {
+        var file = Files.createFile(folder.resolve("song1.mp3"));
+        var scanFinished = new CountDownLatch(1);
+        var blockingScanner = new LibraryScanner(new NullLibraryDatabase()) {
+            @Override
+            public List<MusicFile> scan(Path folderPath, Consumer<Path> onFileRead)
+                throws IOException {
+                var result = super.scan(folderPath, onFileRead);
+                // Keeps the scan running until the test releases it, so the
+                // dialog stays open while the label is checked.
+                try {
+                    scanFinished.await();
+                } catch (InterruptedException e) {
+                    throw new IllegalStateException(e);
+                }
+                return result;
+            }
+        };
+        var blockingAppModel = new MusicLibraryAppModel(
+            blockingScanner, new SettingsAppModel(new SettingsRepository())
+        );
+        var blockingViewModel =
+            new LibraryManagerViewModel(new WindowManager(), blockingAppModel);
+        try {
+            robot.interact(() -> {
+                new LibraryManagerView(blockingViewModel);
+                blockingAppModel.scanFolder(folder);
+            });
+
+            WaitForAsyncUtils.waitFor(
+                5,
+                TimeUnit.SECONDS,
+                () -> robot.lookup("#scanningFile")
+                    .tryQueryAs(Label.class)
+                    .map(label -> file.toString().equals(label.getText()))
+                    .orElse(false)
+            );
+        } finally {
+            scanFinished.countDown();
+        }
+        WaitForAsyncUtils.waitFor(
+            5,
+            TimeUnit.SECONDS,
+            () -> findScanningWindow(robot).map(window -> !window.isShowing()).orElse(true)
+        );
+    }
+
+    private static Optional<Stage> findScanningWindow(FxRobot robot) {
+        return robot.listWindows().stream()
+            .filter(window -> window instanceof Stage shown && "Scanning".equals(shown.getTitle()))
+            .map(Stage.class::cast)
+            .findFirst();
     }
 }

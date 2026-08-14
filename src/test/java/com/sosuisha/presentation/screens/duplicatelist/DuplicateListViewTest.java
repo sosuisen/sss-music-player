@@ -47,7 +47,8 @@ class DuplicateListViewTest {
     @Start
     void setup(Stage stage) {
         appModel = new MusicLibraryAppModel(
-            new LibraryScanner(new NullLibraryDatabase()), new SettingsAppModel(new SettingsRepository())
+            new LibraryScanner(new NullLibraryDatabase()),
+            new SettingsAppModel(new SettingsRepository())
         );
         playedPath = new AtomicReference<>();
         stopped = new AtomicBoolean(false);

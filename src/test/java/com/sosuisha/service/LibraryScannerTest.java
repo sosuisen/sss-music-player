@@ -181,14 +181,31 @@ class LibraryScannerTest {
         new LibraryScanner(database).scan(folder);
 
         assertEquals(
-            List.of(List.of(
-                new MusicFile(file, Files.size(file), new TrackMetadata(
-                    "Test Song", "Test Artist", "Test Album", "Test Album Artist", "3", "2020"
-                )),
-                lastModified
-            )),
+            List.of(
+                List.of(
+                    new MusicFile(
+                        file, Files.size(file), new TrackMetadata(
+                            "Test Song", "Test Artist", "Test Album", "Test Album Artist", "3",
+                            "2020"
+                        )
+                    ),
+                    lastModified
+                )
+            ),
             saved
         );
+    }
+
+    @Test
+    @DisplayName("スキャン時に、読み込むファイルのパスが順にコールバックへ通知される")
+    void scan_notifies_the_path_of_each_file_being_read_to_the_callback() throws Exception {
+        var first = Files.createFile(folder.resolve("first.mp3"));
+        var second = Files.createFile(folder.resolve("second.mp3"));
+        var notified = new ArrayList<Path>();
+
+        new LibraryScanner(new NullLibraryDatabase()).scan(folder, notified::add);
+
+        assertEquals(List.of(first, second), notified.stream().sorted().toList());
     }
 
     @Test

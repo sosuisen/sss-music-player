@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.FieldKey;
@@ -47,24 +48,40 @@ public class LibraryScanner {
      * @throws UncheckedIOException if the size of a found file cannot be read
      */
     public List<MusicFile> scan(Path folderPath) throws IOException {
+        return scan(folderPath, _ -> {
+        });
+    }
+
+    /**
+     * Scans like {@link #scan(Path)} and also notifies the path of each file to
+     * the given callback just before the file is read.
+     *
+     * @param folderPath path of the folder to scan
+     * @param onFileRead callback that receives the path of each file being read
+     * @return list of audio files in the folder and its subfolders
+     * @throws NullPointerException if folderPath or onFileRead is null
+     * @throws IOException if the folder cannot be read
+     * @throws UncheckedIOException if the size of a found file cannot be read
+     */
+    public List<MusicFile> scan(Path folderPath, Consumer<Path> onFileRead) throws IOException {
         Objects.requireNonNull(folderPath, "folderPath must not be null");
+        Objects.requireNonNull(onFileRead, "onFileRead must not be null");
         try (var files = Files.walk(folderPath)) {
             return files
                 .filter(Files::isRegularFile)
                 .filter(LibraryScanner::isSupportedAudioFile)
-                .map(this::toMusicFile)
+                .map(path -> toMusicFile(path, onFileRead))
                 .toList();
         }
     }
 
-    private MusicFile toMusicFile(Path path) {
+    private MusicFile toMusicFile(Path path, Consumer<Path> onFileRead) {
+        onFileRead.accept(path);
         try {
             var size = Files.size(path);
             var lastModified = Files.getLastModifiedTime(path);
             var cached = database.find(path, size, lastModified);
-            if (cached.isPresent()) {
-                return new MusicFile(path, size, cached.get());
-            }
+            if (cached.isPresent()) { return new MusicFile(path, size, cached.get()); }
             var musicFile = new MusicFile(path, size, readTrackMetadata(path));
             database.save(musicFile, lastModified);
             return musicFile;

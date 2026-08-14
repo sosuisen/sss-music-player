@@ -10,6 +10,8 @@ import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
 import com.sosuisha.presentation.screens.settings.SettingsView;
 
 import io.github.sosuisen.jfxbuilder.graphics.StageBuilder;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.collections.ObservableList;
 import javafx.stage.Modality;
 
@@ -76,5 +78,23 @@ public class LibraryManagerViewModel {
      */
     public ObservableList<MusicFile> getFiles() {
         return appModel.getFiles();
+    }
+
+    /**
+     * Returns whether a library scan is running.
+     *
+     * @return read-only property that is true while a scan is running
+     */
+    public ReadOnlyBooleanProperty scanningProperty() {
+        return appModel.scanningProperty();
+    }
+
+    /**
+     * Returns the path of the file that the running library scan is reading.
+     *
+     * @return read-only property holding the path of the file being read
+     */
+    public ReadOnlyStringProperty scanningFileProperty() {
+        return appModel.scanningFileProperty();
     }
 }

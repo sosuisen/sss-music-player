@@ -29,7 +29,7 @@ import com.sosuisha.domain.service.LibraryDatabase;
 public class SqliteLibraryDatabase implements LibraryDatabase {
     /** Default database file: {@code ~/.sss-music-player/library.db}. */
     public static final Path DEFAULT_FILE =
-            Path.of(System.getProperty("user.home"), ".sss-music-player", "library.db");
+        Path.of(System.getProperty("user.home"), ".sss-music-player", "library.db");
 
     private static final String SCHEMA_RESOURCE = "/db/schema.sql";
 
@@ -43,9 +43,7 @@ public class SqliteLibraryDatabase implements LibraryDatabase {
      */
     static Path resolveFile() {
         var override = System.getProperty("sss.library.db");
-        if (override != null) {
-            return Path.of(override);
-        }
+        if (override != null) { return Path.of(override); }
         return DEFAULT_FILE;
     }
 
@@ -76,9 +74,7 @@ public class SqliteLibraryDatabase implements LibraryDatabase {
 
     private static void createParentFolder(Path file) {
         var parent = file.getParent();
-        if (parent == null) {
-            return;
-        }
+        if (parent == null) { return; }
         try {
             Files.createDirectories(parent);
         } catch (IOException e) {
@@ -123,15 +119,22 @@ public class SqliteLibraryDatabase implements LibraryDatabase {
     public Optional<TrackMetadata> find(Path path, long size, FileTime lastModified) {
         Objects.requireNonNull(path, "path must not be null");
         Objects.requireNonNull(lastModified, "lastModified must not be null");
-        return withDsl("cannot read the database", dsl -> dsl
+        return withDsl(
+            "cannot read the database", dsl -> dsl
                 .selectFrom(TRACK)
-                .where(TRACK.PATH.eq(path.toString())
+                .where(
+                    TRACK.PATH.eq(path.toString())
                         .and(TRACK.SIZE.eq(size))
-                        .and(TRACK.LAST_MODIFIED.eq(lastModified.toMillis())))
+                        .and(TRACK.LAST_MODIFIED.eq(lastModified.toMillis()))
+                )
                 .fetchOptional()
-                .map(record -> new TrackMetadata(
+                .map(
+                    record -> new TrackMetadata(
                         record.getTitle(), record.getArtist(), record.getAlbum(),
-                        record.getAlbumArtist(), record.getTrackNumber(), record.getReleaseYear())));
+                        record.getAlbumArtist(), record.getTrackNumber(), record.getReleaseYear()
+                    )
+                )
+        );
     }
 
     /**

@@ -40,7 +40,8 @@ class DuplicateListViewModelTest {
         );
         var viewModel = new DuplicateListViewModel(
             new MusicLibraryAppModel(
-                new LibraryScanner(new NullLibraryDatabase()), new SettingsAppModel(new SettingsRepository())
+                new LibraryScanner(new NullLibraryDatabase()),
+                new SettingsAppModel(new SettingsRepository())
             ),
             new NullMusicPlayer(),
             new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")),
@@ -66,7 +67,8 @@ class DuplicateListViewModelTest {
         );
         var viewModel = new DuplicateListViewModel(
             new MusicLibraryAppModel(
-                new LibraryScanner(new NullLibraryDatabase()), new SettingsAppModel(new SettingsRepository())
+                new LibraryScanner(new NullLibraryDatabase()),
+                new SettingsAppModel(new SettingsRepository())
             ),
             new NullMusicPlayer(),
             new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")),
@@ -109,7 +111,8 @@ class DuplicateListViewModelTest {
         };
         var viewModel = new DuplicateListViewModel(
             new MusicLibraryAppModel(
-                new LibraryScanner(new NullLibraryDatabase()), new SettingsAppModel(new SettingsRepository())
+                new LibraryScanner(new NullLibraryDatabase()),
+                new SettingsAppModel(new SettingsRepository())
             ),
             new NullMusicPlayer(),
             mover,
@@ -128,7 +131,8 @@ class DuplicateListViewModelTest {
     @DisplayName("ライブラリのファイル一覧が変わると、最後の判定条件で候補リストが更新される")
     void the_candidate_list_is_updated_with_the_last_detector_when_the_library_files_change() {
         var appModel = new MusicLibraryAppModel(
-            new LibraryScanner(new NullLibraryDatabase()), new SettingsAppModel(new SettingsRepository())
+            new LibraryScanner(new NullLibraryDatabase()),
+            new SettingsAppModel(new SettingsRepository())
         );
         var viewModel = new DuplicateListViewModel(
             appModel,
@@ -155,7 +159,8 @@ class DuplicateListViewModelTest {
     void removing_checked_duplicates_rescans_the_library() {
         var rescanned = new AtomicBoolean(false);
         var appModel = new MusicLibraryAppModel(
-            new LibraryScanner(new NullLibraryDatabase()), new SettingsAppModel(new SettingsRepository())
+            new LibraryScanner(new NullLibraryDatabase()),
+            new SettingsAppModel(new SettingsRepository())
         ) {
             @Override
             public void rescan() {

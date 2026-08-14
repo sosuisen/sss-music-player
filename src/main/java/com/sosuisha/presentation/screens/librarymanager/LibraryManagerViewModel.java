@@ -51,8 +51,15 @@ public class LibraryManagerViewModel {
             Objects.requireNonNull(windowManager, "windowManager must not be null");
         this.appModel = Objects.requireNonNull(appModel, "appModel must not be null");
         this.musicPlayer = Objects.requireNonNull(musicPlayer, "musicPlayer must not be null");
+        musicPlayer.setOnFinished(this::playNextWhenTrackFinishes);
         appModel.getFiles().subscribe(this::updateAlbums);
         updateAlbums();
+    }
+
+    private void playNextWhenTrackFinishes() {
+        if (playerState.get() == PlayerState.PLAYING) {
+            nextTrack();
+        }
     }
 
     private void updateAlbums() {

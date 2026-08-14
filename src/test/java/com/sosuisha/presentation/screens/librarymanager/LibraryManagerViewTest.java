@@ -62,6 +62,7 @@ class LibraryManagerViewTest {
     private AtomicBoolean playbackStopped;
     private AtomicBoolean playbackPaused;
     private AtomicBoolean playbackResumed;
+    private AtomicReference<Runnable> trackFinishedCallback;
 
     @Start
     void setup(Stage stage) {
@@ -81,6 +82,7 @@ class LibraryManagerViewTest {
         playbackStopped = new AtomicBoolean(false);
         playbackPaused = new AtomicBoolean(false);
         playbackResumed = new AtomicBoolean(false);
+        trackFinishedCallback = new AtomicReference<>();
         viewModel = new LibraryManagerViewModel(windowManager, appModel, new MusicPlayer() {
             @Override
             public void play(Path path) {
@@ -100,6 +102,11 @@ class LibraryManagerViewTest {
             @Override
             public void resume() {
                 playbackResumed.set(true);
+            }
+
+            @Override
+            public void setOnFinished(Runnable onFinished) {
+                trackFinishedCallback.set(onFinished);
             }
         });
         var view = new LibraryManagerView(viewModel);
@@ -492,6 +499,29 @@ class LibraryManagerViewTest {
         assertEquals(Path.of("a/two.mp3"), playedPath.get());
         assertFalse(playbackResumed.get());
         assertEquals(PlayerState.PLAYING, viewModel.playerStateProperty().get());
+    }
+
+    @Test
+    @DisplayName("1曲の再生が終わると、次の曲が再生される（末尾の曲では先頭へ戻る）")
+    void the_next_track_is_played_when_a_track_finishes(FxRobot robot) {
+        var trackOne = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("Song One", "", "Album A", "Artist X", "1", "")
+        );
+        var trackTwo = new MusicFile(
+            Path.of("a/two.mp3"), 200,
+            new TrackMetadata("Song Two", "", "Album A", "Artist X", "2", "")
+        );
+        robot.interact(() -> viewModel.setFiles(List.of(trackOne, trackTwo)));
+        robot.clickOn("Album A - Artist X");
+        robot.clickOn("1. Song One");
+        robot.clickOn("#playButton");
+
+        robot.interact(() -> trackFinishedCallback.get().run());
+        assertEquals(Path.of("a/two.mp3"), playedPath.get());
+
+        robot.interact(() -> trackFinishedCallback.get().run());
+        assertEquals(Path.of("a/one.mp3"), playedPath.get());
     }
 
     @Test

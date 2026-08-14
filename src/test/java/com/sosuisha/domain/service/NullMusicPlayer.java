@@ -18,4 +18,7 @@ public class NullMusicPlayer implements MusicPlayer {
 
     @Override
     public void resume() {}
+
+    @Override
+    public void setOnFinished(Runnable onFinished) {}
 }

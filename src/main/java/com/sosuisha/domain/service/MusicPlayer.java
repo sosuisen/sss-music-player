@@ -30,4 +30,12 @@ public interface MusicPlayer {
      * when nothing is paused.
      */
     void resume();
+
+    /**
+     * Sets the callback that is invoked when the playing audio file reaches
+     * its end.
+     *
+     * @param onFinished callback invoked at the end of the audio file
+     */
+    void setOnFinished(Runnable onFinished);
 }

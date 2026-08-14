@@ -14,6 +14,7 @@ import javafx.scene.media.MediaPlayer;
  */
 public class MediaMusicPlayer implements MusicPlayer {
     private MediaPlayer mediaPlayer;
+    private Runnable onFinished;
 
     /**
      * Plays the audio file at the given path.
@@ -29,6 +30,9 @@ public class MediaMusicPlayer implements MusicPlayer {
             mediaPlayer.dispose();
         }
         mediaPlayer = new MediaPlayer(new Media(path.toUri().toString()));
+        if (onFinished != null) {
+            mediaPlayer.setOnEndOfMedia(onFinished);
+        }
         mediaPlayer.play();
     }
 
@@ -62,5 +66,16 @@ public class MediaMusicPlayer implements MusicPlayer {
     public void resume() {
         if (mediaPlayer == null) { return; }
         mediaPlayer.play();
+    }
+
+    /**
+     * Sets the callback that is invoked when the playing audio file reaches
+     * its end. It applies to files played after this call.
+     *
+     * @param onFinished callback invoked at the end of the audio file
+     */
+    @Override
+    public void setOnFinished(Runnable onFinished) {
+        this.onFinished = onFinished;
     }
 }

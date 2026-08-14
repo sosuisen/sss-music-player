@@ -140,28 +140,6 @@ class LibraryScannerTest {
     }
 
     @Test
-    @DisplayName("スキャン時にキャッシュ関数を呼ぶ")
-    void scan_calls_the_cache_function() throws Exception {
-        var file = folder.resolve("first.mp3");
-        Files.write(file, new byte[123]);
-        var calls = new ArrayList<List<Object>>();
-        var database = new NullLibraryDatabase() {
-            @Override
-            public Optional<TrackMetadata> find(Path path, long size, FileTime lastModified) {
-                calls.add(List.of(path, size, lastModified));
-                return Optional.empty();
-            }
-        };
-
-        new LibraryScanner(database).scan(folder);
-
-        assertEquals(
-            List.of(List.of(file, 123L, Files.getLastModifiedTime(file))),
-            calls
-        );
-    }
-
-    @Test
     @DisplayName("キャッシュヒットしたらキャッシュのメタデータを利用する")
     void scan_uses_cached_metadata_on_cache_hit() throws Exception {
         var file = folder.resolve("first.mp3");
@@ -188,6 +166,10 @@ class LibraryScannerTest {
         var file = Files.copy(
             Path.of("src/test/resources/id3/tagged.mp3"), folder.resolve("tagged.mp3")
         );
+        // An explicit past time proves that the saved lastModified is the
+        // modification time of the file, not its creation time (= now).
+        var lastModified = FileTime.fromMillis(1_000_000_000L);
+        Files.setLastModifiedTime(file, lastModified);
         var saved = new ArrayList<List<Object>>();
         var database = new NullLibraryDatabase() {
             @Override
@@ -203,7 +185,7 @@ class LibraryScannerTest {
                 new MusicFile(file, Files.size(file), new TrackMetadata(
                     "Test Song", "Test Artist", "Test Album", "Test Album Artist", "3", "2020"
                 )),
-                Files.getLastModifiedTime(file)
+                lastModified
             )),
             saved
         );

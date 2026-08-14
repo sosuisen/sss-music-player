@@ -6,19 +6,23 @@ import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.presentation.View;
 
+import io.github.sosuisen.jfxbuilder.controls.ButtonBuilder;
 import io.github.sosuisen.jfxbuilder.controls.LabelBuilder;
 import io.github.sosuisen.jfxbuilder.controls.ListViewBuilder;
 import io.github.sosuisen.jfxbuilder.controls.MenuBarBuilder;
 import io.github.sosuisen.jfxbuilder.controls.MenuBuilder;
 import io.github.sosuisen.jfxbuilder.controls.MenuItemBuilder;
 import io.github.sosuisen.jfxbuilder.controls.SplitPaneBuilder;
+import io.github.sosuisen.jfxbuilder.graphics.HBoxBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.SceneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.StageBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -120,6 +124,31 @@ public class LibraryManagerView implements View {
                     setText(empty || item == null ? null : trackText(item));
                 }
             })
+            .apply(
+                listView -> listView.getSelectionModel().selectedItemProperty()
+                    .subscribe(viewModel::selectTrack)
+            )
+            .build();
+    }
+
+    private HBox buildPlayerPanel() {
+        return HBoxBuilder
+            .withChildren(
+                ButtonBuilder.create()
+                    .text("▶")
+                    .id("playButton")
+                    .onAction(_ -> viewModel.togglePlay())
+                    .build(),
+                ButtonBuilder.create()
+                    .text("■")
+                    .id("stopButton")
+                    .onAction(_ -> viewModel.stopPlayback())
+                    .build()
+            )
+            .id("playerPanel")
+            .spacing(10)
+            .padding(new Insets(10))
+            .alignment(Pos.CENTER_LEFT)
             .build();
     }
 
@@ -170,7 +199,8 @@ public class LibraryManagerView implements View {
                         SplitPaneBuilder
                             .withItems(buildAlbumList(), buildTrackList())
                             .vGrowInVBox(Priority.ALWAYS)
-                            .build()
+                            .build(),
+                        buildPlayerPanel()
                     )
                     .build()
             )

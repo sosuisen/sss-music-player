@@ -28,6 +28,7 @@ import org.testfx.util.WaitForAsyncUtils;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.model.TrackMetadata;
+import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.domain.service.NullLibraryDatabase;
 import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.WindowManager;
@@ -55,6 +56,8 @@ class LibraryManagerViewTest {
     private LibraryManagerViewModel viewModel;
     private MusicLibraryAppModel appModel;
     private AtomicBoolean rescanned;
+    private AtomicReference<Path> playedPath;
+    private AtomicBoolean playbackStopped;
 
     @Start
     void setup(Stage stage) {
@@ -70,7 +73,19 @@ class LibraryManagerViewTest {
                 rescanned.set(true);
             }
         };
-        viewModel = new LibraryManagerViewModel(windowManager, appModel);
+        playedPath = new AtomicReference<>();
+        playbackStopped = new AtomicBoolean(false);
+        viewModel = new LibraryManagerViewModel(windowManager, appModel, new MusicPlayer() {
+            @Override
+            public void play(Path path) {
+                playedPath.set(path);
+            }
+
+            @Override
+            public void stop() {
+                playbackStopped.set(true);
+            }
+        });
         var view = new LibraryManagerView(viewModel);
         windowManager.registerView(view);
         windowManager.registerView(
@@ -187,7 +202,9 @@ class LibraryManagerViewTest {
             blockingScanner, new SettingsAppModel(new SettingsRepository())
         );
         var blockingViewModel =
-            new LibraryManagerViewModel(new WindowManager(), blockingAppModel);
+            new LibraryManagerViewModel(
+                new WindowManager(), blockingAppModel, new NullMusicPlayer()
+            );
         try {
             robot.interact(() -> {
                 new LibraryManagerView(blockingViewModel);
@@ -277,6 +294,39 @@ class LibraryManagerViewTest {
         robot.clickOn("Album A - Artist X");
 
         assertTrue(robot.lookup("1. song.mp3").tryQuery().isPresent());
+    }
+
+    @Test
+    @DisplayName("再生ボタンを押すと、曲リストで選択中の曲の再生がプレイヤーに要求される")
+    void clicking_the_play_button_requests_the_player_to_play_the_selected_track(FxRobot robot) {
+        var track = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("Song One", "", "Album A", "Artist X", "1", "")
+        );
+        robot.interact(() -> viewModel.setFiles(List.of(track)));
+        robot.clickOn("Album A - Artist X");
+        robot.clickOn("1. Song One");
+
+        robot.clickOn("#playButton");
+
+        assertEquals(Path.of("a/one.mp3"), playedPath.get());
+    }
+
+    @Test
+    @DisplayName("停止ボタンを押すと、プレイヤーに停止が要求される")
+    void clicking_the_stop_button_requests_the_player_to_stop(FxRobot robot) {
+        robot.clickOn("#stopButton");
+
+        assertTrue(playbackStopped.get());
+    }
+
+    @Test
+    @DisplayName("プレイヤーパネルに、再生ボタンと停止ボタンが表示される")
+    void the_player_panel_shows_a_play_button_and_a_stop_button(FxRobot robot) {
+        var panel = robot.lookup("#playerPanel").query();
+
+        assertTrue(robot.from(panel).lookup("#playButton").tryQuery().isPresent());
+        assertTrue(robot.from(panel).lookup("#stopButton").tryQuery().isPresent());
     }
 
     private static Optional<Stage> findScanningWindow(FxRobot robot) {

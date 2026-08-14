@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.service.NullLibraryDatabase;
+import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
@@ -29,7 +30,7 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryScanner(new NullLibraryDatabase()),
                     new SettingsAppModel(new SettingsRepository())
-                )
+                ), new NullMusicPlayer()
             );
         var files = List.of(
             new MusicFile(Path.of("first.mp3"), 100),
@@ -49,7 +50,8 @@ class LibraryManagerViewModelTest {
             new LibraryScanner(new NullLibraryDatabase()),
             new SettingsAppModel(new SettingsRepository())
         );
-        var viewModel = new LibraryManagerViewModel(new WindowManager(), appModel);
+        var viewModel =
+            new LibraryManagerViewModel(new WindowManager(), appModel, new NullMusicPlayer());
 
         assertSame(appModel.getFiles(), viewModel.getFiles());
     }

@@ -6,6 +6,7 @@ import java.util.Objects;
 
 import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
+import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
@@ -25,20 +26,25 @@ import javafx.stage.Modality;
 public class LibraryManagerViewModel {
     private final WindowManager windowManager;
     private final MusicLibraryAppModel appModel;
+    private final MusicPlayer musicPlayer;
     private final ObservableList<Album> albums = FXCollections.observableArrayList();
     private final ObservableList<MusicFile> selectedTracks = FXCollections.observableArrayList();
+    private MusicFile selectedTrack;
 
     /**
      * Creates the view model.
      *
      * @param windowManager window manager used to open other windows
      * @param appModel application-wide state of the music library
-     * @throws NullPointerException if windowManager or appModel is null
+     * @param musicPlayer player used to play audio files
+     * @throws NullPointerException if windowManager, appModel, or musicPlayer is null
      */
-    public LibraryManagerViewModel(WindowManager windowManager, MusicLibraryAppModel appModel) {
+    public LibraryManagerViewModel(WindowManager windowManager, MusicLibraryAppModel appModel,
+        MusicPlayer musicPlayer) {
         this.windowManager =
             Objects.requireNonNull(windowManager, "windowManager must not be null");
         this.appModel = Objects.requireNonNull(appModel, "appModel must not be null");
+        this.musicPlayer = Objects.requireNonNull(musicPlayer, "musicPlayer must not be null");
         appModel.getFiles().subscribe(this::updateAlbums);
         updateAlbums();
     }
@@ -120,6 +126,31 @@ public class LibraryManagerViewModel {
      */
     public ObservableList<MusicFile> getSelectedTracks() {
         return selectedTracks;
+    }
+
+    /**
+     * Selects the given track as the playback target.
+     *
+     * @param track track to select, or null to clear the selection
+     */
+    public void selectTrack(MusicFile track) {
+        selectedTrack = track;
+    }
+
+    /**
+     * Plays the selected track. Does nothing when no track is selected.
+     */
+    public void togglePlay() {
+        if (selectedTrack != null) {
+            musicPlayer.play(selectedTrack.path());
+        }
+    }
+
+    /**
+     * Stops the playback.
+     */
+    public void stopPlayback() {
+        musicPlayer.stop();
     }
 
     private static List<MusicFile> orderByTrackNumber(List<MusicFile> files) {

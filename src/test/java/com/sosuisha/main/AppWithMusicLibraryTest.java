@@ -1,5 +1,6 @@
 package com.sosuisha.main;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.testfx.api.FxAssert.verifyThat;
 
 import java.nio.file.Files;
@@ -17,12 +18,16 @@ import org.testfx.matcher.control.ListViewMatchers;
 import org.testfx.util.WaitForAsyncUtils;
 
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 @ExtendWith(ApplicationExtension.class)
 class AppWithMusicLibraryTest {
+    private Stage stage;
+    private Window scanningWindowOwner;
 
     @Start
     void setup(Stage stage) throws Exception {
+        this.stage = stage;
         var folder = Files.createTempDirectory("sss-music-player-test");
         var musicFolder = folder.resolve("music");
         Files.createDirectories(musicFolder.resolve("sub"));
@@ -37,12 +42,25 @@ class AppWithMusicLibraryTest {
         System.setProperty("sss.settings.file", file.toString());
         System.setProperty("sss.library.db", folder.resolve("library.db").toString());
         new App().start(stage);
+        // This method runs on the FX thread, so the startup scan cannot finish
+        // yet and the scanning dialog is still open here.
+        scanningWindowOwner = Window.getWindows().stream()
+            .filter(window -> window instanceof Stage shown && "Scanning".equals(shown.getTitle()))
+            .findFirst()
+            .map(window -> ((Stage) window).getOwner())
+            .orElse(null);
     }
 
     @AfterEach
     void cleanup() {
         System.clearProperty("sss.settings.file");
         System.clearProperty("sss.library.db");
+    }
+
+    @Test
+    @DisplayName("起動時のスキャン中ダイアログのオーナーは、メインウィンドウである")
+    void the_scanning_dialog_at_startup_is_owned_by_the_main_window() {
+        assertEquals(stage, scanningWindowOwner);
     }
 
     @Test

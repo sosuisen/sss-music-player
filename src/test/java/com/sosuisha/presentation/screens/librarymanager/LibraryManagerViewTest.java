@@ -43,6 +43,7 @@ import com.sosuisha.service.SettingsRepository;
 import javafx.scene.control.Label;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 
 @ExtendWith(ApplicationExtension.class)
 class LibraryManagerViewTest {
@@ -226,6 +227,18 @@ class LibraryManagerViewTest {
             TimeUnit.SECONDS,
             () -> findScanningWindow(robot).map(window -> !window.isShowing()).orElse(true)
         );
+    }
+
+    @Test
+    @DisplayName("Scanningウィンドウのオーナーは、ライブラリ管理ウィンドウである")
+    void the_owner_of_the_scanning_window_is_the_library_manager_window(FxRobot robot) {
+        var owner = new AtomicReference<Window>();
+        robot.interact(() -> {
+            appModel.scanFolder(folder);
+            findScanningWindow(robot).ifPresent(window -> owner.set(window.getOwner()));
+        });
+
+        assertEquals(stage, owner.get());
     }
 
     private static Optional<Stage> findScanningWindow(FxRobot robot) {

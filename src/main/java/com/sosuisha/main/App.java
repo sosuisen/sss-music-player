@@ -48,7 +48,6 @@ public class App extends Application {
     public void start(Stage stage) {
         Objects.requireNonNull(stage, "stage must not be null");
         var settingsAppModel = new SettingsAppModel(new SettingsRepository());
-        var loadedSettings = settingsAppModel.loadSettings();
         var musicLibAppModel = new MusicLibraryAppModel(
             new LibraryScanner(new SqliteLibraryDatabase()), settingsAppModel
         );
@@ -74,6 +73,9 @@ public class App extends Application {
             new SettingsView(new SettingsViewModel(settingsAppModel, App::chooseDirectory))
         );
         windowManager.showWindow(FIRST_VIEW, stage);
+        // Loading the settings triggers the startup scan, so it runs after the
+        // main window is shown and the scanning dialog can be owned by it.
+        var loadedSettings = settingsAppModel.loadSettings();
         if (loadedSettings.isEmpty()) {
             libraryManagerViewModel.openSettingsWindow();
         }

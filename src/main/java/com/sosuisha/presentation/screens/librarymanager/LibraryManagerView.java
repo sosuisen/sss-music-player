@@ -3,6 +3,7 @@ package com.sosuisha.presentation.screens.librarymanager;
 import java.util.Objects;
 
 import com.sosuisha.domain.model.Album;
+import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.presentation.View;
 
 import io.github.sosuisen.jfxbuilder.controls.LabelBuilder;
@@ -10,12 +11,15 @@ import io.github.sosuisen.jfxbuilder.controls.ListViewBuilder;
 import io.github.sosuisen.jfxbuilder.controls.MenuBarBuilder;
 import io.github.sosuisen.jfxbuilder.controls.MenuBuilder;
 import io.github.sosuisen.jfxbuilder.controls.MenuItemBuilder;
+import io.github.sosuisen.jfxbuilder.controls.SplitPaneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.SceneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.StageBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.layout.Priority;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -89,6 +93,44 @@ public class LibraryManagerView implements View {
             .build();
     }
 
+    private ListView<Album> buildAlbumList() {
+        return ListViewBuilder.create(viewModel.getAlbums())
+            .id("albumList")
+            .cellFactory(_ -> new ListCell<>() {
+                @Override
+                protected void updateItem(Album item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty || item == null ? null : item.name() + " - " + item.artist());
+                }
+            })
+            .apply(
+                listView -> listView.getSelectionModel().selectedItemProperty()
+                    .subscribe(viewModel::selectAlbum)
+            )
+            .build();
+    }
+
+    private ListView<MusicFile> buildTrackList() {
+        return ListViewBuilder.create(viewModel.getSelectedTracks())
+            .id("trackList")
+            .cellFactory(_ -> new ListCell<>() {
+                @Override
+                protected void updateItem(MusicFile item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty || item == null ? null : trackText(item));
+                }
+            })
+            .build();
+    }
+
+    private static String trackText(MusicFile file) {
+        var number = file.tag().trackNumber();
+        var title = file.tag().title().isEmpty()
+            ? file.path().getFileName().toString()
+            : file.tag().title();
+        return number.isEmpty() ? title : number + ". " + title;
+    }
+
     @Override
     public Scene getScene() {
         return scene;
@@ -125,19 +167,9 @@ public class LibraryManagerView implements View {
                                     .build()
                             )
                             .build(),
-                        ListViewBuilder.create(viewModel.getAlbums())
-                            .id("albumList")
-                            .cellFactory(_ -> new ListCell<>() {
-                                @Override
-                                protected void updateItem(Album item, boolean empty) {
-                                    super.updateItem(item, empty);
-                                    setText(
-                                        empty || item == null
-                                            ? null
-                                            : item.name() + " - " + item.artist()
-                                    );
-                                }
-                            })
+                        SplitPaneBuilder
+                            .withItems(buildAlbumList(), buildTrackList())
+                            .vGrowInVBox(Priority.ALWAYS)
                             .build()
                     )
                     .build()

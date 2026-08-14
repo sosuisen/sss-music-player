@@ -243,6 +243,42 @@ class LibraryManagerViewTest {
         return new TrackMetadata("", "", album, albumArtist, "", "");
     }
 
+    @Test
+    @DisplayName("アルバムを選択すると、右のリストに曲が「トラック番号. 曲名」でトラック番号順に表示される")
+    void selecting_an_album_shows_its_tracks_ordered_by_track_number_in_the_track_list(
+        FxRobot robot) {
+        var trackTwo = new MusicFile(
+            Path.of("a/two.mp3"), 100,
+            new TrackMetadata("Song Two", "", "Album A", "Artist X", "2", "")
+        );
+        var trackOne = new MusicFile(
+            Path.of("a/one.mp3"), 200,
+            new TrackMetadata("Song One", "", "Album A", "Artist X", "1", "")
+        );
+        robot.interact(() -> viewModel.setFiles(List.of(trackTwo, trackOne)));
+
+        robot.clickOn("Album A - Artist X");
+
+        var trackList = robot.lookup("#trackList").queryListView();
+        assertEquals(List.of(trackOne, trackTwo), trackList.getItems());
+        assertTrue(robot.lookup("1. Song One").tryQuery().isPresent());
+        assertTrue(robot.lookup("2. Song Two").tryQuery().isPresent());
+    }
+
+    @Test
+    @DisplayName("曲名が空の曲は、ファイル名で表示される")
+    void a_track_with_an_empty_title_is_shown_by_its_file_name(FxRobot robot) {
+        var untitled = new MusicFile(
+            Path.of("a/song.mp3"), 100,
+            new TrackMetadata("", "", "Album A", "Artist X", "1", "")
+        );
+        robot.interact(() -> viewModel.setFiles(List.of(untitled)));
+
+        robot.clickOn("Album A - Artist X");
+
+        assertTrue(robot.lookup("1. song.mp3").tryQuery().isPresent());
+    }
+
     private static Optional<Stage> findScanningWindow(FxRobot robot) {
         return robot.listWindows().stream()
             .filter(window -> window instanceof Stage shown && "Scanning".equals(shown.getTitle()))

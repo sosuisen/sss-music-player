@@ -1,5 +1,6 @@
 package com.sosuisha.presentation.screens.librarymanager;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,6 +26,7 @@ public class LibraryManagerViewModel {
     private final WindowManager windowManager;
     private final MusicLibraryAppModel appModel;
     private final ObservableList<Album> albums = FXCollections.observableArrayList();
+    private final ObservableList<MusicFile> selectedTracks = FXCollections.observableArrayList();
 
     /**
      * Creates the view model.
@@ -98,6 +100,41 @@ public class LibraryManagerViewModel {
      */
     public ObservableList<Album> getAlbums() {
         return albums;
+    }
+
+    /**
+     * Selects the given album. The tracks of the album are published through
+     * {@link #getSelectedTracks()} in track number order.
+     *
+     * @param album album to select, or null to clear the selection
+     */
+    public void selectAlbum(Album album) {
+        selectedTracks.setAll(album == null ? List.of() : orderByTrackNumber(album.files()));
+    }
+
+    /**
+     * Returns the tracks of the selected album in track number order. The
+     * list is empty when no album is selected.
+     *
+     * @return observable list of the tracks of the selected album
+     */
+    public ObservableList<MusicFile> getSelectedTracks() {
+        return selectedTracks;
+    }
+
+    private static List<MusicFile> orderByTrackNumber(List<MusicFile> files) {
+        return files.stream()
+            .sorted(Comparator.comparingInt(LibraryManagerViewModel::trackNumberOf))
+            .toList();
+    }
+
+    private static int trackNumberOf(MusicFile file) {
+        try {
+            return Integer.parseInt(file.tag().trackNumber());
+        } catch (NumberFormatException e) {
+            // A track without a readable number goes last.
+            return Integer.MAX_VALUE;
+        }
     }
 
     /**

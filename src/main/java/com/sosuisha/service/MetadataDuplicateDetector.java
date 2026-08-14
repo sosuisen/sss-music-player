@@ -11,11 +11,11 @@ import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.service.DuplicateDetector;
 
 /**
- * Detects duplicated files by the title and the artist of their track
- * metadata.
+ * Detects duplicated files by the title, the artist, and the album of their
+ * track metadata.
  */
 public class MetadataDuplicateDetector implements DuplicateDetector {
-    private record GroupKey(String title, String artist) {
+    private record GroupKey(String title, String artist, String album) {
     }
 
     private final List<MusicFile> files;
@@ -31,9 +31,10 @@ public class MetadataDuplicateDetector implements DuplicateDetector {
     }
 
     /**
-     * Returns groups of files whose titles and artists are both the same. A
-     * group contains two or more files. A file whose title or artist is empty
-     * is excluded. Groups keep the encounter order. The files in a group are
+     * Returns groups of files whose titles, artists, and albums are all the
+     * same. A group contains two or more files. A file whose title or artist
+     * is empty is excluded; an empty album still takes part in the match.
+     * Groups keep the encounter order. The files in a group are
      * ordered by size, largest first, so that the duplicate remover keeps the
      * largest file; files of the same size keep the encounter order.
      *
@@ -45,7 +46,9 @@ public class MetadataDuplicateDetector implements DuplicateDetector {
             .filter(file -> !file.tag().title().isEmpty() && !file.tag().artist().isEmpty())
             .collect(
                 Collectors.groupingBy(
-                    file -> new GroupKey(file.tag().title(), file.tag().artist()),
+                    file -> new GroupKey(
+                        file.tag().title(), file.tag().artist(), file.tag().album()
+                    ),
                     LinkedHashMap::new,
                     Collectors.toList()
                 )

@@ -65,6 +65,22 @@ class MetadataDuplicateDetectorTest {
         assertEquals(List.of(), detector.detect());
     }
 
+    @Test
+    @DisplayName("曲名とアーティストが同じでも、アルバムが異なるファイルは同じグループにならない")
+    void files_with_a_different_album_do_not_form_a_group_even_with_the_same_title_and_artist() {
+        var albumA = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("Song", "Artist", "Album A", "", "", "")
+        );
+        var albumB = new MusicFile(
+            Path.of("b/two.mp3"), 100,
+            new TrackMetadata("Song", "Artist", "Album B", "", "", "")
+        );
+        var detector = new MetadataDuplicateDetector(List.of(albumA, albumB));
+
+        assertEquals(List.of(), detector.detect());
+    }
+
     private static TrackMetadata tag(String title, String artist) {
         return new TrackMetadata(title, artist, "", "", "", "");
     }

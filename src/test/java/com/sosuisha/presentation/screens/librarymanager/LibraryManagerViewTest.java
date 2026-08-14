@@ -1,6 +1,7 @@
 package com.sosuisha.presentation.screens.librarymanager;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testfx.api.FxAssert.verifyThat;
 
@@ -464,6 +465,32 @@ class LibraryManagerViewTest {
         robot.clickOn("#nextButton");
 
         assertEquals(Path.of("a/two.mp3"), playedPath.get());
+        assertEquals(PlayerState.PLAYING, viewModel.playerStateProperty().get());
+    }
+
+    @Test
+    @DisplayName("一時停止中に別の曲へ移動して▶を押すと、選択中の曲が冒頭から再生される")
+    void clicking_play_after_moving_to_another_track_while_paused_plays_the_selected_track(
+        FxRobot robot) {
+        var trackOne = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("Song One", "", "Album A", "Artist X", "1", "")
+        );
+        var trackTwo = new MusicFile(
+            Path.of("a/two.mp3"), 200,
+            new TrackMetadata("Song Two", "", "Album A", "Artist X", "2", "")
+        );
+        robot.interact(() -> viewModel.setFiles(List.of(trackOne, trackTwo)));
+        robot.clickOn("Album A - Artist X");
+        robot.clickOn("1. Song One");
+        robot.clickOn("#playButton");
+        robot.clickOn("#playButton");
+        robot.clickOn("#nextButton");
+
+        robot.clickOn("#playButton");
+
+        assertEquals(Path.of("a/two.mp3"), playedPath.get());
+        assertFalse(playbackResumed.get());
         assertEquals(PlayerState.PLAYING, viewModel.playerStateProperty().get());
     }
 

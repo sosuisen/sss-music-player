@@ -35,6 +35,7 @@ public class LibraryManagerViewModel {
     private final ObjectProperty<PlayerState> playerState =
         new SimpleObjectProperty<>(PlayerState.STOPPED);
     private final ObjectProperty<MusicFile> selectedTrack = new SimpleObjectProperty<>();
+    private MusicFile playingTrack;
 
     /**
      * Creates the view model.
@@ -178,6 +179,7 @@ public class LibraryManagerViewModel {
         selectedTrack.set(movedTo);
         if (playerState.get() == PlayerState.PLAYING) {
             musicPlayer.play(movedTo.path());
+            playingTrack = movedTo;
         }
     }
 
@@ -193,12 +195,20 @@ public class LibraryManagerViewModel {
                 playerState.set(PlayerState.PAUSED);
             }
             case PAUSED -> {
-                musicPlayer.resume();
+                if (Objects.equals(selectedTrack.get(), playingTrack)) {
+                    musicPlayer.resume();
+                } else {
+                    // The selection moved while paused, so the resume target
+                    // is gone; the selected track starts from the beginning.
+                    musicPlayer.play(selectedTrack.get().path());
+                    playingTrack = selectedTrack.get();
+                }
                 playerState.set(PlayerState.PLAYING);
             }
             case STOPPED -> {
                 if (selectedTrack.get() != null) {
                     musicPlayer.play(selectedTrack.get().path());
+                    playingTrack = selectedTrack.get();
                     playerState.set(PlayerState.PLAYING);
                 }
             }

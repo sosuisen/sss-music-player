@@ -12,4 +12,10 @@ public class NullMusicPlayer implements MusicPlayer {
 
     @Override
     public void stop() {}
+
+    @Override
+    public void pause() {}
+
+    @Override
+    public void resume() {}
 }

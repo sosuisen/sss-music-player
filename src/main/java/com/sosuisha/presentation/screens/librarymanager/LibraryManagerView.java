@@ -124,10 +124,13 @@ public class LibraryManagerView implements View {
                     setText(empty || item == null ? null : trackText(item));
                 }
             })
-            .apply(
-                listView -> listView.getSelectionModel().selectedItemProperty()
-                    .subscribe(viewModel::selectTrack)
-            )
+            .apply(listView -> {
+                listView.getSelectionModel().selectedItemProperty()
+                    .subscribe(viewModel::selectTrack);
+                // Follows selection changes made by the view model (next/prev).
+                viewModel.selectedTrackProperty()
+                    .subscribe(track -> listView.getSelectionModel().select(track));
+            })
             .build();
     }
 
@@ -135,9 +138,24 @@ public class LibraryManagerView implements View {
         return HBoxBuilder
             .withChildren(
                 ButtonBuilder.create()
-                    .text("▶")
+                    .text("◀◀")
+                    .id("prevButton")
+                    .onAction(_ -> viewModel.previousTrack())
+                    .build(),
+                ButtonBuilder.create()
                     .id("playButton")
+                    .textPropertyApply(
+                        prop -> prop.bind(
+                            viewModel.playerStateProperty()
+                                .map(state -> state == PlayerState.PLAYING ? "❘❘" : "▶")
+                        )
+                    )
                     .onAction(_ -> viewModel.togglePlay())
+                    .build(),
+                ButtonBuilder.create()
+                    .text("▶▶")
+                    .id("nextButton")
+                    .onAction(_ -> viewModel.nextTrack())
                     .build(),
                 ButtonBuilder.create()
                     .text("■")

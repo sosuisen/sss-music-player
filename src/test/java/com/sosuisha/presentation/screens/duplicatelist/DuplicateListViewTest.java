@@ -65,6 +65,12 @@ class DuplicateListViewTest {
             public void stop() {
                 stopped.set(true);
             }
+
+            @Override
+            public void pause() {}
+
+            @Override
+            public void resume() {}
         }, new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")) {
             @Override
             public void moveDuplicates(List<DuplicatedItems> groups) {

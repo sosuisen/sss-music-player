@@ -14,8 +14,11 @@ import com.sosuisha.presentation.screens.settings.SettingsView;
 import com.sosuisha.service.AlbumDetector;
 
 import io.github.sosuisen.jfxbuilder.graphics.StageBuilder;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.stage.Modality;
@@ -29,7 +32,9 @@ public class LibraryManagerViewModel {
     private final MusicPlayer musicPlayer;
     private final ObservableList<Album> albums = FXCollections.observableArrayList();
     private final ObservableList<MusicFile> selectedTracks = FXCollections.observableArrayList();
-    private MusicFile selectedTrack;
+    private final ObjectProperty<PlayerState> playerState =
+        new SimpleObjectProperty<>(PlayerState.STOPPED);
+    private final ObjectProperty<MusicFile> selectedTrack = new SimpleObjectProperty<>();
 
     /**
      * Creates the view model.
@@ -134,23 +139,88 @@ public class LibraryManagerViewModel {
      * @param track track to select, or null to clear the selection
      */
     public void selectTrack(MusicFile track) {
-        selectedTrack = track;
+        selectedTrack.set(track);
     }
 
     /**
-     * Plays the selected track. Does nothing when no track is selected.
+     * Returns the track selected as the playback target.
+     *
+     * @return read-only property of the selected track
      */
-    public void togglePlay() {
-        if (selectedTrack != null) {
-            musicPlayer.play(selectedTrack.path());
+    public ReadOnlyObjectProperty<MusicFile> selectedTrackProperty() {
+        return selectedTrack;
+    }
+
+    /**
+     * Moves the selection to the next track of the selected album, wrapping
+     * to the first track at the end. When a track is playing, the moved-to
+     * track is played immediately. Does nothing when the album has no tracks.
+     */
+    public void nextTrack() {
+        moveSelection(1);
+    }
+
+    /**
+     * Moves the selection to the previous track of the selected album,
+     * wrapping to the last track at the head. When a track is playing, the
+     * moved-to track is played immediately. Does nothing when the album has
+     * no tracks.
+     */
+    public void previousTrack() {
+        moveSelection(-1);
+    }
+
+    private void moveSelection(int offset) {
+        if (selectedTracks.isEmpty()) { return; }
+        var index = selectedTracks.indexOf(selectedTrack.get());
+        var size = selectedTracks.size();
+        var movedTo = selectedTracks.get((index + offset + size) % size);
+        selectedTrack.set(movedTo);
+        if (playerState.get() == PlayerState.PLAYING) {
+            musicPlayer.play(movedTo.path());
         }
     }
 
     /**
-     * Stops the playback.
+     * Plays the selected track, pauses the playback when a track is playing,
+     * or resumes the paused playback. Does nothing when nothing is playing and
+     * no track is selected.
+     */
+    public void togglePlay() {
+        switch (playerState.get()) {
+            case PLAYING -> {
+                musicPlayer.pause();
+                playerState.set(PlayerState.PAUSED);
+            }
+            case PAUSED -> {
+                musicPlayer.resume();
+                playerState.set(PlayerState.PLAYING);
+            }
+            case STOPPED -> {
+                if (selectedTrack.get() != null) {
+                    musicPlayer.play(selectedTrack.get().path());
+                    playerState.set(PlayerState.PLAYING);
+                }
+            }
+        }
+    }
+
+    /**
+     * Returns the state of the playback.
+     *
+     * @return read-only property of the player state
+     */
+    public ReadOnlyObjectProperty<PlayerState> playerStateProperty() {
+        return playerState;
+    }
+
+    /**
+     * Stops the playback and moves the player state to
+     * {@link PlayerState#STOPPED}.
      */
     public void stopPlayback() {
         musicPlayer.stop();
+        playerState.set(PlayerState.STOPPED);
     }
 
     private static List<MusicFile> orderByTrackNumber(List<MusicFile> files) {

@@ -43,4 +43,24 @@ public class MediaMusicPlayer implements MusicPlayer {
         mediaPlayer.dispose();
         mediaPlayer = null;
     }
+
+    /**
+     * Pauses the audio file that is currently playing. Does nothing when
+     * nothing is playing.
+     */
+    @Override
+    public void pause() {
+        if (mediaPlayer == null) { return; }
+        mediaPlayer.pause();
+    }
+
+    /**
+     * Resumes the paused audio file from the paused position. Does nothing
+     * when nothing is paused.
+     */
+    @Override
+    public void resume() {
+        if (mediaPlayer == null) { return; }
+        mediaPlayer.play();
+    }
 }

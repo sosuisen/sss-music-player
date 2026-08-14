@@ -18,4 +18,16 @@ public interface MusicPlayer {
      * nothing is playing.
      */
     void stop();
+
+    /**
+     * Pauses the audio file that is currently playing. Does nothing when
+     * nothing is playing.
+     */
+    void pause();
+
+    /**
+     * Resumes the paused audio file from the paused position. Does nothing
+     * when nothing is paused.
+     */
+    void resume();
 }

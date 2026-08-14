@@ -22,6 +22,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
+import org.testfx.matcher.control.LabeledMatchers;
 import org.testfx.matcher.control.ListViewMatchers;
 import org.testfx.util.WaitForAsyncUtils;
 
@@ -58,6 +59,8 @@ class LibraryManagerViewTest {
     private AtomicBoolean rescanned;
     private AtomicReference<Path> playedPath;
     private AtomicBoolean playbackStopped;
+    private AtomicBoolean playbackPaused;
+    private AtomicBoolean playbackResumed;
 
     @Start
     void setup(Stage stage) {
@@ -75,6 +78,8 @@ class LibraryManagerViewTest {
         };
         playedPath = new AtomicReference<>();
         playbackStopped = new AtomicBoolean(false);
+        playbackPaused = new AtomicBoolean(false);
+        playbackResumed = new AtomicBoolean(false);
         viewModel = new LibraryManagerViewModel(windowManager, appModel, new MusicPlayer() {
             @Override
             public void play(Path path) {
@@ -84,6 +89,16 @@ class LibraryManagerViewTest {
             @Override
             public void stop() {
                 playbackStopped.set(true);
+            }
+
+            @Override
+            public void pause() {
+                playbackPaused.set(true);
+            }
+
+            @Override
+            public void resume() {
+                playbackResumed.set(true);
             }
         });
         var view = new LibraryManagerView(viewModel);
@@ -310,6 +325,146 @@ class LibraryManagerViewTest {
         robot.clickOn("#playButton");
 
         assertEquals(Path.of("a/one.mp3"), playedPath.get());
+    }
+
+    @Test
+    @DisplayName("再生ボタンを押すと、ボタンの表示が一時停止（❘❘）に切り替わる")
+    void clicking_the_play_button_changes_the_button_to_a_pause_button(FxRobot robot) {
+        var track = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("Song One", "", "Album A", "Artist X", "1", "")
+        );
+        robot.interact(() -> viewModel.setFiles(List.of(track)));
+        robot.clickOn("Album A - Artist X");
+        robot.clickOn("1. Song One");
+
+        robot.clickOn("#playButton");
+
+        verifyThat("#playButton", LabeledMatchers.hasText("❘❘"));
+    }
+
+    @Test
+    @DisplayName("再生中に一時停止ボタン（❘❘）を押すと、プレイヤーに一時停止が要求され、表示は▶に戻る")
+    void clicking_the_pause_button_while_playing_requests_the_player_to_pause(FxRobot robot) {
+        var track = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("Song One", "", "Album A", "Artist X", "1", "")
+        );
+        robot.interact(() -> viewModel.setFiles(List.of(track)));
+        robot.clickOn("Album A - Artist X");
+        robot.clickOn("1. Song One");
+        robot.clickOn("#playButton");
+
+        robot.clickOn("#playButton");
+
+        assertTrue(playbackPaused.get());
+        verifyThat("#playButton", LabeledMatchers.hasText("▶"));
+    }
+
+    @Test
+    @DisplayName("一時停止後に再生ボタン（▶）を押すと、続きからの再開がプレイヤーに要求される")
+    void clicking_the_play_button_after_pausing_requests_the_player_to_resume(FxRobot robot) {
+        var track = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("Song One", "", "Album A", "Artist X", "1", "")
+        );
+        robot.interact(() -> viewModel.setFiles(List.of(track)));
+        robot.clickOn("Album A - Artist X");
+        robot.clickOn("1. Song One");
+        robot.clickOn("#playButton");
+        robot.clickOn("#playButton");
+
+        robot.clickOn("#playButton");
+
+        assertTrue(playbackResumed.get());
+        assertEquals(PlayerState.PLAYING, viewModel.playerStateProperty().get());
+    }
+
+    @Test
+    @DisplayName("次の曲ボタン（▶▶）を押すと、曲リストの選択が次の曲に移る")
+    void clicking_the_next_button_moves_the_selection_to_the_next_track(FxRobot robot) {
+        var trackOne = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("Song One", "", "Album A", "Artist X", "1", "")
+        );
+        var trackTwo = new MusicFile(
+            Path.of("a/two.mp3"), 200,
+            new TrackMetadata("Song Two", "", "Album A", "Artist X", "2", "")
+        );
+        robot.interact(() -> viewModel.setFiles(List.of(trackOne, trackTwo)));
+        robot.clickOn("Album A - Artist X");
+        robot.clickOn("1. Song One");
+
+        robot.clickOn("#nextButton");
+
+        var trackList = robot.lookup("#trackList").queryListView();
+        assertEquals(trackTwo, trackList.getSelectionModel().getSelectedItem());
+    }
+
+    @Test
+    @DisplayName("前の曲ボタン（◀◀）を押すと、曲リストの選択が前の曲に移る")
+    void clicking_the_previous_button_moves_the_selection_to_the_previous_track(FxRobot robot) {
+        var trackOne = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("Song One", "", "Album A", "Artist X", "1", "")
+        );
+        var trackTwo = new MusicFile(
+            Path.of("a/two.mp3"), 200,
+            new TrackMetadata("Song Two", "", "Album A", "Artist X", "2", "")
+        );
+        robot.interact(() -> viewModel.setFiles(List.of(trackOne, trackTwo)));
+        robot.clickOn("Album A - Artist X");
+        robot.clickOn("2. Song Two");
+
+        robot.clickOn("#prevButton");
+
+        var trackList = robot.lookup("#trackList").queryListView();
+        assertEquals(trackOne, trackList.getSelectionModel().getSelectedItem());
+    }
+
+    @Test
+    @DisplayName("末尾の曲で▶▶は先頭へ、先頭の曲で◀◀は末尾へラップする")
+    void next_wraps_to_the_first_track_and_previous_wraps_to_the_last_track(FxRobot robot) {
+        var trackOne = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("Song One", "", "Album A", "Artist X", "1", "")
+        );
+        var trackTwo = new MusicFile(
+            Path.of("a/two.mp3"), 200,
+            new TrackMetadata("Song Two", "", "Album A", "Artist X", "2", "")
+        );
+        robot.interact(() -> viewModel.setFiles(List.of(trackOne, trackTwo)));
+        robot.clickOn("Album A - Artist X");
+        robot.clickOn("2. Song Two");
+        var trackList = robot.lookup("#trackList").queryListView();
+
+        robot.clickOn("#nextButton");
+        assertEquals(trackOne, trackList.getSelectionModel().getSelectedItem());
+
+        robot.clickOn("#prevButton");
+        assertEquals(trackTwo, trackList.getSelectionModel().getSelectedItem());
+    }
+
+    @Test
+    @DisplayName("再生中に次の曲ボタン（▶▶）を押すと、移動先の曲が即再生される")
+    void clicking_the_next_button_while_playing_plays_the_next_track(FxRobot robot) {
+        var trackOne = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("Song One", "", "Album A", "Artist X", "1", "")
+        );
+        var trackTwo = new MusicFile(
+            Path.of("a/two.mp3"), 200,
+            new TrackMetadata("Song Two", "", "Album A", "Artist X", "2", "")
+        );
+        robot.interact(() -> viewModel.setFiles(List.of(trackOne, trackTwo)));
+        robot.clickOn("Album A - Artist X");
+        robot.clickOn("1. Song One");
+        robot.clickOn("#playButton");
+
+        robot.clickOn("#nextButton");
+
+        assertEquals(Path.of("a/two.mp3"), playedPath.get());
+        assertEquals(PlayerState.PLAYING, viewModel.playerStateProperty().get());
     }
 
     @Test

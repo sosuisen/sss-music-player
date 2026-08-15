@@ -19,7 +19,7 @@ import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListViewModel;
 import com.sosuisha.service.DuplicateFileMover;
 import com.sosuisha.service.LibraryIndexer;
-import com.sosuisha.repository.SettingsRepositoryImpl;
+import com.sosuisha.domain.service.NullSettingsRepository;
 
 import javafx.stage.Stage;
 
@@ -33,7 +33,7 @@ class WindowManagerTest {
             new DuplicateListViewModel(
                 new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
-                    new SettingsAppModel(new SettingsRepositoryImpl())
+                    new SettingsAppModel(new NullSettingsRepository())
                 ),
                 new NullMusicPlayer(),
                 new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")),
@@ -55,7 +55,7 @@ class WindowManagerTest {
             new DuplicateListViewModel(
                 new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
-                    new SettingsAppModel(new SettingsRepositoryImpl())
+                    new SettingsAppModel(new NullSettingsRepository())
                 ),
                 new NullMusicPlayer(),
                 new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")),

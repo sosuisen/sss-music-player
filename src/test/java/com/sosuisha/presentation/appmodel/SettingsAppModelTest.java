@@ -11,13 +11,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.sosuisha.domain.model.Settings;
-import com.sosuisha.repository.SettingsRepositoryImpl;
+import com.sosuisha.domain.service.NullSettingsRepository;
 
 class SettingsAppModelTest {
     @Test
     @DisplayName("設定をセットすると、同じ設定が取得できる")
     void returns_the_settings_that_were_set() {
-        var appModel = new SettingsAppModel(new SettingsRepositoryImpl());
+        var appModel = new SettingsAppModel(new NullSettingsRepository());
         var settings = new Settings(Path.of("music"));
 
         appModel.setSettings(settings);
@@ -28,7 +28,7 @@ class SettingsAppModelTest {
     @Test
     @DisplayName("設定を変更すると、リスナーに新しい設定が通知される")
     void notifies_the_listener_of_the_new_settings_when_the_settings_are_changed() {
-        var appModel = new SettingsAppModel(new SettingsRepositoryImpl());
+        var appModel = new SettingsAppModel(new NullSettingsRepository());
         // AtomicReference is a mutable box to capture the value from the lambda,
         // which cannot assign to local variables.
         var notified = new AtomicReference<Settings>();
@@ -45,7 +45,7 @@ class SettingsAppModelTest {
     @DisplayName("設定の保存に失敗すると、エラープロパティにその例外がセットされる")
     void the_exception_is_set_to_the_error_property_when_saving_the_settings_fails() {
         var error = new IOException("read-only-path");
-        var appModel = new SettingsAppModel(new SettingsRepositoryImpl() {
+        var appModel = new SettingsAppModel(new NullSettingsRepository() {
             @Override
             public void save(Settings settings) throws IOException {
                 throw error;
@@ -60,7 +60,7 @@ class SettingsAppModelTest {
     @Test
     @DisplayName("設定の保存に成功すると、エラープロパティはクリアされる")
     void the_error_property_is_cleared_when_saving_the_settings_succeeds() {
-        var appModel = new SettingsAppModel(new SettingsRepositoryImpl() {
+        var appModel = new SettingsAppModel(new NullSettingsRepository() {
             @Override
             public void save(Settings settings) {}
         });

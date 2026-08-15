@@ -6,7 +6,7 @@ import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.service.TagWriter;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 
-import javafx.beans.binding.Bindings;
+import javafx.beans.binding.BooleanExpression;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
@@ -25,8 +25,9 @@ public class AlbumEditViewModel {
     // last save.
     private final StringProperty originalAlbumName = new SimpleStringProperty("");
     private final StringProperty originalAlbumArtist = new SimpleStringProperty("");
-    private final BooleanProperty albumNameChanged = new SimpleBooleanProperty(false);
-    private final BooleanProperty albumArtistChanged = new SimpleBooleanProperty(false);
+    private final BooleanExpression albumNameChanged = albumName.isNotEqualTo(originalAlbumName);
+    private final BooleanExpression albumArtistChanged =
+        albumArtist.isNotEqualTo(originalAlbumArtist);
     private final BooleanProperty libraryChanged = new SimpleBooleanProperty(false);
 
     /**
@@ -48,18 +49,6 @@ public class AlbumEditViewModel {
             albumName.set(album == null ? "" : album.name());
             albumArtist.set(album == null ? "" : albumArtistOf(album));
         });
-        albumNameChanged.bind(
-            Bindings.createBooleanBinding(
-                () -> !albumName.get().equals(originalAlbumName.get()),
-                albumName, originalAlbumName
-            )
-        );
-        albumArtistChanged.bind(
-            Bindings.createBooleanBinding(
-                () -> !albumArtist.get().equals(originalAlbumArtist.get()),
-                albumArtist, originalAlbumArtist
-            )
-        );
     }
 
     private static String albumArtistOf(Album album) {
@@ -90,10 +79,10 @@ public class AlbumEditViewModel {
      * Returns whether the editable album name differs from the name of the
      * selected album.
      *
-     * @return read-only property that is true while the editable album name
+     * @return observable value that is true while the editable album name
      *     differs from the name of the selected album
      */
-    public ReadOnlyBooleanProperty albumNameChangedProperty() {
+    public BooleanExpression albumNameChangedProperty() {
         return albumNameChanged;
     }
 
@@ -101,10 +90,10 @@ public class AlbumEditViewModel {
      * Returns whether the editable album artist differs from the artist of
      * the selected album. An auto-filled album artist also counts as changed.
      *
-     * @return read-only property that is true while the editable album artist
+     * @return observable value that is true while the editable album artist
      *     differs from the artist of the selected album
      */
-    public ReadOnlyBooleanProperty albumArtistChangedProperty() {
+    public BooleanExpression albumArtistChangedProperty() {
         return albumArtistChanged;
     }
 

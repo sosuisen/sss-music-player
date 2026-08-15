@@ -80,18 +80,6 @@ public class AlbumEditView implements View {
                             )
                             .build()
                     )
-                    .addRow(
-                        2,
-                        LabelBuilder.create()
-                            .text("Year:")
-                            .build(),
-                        TextFieldBuilder.create()
-                            .id("yearField")
-                            .textPropertyApply(
-                                prop -> prop.bindBidirectional(viewModel.albumYearProperty())
-                            )
-                            .build()
-                    )
                     .build(),
                 WIDTH,
                 HEIGHT

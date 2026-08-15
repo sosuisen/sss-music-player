@@ -179,6 +179,22 @@ class LibraryManagerListTest extends LibraryManagerViewTestBase {
     }
 
     @Test
+    @DisplayName("アルバムを選択すると、アルバム情報パネルに年が表示される")
+    void selecting_an_album_shows_its_year_in_the_album_info_panel(FxRobot robot) {
+        var files = List.of(
+            new MusicFile(
+                Path.of("a/one.mp3"), 100,
+                new TrackMetadata("", "", "Album A", "Artist X", "", "2001")
+            )
+        );
+        robot.interact(() -> viewModel.setFiles(files));
+
+        robot.clickOn("Album A - Artist X");
+
+        verifyThat("#albumInfoYear", LabeledMatchers.hasText("2001"));
+    }
+
+    @Test
     @DisplayName("アルバム未選択のとき、Editボタンは無効である")
     void the_edit_button_is_disabled_when_no_album_is_selected(FxRobot robot) {
         robot.interact(() -> viewModel.selectAlbum(null));

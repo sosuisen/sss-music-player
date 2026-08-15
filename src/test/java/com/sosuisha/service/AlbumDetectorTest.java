@@ -81,6 +81,21 @@ class AlbumDetectorTest {
         );
     }
 
+    @Test
+    @DisplayName("ファイルのタグの年が月日を含む場合、アルバムの年は4桁の年だけになる")
+    void the_year_of_an_album_is_only_the_four_digit_year_when_the_tag_contains_a_full_date() {
+        var fullDate = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("", "", "Album A", "Artist X", "", "2001-05-12")
+        );
+        var detector = new AlbumDetector(List.of(fullDate));
+
+        assertEquals(
+            List.of(new Album("Album A", "Artist X", "2001", List.of(fullDate))),
+            detector.detect()
+        );
+    }
+
     private static TrackMetadata tag(String album, String albumArtist) {
         return new TrackMetadata("", "", album, albumArtist, "", "");
     }

@@ -13,7 +13,6 @@ import javafx.beans.property.StringProperty;
 public class AlbumEditViewModel {
     private final StringProperty albumName = new SimpleStringProperty("");
     private final StringProperty albumArtist = new SimpleStringProperty("");
-    private final StringProperty albumYear = new SimpleStringProperty("");
 
     /**
      * Creates the view model. The editable fields are reset to the values of
@@ -28,7 +27,6 @@ public class AlbumEditViewModel {
         appModel.selectedAlbumProperty().subscribe(album -> {
             albumName.set(album == null ? "" : album.name());
             albumArtist.set(album == null ? "" : album.artist());
-            albumYear.set(album == null ? "" : album.year());
         });
     }
 
@@ -50,12 +48,4 @@ public class AlbumEditViewModel {
         return albumArtist;
     }
 
-    /**
-     * Returns the editable release year.
-     *
-     * @return string property of the release year
-     */
-    public StringProperty albumYearProperty() {
-        return albumYear;
-    }
 }

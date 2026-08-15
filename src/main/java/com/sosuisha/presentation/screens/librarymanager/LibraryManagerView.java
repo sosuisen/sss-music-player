@@ -155,6 +155,12 @@ public class LibraryManagerView implements View {
                         prop -> prop.bind(viewModel.selectedAlbumProperty().map(Album::artist))
                     )
                     .build(),
+                LabelBuilder.create()
+                    .id("albumInfoYear")
+                    .textPropertyApply(
+                        prop -> prop.bind(viewModel.selectedAlbumProperty().map(Album::year))
+                    )
+                    .build(),
                 ButtonBuilder.create()
                     .text("Edit")
                     .id("editAlbumButton")

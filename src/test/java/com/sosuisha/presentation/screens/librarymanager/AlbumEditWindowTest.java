@@ -41,20 +41,4 @@ class AlbumEditWindowTest extends LibraryManagerViewTestBase {
         verifyThat("#albumArtistField", TextInputControlMatchers.hasText("Artist X"));
     }
 
-    @Test
-    @DisplayName("編集ウィンドウの年フィールドに、最初の曲のタグの年が表示される")
-    void the_year_field_shows_the_year_of_the_first_track(FxRobot robot) {
-        var files = List.of(
-            new MusicFile(
-                Path.of("a/one.mp3"), 100,
-                new TrackMetadata("", "", "Album A", "Artist X", "", "2001")
-            )
-        );
-        robot.interact(() -> viewModel.setFiles(files));
-        robot.clickOn("Album A - Artist X");
-
-        robot.clickOn("#editAlbumButton");
-
-        verifyThat("#yearField", TextInputControlMatchers.hasText("2001"));
-    }
 }

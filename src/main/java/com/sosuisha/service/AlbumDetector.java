@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.sosuisha.domain.model.Album;
@@ -15,6 +16,8 @@ import com.sosuisha.domain.model.MusicFile;
  * parent folder.
  */
 public class AlbumDetector {
+    private static final Pattern FOUR_DIGIT_YEAR = Pattern.compile("\\d{4}");
+
     private sealed interface GroupKey permits MetadataKey, FolderKey {
     }
 
@@ -41,8 +44,9 @@ public class AlbumDetector {
      * album artist are both the same form one album. Files whose album name is
      * empty form one album per parent folder instead, whose name is the folder
      * name and whose artist is empty. The year of an album is the first
-     * non-empty year of its files, or an empty string when every year is
-     * empty. Albums and their files keep the encounter order.
+     * non-empty year of its files, reduced to its four-digit year when the tag
+     * holds a full date, or an empty string when every year is empty. Albums
+     * and their files keep the encounter order.
      *
      * @return recognized albums
      */
@@ -80,6 +84,12 @@ public class AlbumDetector {
             .map(file -> file.tag().year())
             .filter(year -> !year.isEmpty())
             .findFirst()
+            .map(AlbumDetector::toFourDigitYear)
             .orElse("");
+    }
+
+    private static String toFourDigitYear(String year) {
+        var matcher = FOUR_DIGIT_YEAR.matcher(year);
+        return matcher.find() ? matcher.group() : year;
     }
 }

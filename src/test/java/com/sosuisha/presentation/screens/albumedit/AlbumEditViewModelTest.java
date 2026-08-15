@@ -30,17 +30,4 @@ class AlbumEditViewModelTest {
         assertEquals("Artist X", viewModel.albumArtistProperty().get());
     }
 
-    @Test
-    @DisplayName("アルバムを選択すると、編集用の年に選択中のアルバムの年が入る")
-    void the_editable_year_holds_the_year_of_the_selected_album() {
-        var appModel = new MusicLibraryAppModel(
-            new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new SettingsRepository())
-        );
-        var viewModel = new AlbumEditViewModel(appModel);
-
-        appModel.selectAlbum(new Album("Album A", "Artist X", "2001", List.of()));
-
-        assertEquals("2001", viewModel.albumYearProperty().get());
-    }
 }

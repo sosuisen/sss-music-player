@@ -1,11 +1,11 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.0.3 Chrome/140.0.7339.249 Electron/38.7.0 Safari/537.36" version="29.0.3">
   <diagram id="reactive-deps" name="Reactive Dependencies">
-    <mxGraphModel dx="1233" dy="1019" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="900" math="0" shadow="0">
+    <mxGraphModel dx="1060" dy="988" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="1300" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="legend" value="A → B: AはBにリアクティブに依存するデータフローを持つ（Bが変わるとAが変わる）&lt;br&gt;緑=View / 青=ViewModel / 橙=AppModel" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=12;" parent="1" vertex="1">
-          <mxGeometry x="40" y="20" width="520" height="60" as="geometry" />
+        <mxCell id="legend" value="A → B: AはBにリアクティブに依存するデータフローを持つ（Bが変わるとAが変わる）&lt;br&gt;緑=View / 青=ViewModel / 橙=AppModel&lt;br&gt;コマンド呼び出し（selectAlbum・playTrack等のメソッド呼び出し）は図に含めない" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="40" y="20" width="640" height="60" as="geometry" />
         </mxCell>
         <mxCell id="cSettingsView" value="SettingsView" style="swimlane;rounded=1;startSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
           <mxGeometry x="40" y="100" width="280" height="160" as="geometry" />
@@ -35,109 +35,206 @@
           <mxGeometry x="20" y="100" width="240" height="40" as="geometry" />
         </mxCell>
         <mxCell id="cLibraryManagerView" value="LibraryManagerView" style="swimlane;rounded=1;startSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
-          <mxGeometry x="40" y="310" width="280" height="100" as="geometry" />
+          <mxGeometry x="40" y="300" width="280" height="430" as="geometry" />
         </mxCell>
-        <mxCell id="lmv1" value="fileList.items" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerView" vertex="1">
+        <mxCell id="lmv1" value="albumList.items" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerView" vertex="1">
           <mxGeometry x="20" y="45" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="lmv2" value="trackList.items" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerView" vertex="1">
+          <mxGeometry x="20" y="100" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="lmv3" value="trackList.selection" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerView" vertex="1">
+          <mxGeometry x="20" y="155" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="lmv4" value="sortKeyComboBox.value" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerView" vertex="1">
+          <mxGeometry x="20" y="210" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="lmv5" value="playButton.text" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerView" vertex="1">
+          <mxGeometry x="20" y="265" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="lmv6" value="scanningDialog表示" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerView" vertex="1">
+          <mxGeometry x="20" y="320" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="lmv7" value="scanningFileラベル.text" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerView" vertex="1">
+          <mxGeometry x="20" y="375" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cLibraryManagerViewModel" value="LibraryManagerViewModel" style="swimlane;rounded=1;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="440" y="300" width="300" height="430" as="geometry" />
+        </mxCell>
+        <mxCell id="lvm1" value="albums" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerViewModel" vertex="1">
+          <mxGeometry x="20" y="45" width="260" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="lvm2" value="selectedTracks（selectAlbumで更新）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerViewModel" vertex="1">
+          <mxGeometry x="20" y="100" width="260" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="lvm3" value="selectedTrackProperty" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerViewModel" vertex="1">
+          <mxGeometry x="20" y="155" width="260" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="lvm4" value="sortKeyProperty" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerViewModel" vertex="1">
+          <mxGeometry x="20" y="210" width="260" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="lvm5" value="playerStateProperty" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerViewModel" vertex="1">
+          <mxGeometry x="20" y="265" width="260" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="lvm6" value="scanningProperty（AppModelへ委譲）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerViewModel" vertex="1">
+          <mxGeometry x="20" y="320" width="260" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="lvm7" value="scanningFileProperty（AppModelへ委譲）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerViewModel" vertex="1">
+          <mxGeometry x="20" y="375" width="260" height="40" as="geometry" />
         </mxCell>
         <mxCell id="cMusicLibraryAppModel" value="MusicLibraryAppModel" style="swimlane;rounded=1;startSize=30;fillColor=#ffe6cc;strokeColor=#d79b00;" parent="1" vertex="1">
-          <mxGeometry x="860" y="310" width="280" height="100" as="geometry" />
+          <mxGeometry x="860" y="300" width="280" height="220" as="geometry" />
         </mxCell>
-        <mxCell id="mlam1" value="files (ObservableList&lt;MusicFile&gt;)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cMusicLibraryAppModel" vertex="1">
+        <mxCell id="am1" value="files (ObservableList&lt;MusicFile&gt;)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cMusicLibraryAppModel" vertex="1">
           <mxGeometry x="20" y="45" width="240" height="40" as="geometry" />
         </mxCell>
+        <mxCell id="am2" value="scanning" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cMusicLibraryAppModel" vertex="1">
+          <mxGeometry x="20" y="100" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="am3" value="scanningFile（走査Taskのmessageにbind）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cMusicLibraryAppModel" vertex="1">
+          <mxGeometry x="20" y="155" width="240" height="40" as="geometry" />
+        </mxCell>
         <mxCell id="cDuplicateListView" value="DuplicateListView（CandidateList / DetailedPanel）" style="swimlane;rounded=1;startSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
-          <mxGeometry x="40" y="470" width="280" height="420" as="geometry" />
+          <mxGeometry x="40" y="770" width="290" height="390" as="geometry" />
         </mxCell>
         <mxCell id="dlv1" value="candidateList.items" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cDuplicateListView" vertex="1">
           <mxGeometry x="20" y="45" width="240" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="dlv2" value="candidateList.selection" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cDuplicateListView" vertex="1">
-          <mxGeometry x="20" y="110" width="240" height="40" as="geometry" />
+        <mxCell id="dlv2" value="checkBox.selected（行ごと・CheckBoxListCell）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cDuplicateListView" vertex="1">
+          <mxGeometry x="20" y="100" width="240" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="dlv3" value="checkBox.selected（行ごと）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cDuplicateListView" vertex="1">
-          <mxGeometry x="20" y="235" width="240" height="40" as="geometry" />
+        <mxCell id="dvm4" value="anyChecked" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cDuplicateListView" vertex="1">
+          <mxGeometry x="420" y="154" width="260" height="40" as="geometry" />
         </mxCell>
         <mxCell id="dlv4" value="removeButton.disable" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cDuplicateListView" vertex="1">
-          <mxGeometry x="20" y="310" width="240" height="40" as="geometry" />
+          <mxGeometry x="20" y="154" width="240" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="dlv5" value="detailedFileList.items" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cDuplicateListView" vertex="1">
-          <mxGeometry x="20" y="185" width="240" height="40" as="geometry" />
+        <mxCell id="ed4" value="bind（not）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="cDuplicateListView" source="dlv4" target="dvm4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="dlv6" value="playButton.text（行ごと）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cDuplicateListView" vertex="1">
-          <mxGeometry x="20" y="360" width="240" height="40" as="geometry" />
+        <mxCell id="dvm5" value="playingFile" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cDuplicateListView" vertex="1">
+          <mxGeometry x="420" y="320" width="260" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="dlv5" value="playButton.text（行ごと）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cDuplicateListView" vertex="1">
+          <mxGeometry x="20" y="320" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ed5" value="bind + map（▶/■）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="cDuplicateListView" source="dlv5" target="dvm5" edge="1">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="cDuplicateListViewModel" value="DuplicateListViewModel" style="swimlane;rounded=1;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
-          <mxGeometry x="440" y="470" width="300" height="420" as="geometry" />
+          <mxGeometry x="440" y="770" width="300" height="390" as="geometry" />
         </mxCell>
         <mxCell id="dvm1" value="duplicatedItems" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cDuplicateListViewModel" vertex="1">
           <mxGeometry x="20" y="45" width="260" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="dvm2" value="selectedItem" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cDuplicateListViewModel" vertex="1">
-          <mxGeometry x="20" y="95" width="260" height="40" as="geometry" />
+        <mxCell id="dvm2" value="checkedProperty（グループごと）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cDuplicateListViewModel" vertex="1">
+          <mxGeometry x="20" y="100" width="260" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="dlv3" value="detailedFileList.items" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cDuplicateListViewModel" vertex="1">
+          <mxGeometry x="-380" y="210" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="ed3" value="items" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="cDuplicateListViewModel" source="dlv3" target="dvm3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="dvm3" value="selectedFiles" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cDuplicateListViewModel" vertex="1">
-          <mxGeometry x="20" y="185" width="260" height="40" as="geometry" />
+          <mxGeometry x="20" y="210" width="260" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="dvm4" value="checkedProperty（グループごと）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cDuplicateListViewModel" vertex="1">
-          <mxGeometry x="20" y="235" width="260" height="40" as="geometry" />
+        <mxCell id="dvm6" value="selectedItem" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cDuplicateListViewModel" vertex="1">
+          <mxGeometry x="20" y="265" width="260" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="dvm5" value="anyChecked" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cDuplicateListViewModel" vertex="1">
-          <mxGeometry x="20" y="310" width="260" height="40" as="geometry" />
-        </mxCell>
-        <mxCell id="dvm6" value="playingFile" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cDuplicateListViewModel" vertex="1">
-          <mxGeometry x="20" y="360" width="260" height="40" as="geometry" />
-        </mxCell>
-        <mxCell id="e1" value="bind" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="sv1" target="svm1" edge="1">
+        <mxCell id="es1" value="bind" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="sv1" target="svm1" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e2" value="bind" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="sv2" target="svm2" edge="1">
+        <mxCell id="es2" value="bind" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="sv2" target="svm2" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e3" value="map" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="svm1" target="sam1" edge="1">
+        <mxCell id="es3" value="map" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="svm1" target="sam1" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e4" value="map + orElse" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="svm2" target="sam2" edge="1">
+        <mxCell id="es4" value="map + orElse" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="svm2" target="sam2" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e5" value="subscribe（再走査・非同期）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="mlam1" target="sam1" edge="1">
+        <mxCell id="el1" value="items" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="lmv1" target="lvm1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="el2" value="items" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="lmv2" target="lvm2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="el3" value="subscribe（VMの選択移動に追従）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="lmv3" target="lvm3" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="el4" value="bindBidirectional" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;startArrow=classic;startFill=1;" parent="1" source="lmv4" target="lvm4" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="el5" value="bind + map（▶/❘❘）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="lmv5" target="lvm5" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="el6" value="subscribe（表示/クローズ）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="lmv6" target="lvm6" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="el7" value="bind" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="lmv7" target="lvm7" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="el8" value="subscribe" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="lvm1" target="am1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="el9" value="subscribe&lt;br&gt;（ソートキー変更で再ソート）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="lvm1" target="lvm4" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="1160" y="375" />
-              <mxPoint x="1160" y="165" />
+              <mxPoint x="770" y="365" />
+              <mxPoint x="770" y="530" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e6" value="items" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="lmv1" target="mlam1" edge="1">
+        <mxCell id="el10" value="委譲（同一Property）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;" parent="1" source="lvm6" target="am2" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e7" value="subscribe（直近の判定関数で自動再判定）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="dvm1" target="mlam1" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e8" value="items" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="dlv1" target="dvm1" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e10" value="subscribe" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="dvm3" target="dvm2" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e11" value="items" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="dlv5" target="dvm3" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="e12" value="bind + map" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="dlv6" target="dvm6" edge="1">
+        <mxCell id="el11" value="委譲（同一Property）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;" parent="1" source="lvm7" target="am3" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="180" y="850" />
+              <mxPoint x="1050" y="695" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="e13" value="bindBidirectional" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;startArrow=classic;startFill=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="dlv3" target="dvm4" edge="1">
+        <mxCell id="el12" value="subscribe（再走査・非同期）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="am1" target="sam1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1170" y="365" />
+              <mxPoint x="1170" y="165" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ed1" value="items" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="dlv1" target="dvm1" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="e14" value="subscribe" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="dvm5" target="dvm4" edge="1">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="ed2" value="bindBidirectional&lt;br&gt;（CheckBoxListCell）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;startArrow=classic;startFill=1;" parent="1" source="dlv2" target="dvm2" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
         </mxCell>
-        <mxCell id="e15" value="bind（not）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="dlv4" target="dvm5" edge="1">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="ed6" value="subscribe&lt;br&gt;（直近の判定関数で&lt;br&gt;重複を自動再判定）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="dvm1" target="am1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="800" y="835" />
+              <mxPoint x="800" y="380" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ed7" value="subscribe" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="dvm3" target="dvm6" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="800" y="1000" />
+              <mxPoint x="800" y="1055" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ed8" value="subscribe" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="dvm4" target="dvm2" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="800" y="944" />
+              <mxPoint x="800" y="890" />
+            </Array>
+          </mxGeometry>
         </mxCell>
       </root>
     </mxGraphModel>

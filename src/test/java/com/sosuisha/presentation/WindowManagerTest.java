@@ -11,7 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 
-import com.sosuisha.domain.service.NullLibraryDatabase;
+import com.sosuisha.domain.service.NullLibraryRepository;
 import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
@@ -32,7 +32,7 @@ class WindowManagerTest {
         var view = new DuplicateListView(
             new DuplicateListViewModel(
                 new MusicLibraryAppModel(
-                    new LibraryIndexer(new NullLibraryDatabase()),
+                    new LibraryIndexer(new NullLibraryRepository()),
                     new SettingsAppModel(new SettingsRepository())
                 ),
                 new NullMusicPlayer(),
@@ -54,7 +54,7 @@ class WindowManagerTest {
         var view = new DuplicateListView(
             new DuplicateListViewModel(
                 new MusicLibraryAppModel(
-                    new LibraryIndexer(new NullLibraryDatabase()),
+                    new LibraryIndexer(new NullLibraryRepository()),
                     new SettingsAppModel(new SettingsRepository())
                 ),
                 new NullMusicPlayer(),

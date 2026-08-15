@@ -27,8 +27,8 @@ import org.testfx.util.WaitForAsyncUtils;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.model.TrackMetadata;
-import com.sosuisha.domain.service.LibraryDatabase;
-import com.sosuisha.domain.service.NullLibraryDatabase;
+import com.sosuisha.domain.service.LibraryRepository;
+import com.sosuisha.domain.service.NullLibraryRepository;
 import com.sosuisha.service.LibraryIndexer;
 import com.sosuisha.repository.SettingsRepository;
 
@@ -52,7 +52,7 @@ class MusicLibraryAppModelTest {
         Files.createFile(folder.resolve("song1.mp3"));
         Files.createFile(folder.resolve("song2.m4a"));
         var appModel = new MusicLibraryAppModel(
-            new LibraryIndexer(new NullLibraryDatabase()),
+            new LibraryIndexer(new NullLibraryRepository()),
             new SettingsAppModel(new SettingsRepository())
         );
 
@@ -74,7 +74,7 @@ class MusicLibraryAppModelTest {
         throws Exception {
         Files.createFile(folder.resolve("song1.mp3"));
         var appModel = new MusicLibraryAppModel(
-            new LibraryIndexer(new NullLibraryDatabase()),
+            new LibraryIndexer(new NullLibraryRepository()),
             new SettingsAppModel(new SettingsRepository())
         );
 
@@ -92,7 +92,7 @@ class MusicLibraryAppModelTest {
     @DisplayName("スキャンが失敗してもscanningはfalseに戻る")
     void scanning_returns_to_false_when_the_scan_fails(FxRobot robot) throws Exception {
         var appModel = new MusicLibraryAppModel(
-            new LibraryIndexer(new NullLibraryDatabase()),
+            new LibraryIndexer(new NullLibraryRepository()),
             new SettingsAppModel(new SettingsRepository())
         );
 
@@ -107,7 +107,7 @@ class MusicLibraryAppModelTest {
         throws Exception {
         var file = Files.createFile(folder.resolve("song1.mp3"));
         var appModel = new MusicLibraryAppModel(
-            new LibraryIndexer(new NullLibraryDatabase()),
+            new LibraryIndexer(new NullLibraryRepository()),
             new SettingsAppModel(new SettingsRepository())
         );
 
@@ -133,7 +133,7 @@ class MusicLibraryAppModelTest {
         Files.createFile(folderB.resolve("song3.m4a"));
         var settingsAppModel = new SettingsAppModel(new SettingsRepository());
         var appModel = new MusicLibraryAppModel(
-            new LibraryIndexer(new NullLibraryDatabase()), settingsAppModel
+            new LibraryIndexer(new NullLibraryRepository()), settingsAppModel
         );
 
         robot.interact(() -> settingsAppModel.setSettings(new Settings(folderA)));
@@ -148,7 +148,7 @@ class MusicLibraryAppModelTest {
     void rescan_scans_the_last_scanned_folder_again(FxRobot robot) throws Exception {
         Files.createFile(folder.resolve("song1.mp3"));
         var appModel = new MusicLibraryAppModel(
-            new LibraryIndexer(new NullLibraryDatabase()),
+            new LibraryIndexer(new NullLibraryRepository()),
             new SettingsAppModel(new SettingsRepository())
         );
         robot.interact(() -> appModel.scanFolder(folder));
@@ -166,7 +166,7 @@ class MusicLibraryAppModelTest {
         throws Exception {
         var kept = Files.write(folder.resolve("song1.mp3"), new byte[42]);
         var deleted = Files.write(folder.resolve("song2.mp3"), new byte[42]);
-        var database = new InMemoryLibraryDatabase();
+        var database = new InMemoryLibraryRepository();
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(database),
             new SettingsAppModel(new SettingsRepository())
@@ -188,7 +188,7 @@ class MusicLibraryAppModelTest {
         var cachedTag = new TrackMetadata(
             "Cached Title", "Cached Artist", "Cached Album", "Cached Album Artist", "3", "2020"
         );
-        var database = new InMemoryLibraryDatabase();
+        var database = new InMemoryLibraryRepository();
         database.save(new MusicFile(file, 42, cachedTag), Files.getLastModifiedTime(file));
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(database),
@@ -203,7 +203,7 @@ class MusicLibraryAppModelTest {
         assertEquals(List.of(new MusicFile(file, 42, cachedTag)), appModel.getFiles());
     }
 
-    private static class InMemoryLibraryDatabase implements LibraryDatabase {
+    private static class InMemoryLibraryRepository implements LibraryRepository {
         private record CachedEntry(long size, FileTime lastModified, TrackMetadata tag) {
         }
 
@@ -246,7 +246,7 @@ class MusicLibraryAppModelTest {
         var file = folder.resolve("song1.mp3");
         Files.write(file, new byte[42]);
         var appModel = new MusicLibraryAppModel(
-            new LibraryIndexer(new NullLibraryDatabase()),
+            new LibraryIndexer(new NullLibraryRepository()),
             new SettingsAppModel(new SettingsRepository())
         );
 

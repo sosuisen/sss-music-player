@@ -15,7 +15,7 @@ import org.jaudiotagger.tag.FieldKey;
 
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
-import com.sosuisha.domain.service.LibraryDatabase;
+import com.sosuisha.domain.service.LibraryRepository;
 
 /**
  * Indexes a music library: scans the audio files of a folder and maintains
@@ -24,7 +24,7 @@ import com.sosuisha.domain.service.LibraryDatabase;
 public class LibraryIndexer {
     private static final Set<String> SUPPORTED_EXTENSIONS = Set.of(".mp3", ".m4a");
 
-    private final LibraryDatabase database;
+    private final LibraryRepository database;
 
     /**
      * Creates the indexer.
@@ -32,7 +32,7 @@ public class LibraryIndexer {
      * @param database library database used as a metadata cache
      * @throws NullPointerException if database is null
      */
-    public LibraryIndexer(LibraryDatabase database) {
+    public LibraryIndexer(LibraryRepository database) {
         this.database = Objects.requireNonNull(database, "database must not be null");
     }
 

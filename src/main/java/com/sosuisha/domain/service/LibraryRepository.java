@@ -12,7 +12,7 @@ import com.sosuisha.domain.model.TrackMetadata;
  * The library database of the app. Its first use is a cache of track metadata
  * for the library scan.
  */
-public interface LibraryDatabase {
+public interface LibraryRepository {
     /**
      * Finds the cached track metadata of an audio file. An entry matches when
      * it has the same path and size and its last-modified time is at or after

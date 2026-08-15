@@ -11,7 +11,7 @@ import org.testfx.framework.junit5.ApplicationExtension;
 
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.service.MusicPlayer;
-import com.sosuisha.domain.service.NullLibraryDatabase;
+import com.sosuisha.domain.service.NullLibraryRepository;
 import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
@@ -55,7 +55,7 @@ abstract class LibraryManagerViewTestBase {
         var windowManager = new WindowManager();
         rescanned = new AtomicBoolean(false);
         appModel = new MusicLibraryAppModel(
-            new LibraryIndexer(new NullLibraryDatabase()),
+            new LibraryIndexer(new NullLibraryRepository()),
             new SettingsAppModel(new SettingsRepository())
         ) {
             @Override

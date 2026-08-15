@@ -10,9 +10,9 @@ import com.sosuisha.domain.model.TrackMetadata;
 
 /**
  * A library database that never hits and saves nothing. For tests that need a
- * {@link LibraryDatabase} but do not care about caching.
+ * {@link LibraryRepository} but do not care about caching.
  */
-public class NullLibraryDatabase implements LibraryDatabase {
+public class NullLibraryRepository implements LibraryRepository {
     @Override
     public Optional<TrackMetadata> find(Path path, long size, FileTime lastModified) {
         return Optional.empty();

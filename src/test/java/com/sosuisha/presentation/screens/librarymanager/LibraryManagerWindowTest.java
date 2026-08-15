@@ -21,7 +21,7 @@ import org.testfx.framework.junit5.Start;
 import org.testfx.util.WaitForAsyncUtils;
 
 import com.sosuisha.domain.model.MusicFile;
-import com.sosuisha.domain.service.NullLibraryDatabase;
+import com.sosuisha.domain.service.NullLibraryRepository;
 import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
@@ -114,7 +114,7 @@ class LibraryManagerWindowTest extends LibraryManagerViewTestBase {
         throws Exception {
         var file = Files.createFile(folder.resolve("song1.mp3"));
         var scanFinished = new CountDownLatch(1);
-        var blockingScanner = new LibraryIndexer(new NullLibraryDatabase()) {
+        var blockingScanner = new LibraryIndexer(new NullLibraryRepository()) {
             @Override
             public List<MusicFile> scan(Path folderPath, Consumer<Path> onFileRead)
                 throws IOException {

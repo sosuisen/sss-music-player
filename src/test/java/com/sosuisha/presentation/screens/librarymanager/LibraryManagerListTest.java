@@ -115,6 +115,25 @@ class LibraryManagerListTest extends LibraryManagerViewTestBase {
     }
 
     @Test
+    @DisplayName("アルバムを選択すると、曲リストの最初の曲が選択済みになる")
+    void selecting_an_album_selects_the_first_track_in_the_track_list(FxRobot robot) {
+        var trackTwo = new MusicFile(
+            Path.of("a/two.mp3"), 100,
+            new TrackMetadata("Song Two", "", "Album A", "Artist X", "2", "")
+        );
+        var trackOne = new MusicFile(
+            Path.of("a/one.mp3"), 200,
+            new TrackMetadata("Song One", "", "Album A", "Artist X", "1", "")
+        );
+        robot.interact(() -> viewModel.setFiles(List.of(trackTwo, trackOne)));
+
+        robot.clickOn("Album A - Artist X");
+
+        var trackList = robot.lookup("#trackList").queryListView();
+        assertEquals(trackOne, trackList.getSelectionModel().getSelectedItem());
+    }
+
+    @Test
     @DisplayName("曲名が空の曲は、ファイル名で表示される")
     void a_track_with_an_empty_title_is_shown_by_its_file_name(FxRobot robot) {
         var untitled = new MusicFile(

@@ -10,6 +10,7 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.service.NullLibraryDatabase;
 import com.sosuisha.domain.service.NullMusicPlayer;
@@ -56,5 +57,23 @@ class LibraryManagerViewModelTest {
             });
 
         assertSame(appModel.getFiles(), viewModel.getFiles());
+    }
+
+    @Test
+    @DisplayName("ソートキーがArtistのとき、アルバム行のテキストは「アーティスト名 - アルバム名」である")
+    void the_album_row_text_is_artist_name_and_album_name_when_the_sort_key_is_artist() {
+        var viewModel =
+            new LibraryManagerViewModel(
+                new WindowManager(), new MusicLibraryAppModel(
+                    new LibraryIndexer(new NullLibraryDatabase()),
+                    new SettingsAppModel(new SettingsRepository())
+                ), new NullMusicPlayer(), _ -> {
+                }
+            );
+        viewModel.sortKeyProperty().set(SortKey.ARTIST);
+
+        var text = viewModel.albumRowText(new Album("Album A", "Artist X", List.of()));
+
+        assertEquals("Artist X - Album A", text);
     }
 }

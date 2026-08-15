@@ -96,6 +96,23 @@ public class LibraryManagerViewModel {
     }
 
     /**
+     * Returns the text of an album row in the album list. The parts are
+     * ordered by the sort key: "album - artist" for the album key, and
+     * "artist - album" for the artist key.
+     *
+     * @param album album shown in the row
+     * @return text of the album row
+     * @throws NullPointerException if album is null
+     */
+    public String albumRowText(Album album) {
+        Objects.requireNonNull(album, "album must not be null");
+        return switch (sortKey.get()) {
+            case ALBUM -> album.name() + " - " + album.artist();
+            case ARTIST -> album.artist() + " - " + album.name();
+        };
+    }
+
+    /**
      * Rescans the music library.
      */
     public void rescan() {

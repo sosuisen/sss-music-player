@@ -122,7 +122,7 @@ public class LibraryManagerView implements View {
                 @Override
                 protected void updateItem(Album item, boolean empty) {
                     super.updateItem(item, empty);
-                    setText(empty || item == null ? null : item.name() + " - " + item.artist());
+                    setText(empty || item == null ? null : viewModel.albumRowText(item));
                 }
             })
             .apply(

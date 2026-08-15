@@ -76,4 +76,25 @@ class LibraryManagerViewModelTest {
 
         assertEquals("Artist X - Album A", text);
     }
+
+    @Test
+    @DisplayName("曲の再生中は、アルバムを選択しても曲一覧の先頭の曲が自動選択されない")
+    void selecting_an_album_does_not_select_the_first_track_while_a_track_is_playing() {
+        var viewModel =
+            new LibraryManagerViewModel(
+                new WindowManager(), new MusicLibraryAppModel(
+                    new LibraryIndexer(new NullLibraryDatabase()),
+                    new SettingsAppModel(new SettingsRepository())
+                ), new NullMusicPlayer(), _ -> {
+                }
+            );
+        var playing = new MusicFile(Path.of("p/playing.mp3"), 100);
+        viewModel.playTrack(playing);
+        var trackOne = new MusicFile(Path.of("a/one.mp3"), 200);
+        var trackTwo = new MusicFile(Path.of("a/two.mp3"), 300);
+
+        viewModel.selectAlbum(new Album("Album A", "Artist X", List.of(trackOne, trackTwo)));
+
+        assertEquals(playing, viewModel.selectedTrackProperty().get());
+    }
 }

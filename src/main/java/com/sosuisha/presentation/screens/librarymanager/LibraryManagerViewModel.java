@@ -170,12 +170,14 @@ public class LibraryManagerViewModel {
     /**
      * Selects the given album. The tracks of the album are published through
      * {@link #getSelectedTracks()} in track number order, and the first track
-     * becomes the selected track.
+     * becomes the selected track. While a track is playing, the selected track
+     * is kept instead of moving to the first track.
      *
      * @param album album to select, or null to clear the selection
      */
     public void selectAlbum(Album album) {
         selectedTracks.setAll(album == null ? List.of() : orderByTrackNumber(album.files()));
+        if (playerState.get() == PlayerState.PLAYING) { return; }
         selectedTrack.set(selectedTracks.isEmpty() ? null : selectedTracks.getFirst());
     }
 

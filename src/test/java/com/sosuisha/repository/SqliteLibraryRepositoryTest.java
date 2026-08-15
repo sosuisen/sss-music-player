@@ -103,4 +103,22 @@ class SqliteLibraryRepositoryTest {
         assertEquals(Optional.of(newTag), database.find(file, 456, FileTime.fromMillis(2_000L)));
         assertEquals(Optional.empty(), database.find(file, 123, FileTime.fromMillis(1_000L)));
     }
+
+    @Test
+    @DisplayName("deleteAllを呼ぶと、保存済みの全エントリが消える")
+    void delete_all_removes_all_saved_entries() {
+        var database = new SqliteLibraryRepository(folder.resolve("library.db"));
+        var fileA = folder.resolve("a.mp3");
+        var fileB = folder.resolve("b.mp3");
+        var tag = new TrackMetadata(
+            "Saved Song", "Saved Artist", "Saved Album", "Saved Album Artist", "2", "2010"
+        );
+        database.save(new MusicFile(fileA, 123, tag), FileTime.fromMillis(1_000L));
+        database.save(new MusicFile(fileB, 456, tag), FileTime.fromMillis(2_000L));
+
+        database.deleteAll();
+
+        assertEquals(Optional.empty(), database.find(fileA, 123, FileTime.fromMillis(1_000L)));
+        assertEquals(Optional.empty(), database.find(fileB, 456, FileTime.fromMillis(2_000L)));
+    }
 }

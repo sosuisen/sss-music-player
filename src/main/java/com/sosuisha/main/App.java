@@ -19,6 +19,7 @@ import com.sosuisha.presentation.screens.librarymanager.LibraryManagerViewModel;
 import com.sosuisha.presentation.screens.settings.SettingsView;
 import com.sosuisha.presentation.screens.settings.SettingsViewModel;
 import com.sosuisha.service.DuplicateFileMover;
+import com.sosuisha.service.JaudiotaggerTagWriter;
 import com.sosuisha.service.ShellFolderOpener;
 import com.sosuisha.service.LibraryIndexer;
 import com.sosuisha.service.MediaMusicPlayer;
@@ -78,7 +79,9 @@ public class App extends Application {
         windowManager.registerView(
             new SettingsView(new SettingsViewModel(settingsAppModel, App::chooseDirectory))
         );
-        windowManager.registerView(new AlbumEditView(new AlbumEditViewModel(musicLibAppModel)));
+        windowManager.registerView(
+            new AlbumEditView(new AlbumEditViewModel(musicLibAppModel, new JaudiotaggerTagWriter()))
+        );
         windowManager.showWindow(FIRST_VIEW, stage);
         // Loading the settings triggers the startup scan, so it runs after the
         // main window is shown and the scanning dialog can be owned by it.

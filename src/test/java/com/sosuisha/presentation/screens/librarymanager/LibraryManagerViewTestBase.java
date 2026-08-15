@@ -123,7 +123,10 @@ abstract class LibraryManagerViewTestBase {
         windowManager.registerView(
             new SettingsView(new SettingsViewModel(settingsAppModel, _ -> Optional.empty()))
         );
-        windowManager.registerView(new AlbumEditView(new AlbumEditViewModel(appModel)));
+        windowManager.registerView(
+            new AlbumEditView(new AlbumEditViewModel(appModel, (_, _, _) -> {
+            }))
+        );
         stage.setScene(view.getScene());
         stage.setTitle(view.getTitle());
         stage.show();

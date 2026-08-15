@@ -3,6 +3,7 @@ package com.sosuisha.presentation.screens.albumedit;
 import java.util.Objects;
 
 import com.sosuisha.domain.model.Album;
+import com.sosuisha.domain.service.TagWriter;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 
 import javafx.beans.binding.Bindings;
@@ -17,6 +18,7 @@ import javafx.beans.property.StringProperty;
  */
 public class AlbumEditViewModel {
     private final MusicLibraryAppModel appModel;
+    private final TagWriter tagWriter;
     private final StringProperty albumName = new SimpleStringProperty("");
     private final StringProperty albumArtist = new SimpleStringProperty("");
     private final BooleanProperty albumNameChanged = new SimpleBooleanProperty(false);
@@ -30,10 +32,12 @@ public class AlbumEditViewModel {
      * first track of the album.
      *
      * @param appModel application-wide state of the music library
-     * @throws NullPointerException if appModel is null
+     * @param tagWriter writer that saves the edited fields to the audio files
+     * @throws NullPointerException if appModel or tagWriter is null
      */
-    public AlbumEditViewModel(MusicLibraryAppModel appModel) {
+    public AlbumEditViewModel(MusicLibraryAppModel appModel, TagWriter tagWriter) {
         this.appModel = Objects.requireNonNull(appModel, "appModel must not be null");
+        this.tagWriter = Objects.requireNonNull(tagWriter, "tagWriter must not be null");
         appModel.selectedAlbumProperty().subscribe(album -> {
             albumName.set(album == null ? "" : album.name());
             albumArtist.set(album == null ? "" : albumArtistOf(album));
@@ -109,9 +113,16 @@ public class AlbumEditViewModel {
     }
 
     /**
-     * Saves the edited album metadata and marks the library as changed.
+     * Saves the edited album name and album artist to the tags of all tracks
+     * of the selected album and marks the library as changed. Does nothing
+     * when no album is selected.
      */
     public void save() {
+        var album = appModel.selectedAlbumProperty().get();
+        if (album == null) { return; }
+        for (var file : album.files()) {
+            tagWriter.writeAlbumTag(file.path(), albumName.get(), albumArtist.get());
+        }
         libraryChanged.set(true);
     }
 

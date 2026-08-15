@@ -8,12 +8,11 @@ import java.nio.file.Path;
 public interface TagWriter {
     /**
      * Writes the album fields to the tag of an audio file. The other fields of
-     * the tag are kept.
+     * the tag, including the year, are kept.
      *
      * @param file path of the audio file
      * @param album album name
      * @param albumArtist album artist
-     * @param year release year
      */
-    void writeAlbumTag(Path file, String album, String albumArtist, String year);
+    void writeAlbumTag(Path file, String album, String albumArtist);
 }

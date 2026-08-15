@@ -114,6 +114,33 @@ public class LibraryManagerViewModel {
     }
 
     /**
+     * Returns the text of a track row in the track list: the track number,
+     * the title, and the artist in parentheses. A track with an empty title
+     * is shown by its file name. An empty track number is omitted. The artist
+     * is shown only when it differs from the artist of the selected album.
+     *
+     * @param file track shown in the row
+     * @return text of the track row
+     * @throws NullPointerException if file is null
+     */
+    public String trackRowText(MusicFile file) {
+        Objects.requireNonNull(file, "file must not be null");
+        var title = file.tag().title().isEmpty()
+            ? file.path().getFileName().toString()
+            : file.tag().title();
+        var number = file.tag().trackNumber();
+        var text = number.isEmpty() ? title : number + ". " + title;
+        var artist = file.tag().artist();
+        if (artist.isEmpty() || artist.equals(selectedAlbumArtist())) { return text; }
+        return text + " (" + artist + ")";
+    }
+
+    private String selectedAlbumArtist() {
+        var album = appModel.selectedAlbumProperty().get();
+        return album == null ? "" : album.artist();
+    }
+
+    /**
      * Rescans the music library.
      */
     public void rescan() {

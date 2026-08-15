@@ -191,7 +191,7 @@ public class LibraryManagerView implements View {
                 @Override
                 protected void updateItem(MusicFile item, boolean empty) {
                     super.updateItem(item, empty);
-                    setText(empty || item == null ? null : trackText(item));
+                    setText(empty || item == null ? null : viewModel.trackRowText(item));
                 }
             })
             .apply(listView -> {
@@ -278,14 +278,6 @@ public class LibraryManagerView implements View {
             .spacing(10)
             .alignment(Pos.CENTER_LEFT)
             .build();
-    }
-
-    private static String trackText(MusicFile file) {
-        var number = file.tag().trackNumber();
-        var title = file.tag().title().isEmpty()
-            ? file.path().getFileName().toString()
-            : file.tag().title();
-        return number.isEmpty() ? title : number + ". " + title;
     }
 
     @Override

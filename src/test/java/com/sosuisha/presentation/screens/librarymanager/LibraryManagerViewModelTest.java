@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
+import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.service.NullLibraryRepository;
 import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.WindowManager;
@@ -75,6 +76,45 @@ class LibraryManagerViewModelTest {
         var text = viewModel.albumRowText(new Album("Album A", "Artist X", List.of()));
 
         assertEquals("Artist X - Album A", text);
+    }
+
+    @Test
+    @DisplayName("曲リストの行テキストは「トラック番号. 曲名 (アーティスト名)」である")
+    void the_track_row_text_is_the_number_title_and_artist_of_the_track() {
+        var viewModel =
+            new LibraryManagerViewModel(
+                new WindowManager(), new MusicLibraryAppModel(
+                    new LibraryIndexer(new NullLibraryRepository()),
+                    new SettingsAppModel(new NullSettingsRepository())
+                ), new NullMusicPlayer(), _ -> {
+                }
+            );
+        var track = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("Song One", "Artist X", "Album A", "", "1", "")
+        );
+
+        assertEquals("1. Song One (Artist X)", viewModel.trackRowText(track));
+    }
+
+    @Test
+    @DisplayName("曲のアーティスト名がアルバムアーティストと同じ場合、行テキストにアーティスト名は付かない")
+    void the_artist_is_omitted_from_the_track_row_text_when_it_equals_the_album_artist() {
+        var viewModel =
+            new LibraryManagerViewModel(
+                new WindowManager(), new MusicLibraryAppModel(
+                    new LibraryIndexer(new NullLibraryRepository()),
+                    new SettingsAppModel(new NullSettingsRepository())
+                ), new NullMusicPlayer(), _ -> {
+                }
+            );
+        var track = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("Song One", "Artist X", "Album A", "Artist X", "1", "")
+        );
+        viewModel.selectAlbum(new Album("Album A", "Artist X", List.of(track)));
+
+        assertEquals("1. Song One", viewModel.trackRowText(track));
     }
 
     @Test

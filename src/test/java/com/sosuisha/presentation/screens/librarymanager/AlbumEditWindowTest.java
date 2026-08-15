@@ -1,5 +1,6 @@
 package com.sosuisha.presentation.screens.librarymanager;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testfx.api.FxAssert.verifyThat;
@@ -16,6 +17,7 @@ import org.testfx.matcher.control.TextInputControlMatchers;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
 
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
@@ -84,5 +86,27 @@ class AlbumEditWindowTest extends LibraryManagerViewTestBase {
         robot.clickOn("#albumNameField").write("!");
 
         assertFalse(saveButton.isDisabled());
+    }
+
+    @Test
+    @DisplayName("Saveすると、Saveボタンの下に「編集ウィンドウを閉じるとライブラリが再読み込みされます」と表示される")
+    void saving_shows_the_reload_notice_under_the_save_button(FxRobot robot) {
+        var files = List.of(
+            new MusicFile(
+                Path.of("a/one.mp3"), 100,
+                new TrackMetadata("Song One", "Artist X", "Album A", "Artist X", "1", "")
+            )
+        );
+        robot.interact(() -> viewModel.setFiles(files));
+        robot.clickOn("Album A - Artist X");
+        robot.clickOn("#editAlbumButton");
+        var notice = robot.lookup("#reloadNotice").queryAs(Label.class);
+        assertFalse(notice.isVisible());
+        robot.clickOn("#albumNameField").write("!");
+
+        robot.clickOn("#saveButton");
+
+        assertTrue(notice.isVisible());
+        assertEquals("編集ウィンドウを閉じるとライブラリが再読み込みされます", notice.getText());
     }
 }

@@ -1,6 +1,7 @@
 package com.sosuisha.presentation.screens.albumedit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -9,6 +10,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.Path;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
@@ -84,6 +86,60 @@ class AlbumEditViewModelTest {
         appModel.selectAlbum(new Album("Album A", "", List.of(first)));
 
         assertTrue(viewModel.albumArtistChangedProperty().get());
+    }
+
+    @Test
+    @DisplayName("Saveすると、ライブラリ変更フラグが立つ")
+    void saving_sets_the_library_changed_flag() {
+        var appModel = new MusicLibraryAppModel(
+            new LibraryIndexer(new NullLibraryRepository()),
+            new SettingsAppModel(new SettingsRepository())
+        );
+        var viewModel = new AlbumEditViewModel(appModel);
+        appModel.selectAlbum(new Album("Album A", "Artist X", List.of()));
+        viewModel.albumNameProperty().set("New Album");
+
+        viewModel.save();
+
+        assertTrue(viewModel.libraryChangedProperty().get());
+    }
+
+    @Test
+    @DisplayName("編集ウィンドウを開くと、ライブラリ変更フラグが落ちる")
+    void opening_the_window_clears_the_library_changed_flag() {
+        var appModel = new MusicLibraryAppModel(
+            new LibraryIndexer(new NullLibraryRepository()),
+            new SettingsAppModel(new SettingsRepository())
+        );
+        var viewModel = new AlbumEditViewModel(appModel);
+        appModel.selectAlbum(new Album("Album A", "Artist X", List.of()));
+        viewModel.save();
+
+        viewModel.windowOpened();
+
+        assertFalse(viewModel.libraryChangedProperty().get());
+    }
+
+    @Test
+    @DisplayName("ライブラリ変更フラグが立っているとき、編集ウィンドウを閉じるとライブラリが再スキャンされる")
+    void closing_the_window_rescans_the_library_when_the_library_changed_flag_is_set() {
+        var rescanned = new AtomicBoolean(false);
+        var appModel = new MusicLibraryAppModel(
+            new LibraryIndexer(new NullLibraryRepository()),
+            new SettingsAppModel(new SettingsRepository())
+        ) {
+            @Override
+            public void rescan() {
+                rescanned.set(true);
+            }
+        };
+        var viewModel = new AlbumEditViewModel(appModel);
+        appModel.selectAlbum(new Album("Album A", "Artist X", List.of()));
+        viewModel.save();
+
+        viewModel.windowClosed();
+
+        assertTrue(rescanned.get());
     }
 
 }

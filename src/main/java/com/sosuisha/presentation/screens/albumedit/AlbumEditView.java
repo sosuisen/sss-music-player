@@ -113,8 +113,20 @@ public class AlbumEditView implements View {
                                         .not()
                                 )
                             )
+                            .onAction(_ -> viewModel.save())
                             .columnSpanInGridPane(2)
                             .hAlignmentInGridPane(HPos.RIGHT)
+                            .build()
+                    )
+                    .addRow(
+                        3,
+                        LabelBuilder.create()
+                            .text("編集ウィンドウを閉じるとライブラリが再読み込みされます")
+                            .id("reloadNotice")
+                            .visiblePropertyApply(
+                                prop -> prop.bind(viewModel.libraryChangedProperty())
+                            )
+                            .columnSpanInGridPane(2)
                             .build()
                     )
                     .build(),

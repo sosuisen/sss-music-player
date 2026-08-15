@@ -16,10 +16,12 @@ import javafx.beans.property.StringProperty;
  * ViewModel for the album metadata edit screen.
  */
 public class AlbumEditViewModel {
+    private final MusicLibraryAppModel appModel;
     private final StringProperty albumName = new SimpleStringProperty("");
     private final StringProperty albumArtist = new SimpleStringProperty("");
     private final BooleanProperty albumNameChanged = new SimpleBooleanProperty(false);
     private final BooleanProperty albumArtistChanged = new SimpleBooleanProperty(false);
+    private final BooleanProperty libraryChanged = new SimpleBooleanProperty(false);
 
     /**
      * Creates the view model. The editable fields are reset to the values of
@@ -31,7 +33,7 @@ public class AlbumEditViewModel {
      * @throws NullPointerException if appModel is null
      */
     public AlbumEditViewModel(MusicLibraryAppModel appModel) {
-        Objects.requireNonNull(appModel, "appModel must not be null");
+        this.appModel = Objects.requireNonNull(appModel, "appModel must not be null");
         appModel.selectedAlbumProperty().subscribe(album -> {
             albumName.set(album == null ? "" : album.name());
             albumArtist.set(album == null ? "" : albumArtistOf(album));
@@ -104,6 +106,42 @@ public class AlbumEditViewModel {
      */
     public ReadOnlyBooleanProperty albumArtistChangedProperty() {
         return albumArtistChanged;
+    }
+
+    /**
+     * Saves the edited album metadata and marks the library as changed.
+     */
+    public void save() {
+        libraryChanged.set(true);
+    }
+
+    /**
+     * Tells that the edit window has been opened. The library changed flag is
+     * cleared for the new edit session.
+     */
+    public void windowOpened() {
+        libraryChanged.set(false);
+    }
+
+    /**
+     * Tells that the edit window has been closed. The library is rescanned
+     * when a save of this session has changed its audio files.
+     */
+    public void windowClosed() {
+        if (libraryChanged.get()) {
+            appModel.rescan();
+        }
+    }
+
+    /**
+     * Returns whether a save of this screen has changed the audio files of
+     * the library.
+     *
+     * @return read-only property that is true while the library is marked as
+     *     changed
+     */
+    public ReadOnlyBooleanProperty libraryChangedProperty() {
+        return libraryChanged;
     }
 
 }

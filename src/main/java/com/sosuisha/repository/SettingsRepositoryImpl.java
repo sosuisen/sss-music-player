@@ -7,11 +7,12 @@ import java.util.Objects;
 import java.util.Properties;
 
 import com.sosuisha.domain.model.Settings;
+import com.sosuisha.domain.service.SettingsRepository;
 
 /**
- * Saves and loads the application settings in a properties file.
+ * Settings repository that saves and loads the settings in a properties file.
  */
-public class SettingsRepository {
+public class SettingsRepositoryImpl implements SettingsRepository {
     /** Default properties file: {@code ~/.sss-music-player/settings.properties}. */
     public static final Path DEFAULT_FILE =
         Path.of(System.getProperty("user.home"), ".sss-music-player", "settings.properties");
@@ -38,17 +39,17 @@ public class SettingsRepository {
      * Creates the repository. The properties file path is resolved by
      * {@link #resolveFile()}.
      */
-    public SettingsRepository() {
+    public SettingsRepositoryImpl() {
         this.file = resolveFile();
     }
 
     /**
-     * Saves the given settings to the properties file.
+     * {@inheritDoc}
      *
-     * @param settings settings to save
      * @throws NullPointerException if settings is null
      * @throws IOException if the file cannot be written
      */
+    @Override
     public void save(Settings settings) throws IOException {
         Objects.requireNonNull(settings, "settings must not be null");
         var parent = file.getParent();
@@ -63,11 +64,11 @@ public class SettingsRepository {
     }
 
     /**
-     * Loads the settings from the properties file.
+     * {@inheritDoc}
      *
-     * @return loaded settings
      * @throws IOException if the file cannot be read
      */
+    @Override
     public Settings load() throws IOException {
         var properties = new Properties();
         try (var reader = Files.newBufferedReader(file)) {

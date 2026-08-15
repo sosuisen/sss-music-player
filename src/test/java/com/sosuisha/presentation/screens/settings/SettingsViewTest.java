@@ -19,7 +19,7 @@ import org.testfx.matcher.control.LabeledMatchers;
 
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
-import com.sosuisha.repository.SettingsRepository;
+import com.sosuisha.repository.SettingsRepositoryImpl;
 
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
@@ -39,7 +39,7 @@ class SettingsViewTest {
             "sss.settings.file",
             folder.resolve("settings.properties").toString()
         );
-        appModel = new SettingsAppModel(new SettingsRepository());
+        appModel = new SettingsAppModel(new SettingsRepositoryImpl());
         appModel.setSettings(new Settings(Path.of("music")));
         var view = new SettingsView(
             new SettingsViewModel(appModel, _ -> Optional.of(Path.of("selected")))
@@ -97,6 +97,6 @@ class SettingsViewTest {
         FxRobot robot) throws Exception {
         robot.clickOn("#selectFolder");
 
-        assertEquals(new Settings(Path.of("selected")), new SettingsRepository().load());
+        assertEquals(new Settings(Path.of("selected")), new SettingsRepositoryImpl().load());
     }
 }

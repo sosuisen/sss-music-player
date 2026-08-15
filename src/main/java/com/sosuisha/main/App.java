@@ -22,7 +22,7 @@ import com.sosuisha.service.DuplicateFileMover;
 import com.sosuisha.service.ShellFolderOpener;
 import com.sosuisha.service.LibraryIndexer;
 import com.sosuisha.service.MediaMusicPlayer;
-import com.sosuisha.repository.SettingsRepository;
+import com.sosuisha.repository.SettingsRepositoryImpl;
 import com.sosuisha.repository.SqliteLibraryRepository;
 
 import javafx.application.Application;
@@ -49,7 +49,7 @@ public class App extends Application {
     @Override
     public void start(Stage stage) {
         Objects.requireNonNull(stage, "stage must not be null");
-        var settingsAppModel = new SettingsAppModel(new SettingsRepository());
+        var settingsAppModel = new SettingsAppModel(new SettingsRepositoryImpl());
         var musicLibAppModel = new MusicLibraryAppModel(
             new LibraryIndexer(new SqliteLibraryRepository()), settingsAppModel
         );

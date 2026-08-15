@@ -24,7 +24,7 @@ import com.sosuisha.presentation.screens.settings.SettingsView;
 import com.sosuisha.presentation.screens.settings.SettingsViewModel;
 import com.sosuisha.service.DuplicateFileMover;
 import com.sosuisha.service.LibraryIndexer;
-import com.sosuisha.repository.SettingsRepository;
+import com.sosuisha.repository.SettingsRepositoryImpl;
 
 import javafx.stage.Stage;
 
@@ -58,7 +58,7 @@ abstract class LibraryManagerViewTestBase {
         rescanned = new AtomicBoolean(false);
         appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new SettingsRepository())
+            new SettingsAppModel(new SettingsRepositoryImpl())
         ) {
             @Override
             public void rescan() {
@@ -118,7 +118,7 @@ abstract class LibraryManagerViewTestBase {
                 )
             )
         );
-        var settingsAppModel = new SettingsAppModel(new SettingsRepository());
+        var settingsAppModel = new SettingsAppModel(new SettingsRepositoryImpl());
         settingsAppModel.setSettings(new Settings(Path.of("music")));
         windowManager.registerView(
             new SettingsView(new SettingsViewModel(settingsAppModel, _ -> Optional.empty()))

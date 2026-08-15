@@ -19,7 +19,7 @@ import com.sosuisha.domain.service.NullLibraryRepository;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.service.LibraryIndexer;
-import com.sosuisha.repository.SettingsRepository;
+import com.sosuisha.repository.SettingsRepositoryImpl;
 
 class AlbumEditViewModelTest {
     @Test
@@ -27,7 +27,7 @@ class AlbumEditViewModelTest {
     void the_editable_album_name_and_album_artist_hold_the_values_of_the_selected_album() {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new SettingsRepository())
+            new SettingsAppModel(new SettingsRepositoryImpl())
         );
         var viewModel = new AlbumEditViewModel(appModel);
 
@@ -42,7 +42,7 @@ class AlbumEditViewModelTest {
     void the_editable_album_artist_is_auto_filled_with_the_artist_of_the_first_track() {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new SettingsRepository())
+            new SettingsAppModel(new SettingsRepositoryImpl())
         );
         var viewModel = new AlbumEditViewModel(appModel);
         var first = new MusicFile(
@@ -60,7 +60,7 @@ class AlbumEditViewModelTest {
     void album_name_changed_is_true_when_the_editable_album_name_differs_from_the_album() {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new SettingsRepository())
+            new SettingsAppModel(new SettingsRepositoryImpl())
         );
         var viewModel = new AlbumEditViewModel(appModel);
         appModel.selectAlbum(new Album("Album A", "Artist X", List.of()));
@@ -75,7 +75,7 @@ class AlbumEditViewModelTest {
     void album_artist_changed_is_true_when_the_album_artist_is_auto_filled() {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new SettingsRepository())
+            new SettingsAppModel(new SettingsRepositoryImpl())
         );
         var viewModel = new AlbumEditViewModel(appModel);
         var first = new MusicFile(
@@ -93,7 +93,7 @@ class AlbumEditViewModelTest {
     void saving_sets_the_library_changed_flag() {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new SettingsRepository())
+            new SettingsAppModel(new SettingsRepositoryImpl())
         );
         var viewModel = new AlbumEditViewModel(appModel);
         appModel.selectAlbum(new Album("Album A", "Artist X", List.of()));
@@ -109,7 +109,7 @@ class AlbumEditViewModelTest {
     void opening_the_window_clears_the_library_changed_flag() {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new SettingsRepository())
+            new SettingsAppModel(new SettingsRepositoryImpl())
         );
         var viewModel = new AlbumEditViewModel(appModel);
         appModel.selectAlbum(new Album("Album A", "Artist X", List.of()));
@@ -126,7 +126,7 @@ class AlbumEditViewModelTest {
         var rescanned = new AtomicBoolean(false);
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new SettingsRepository())
+            new SettingsAppModel(new SettingsRepositoryImpl())
         ) {
             @Override
             public void rescan() {

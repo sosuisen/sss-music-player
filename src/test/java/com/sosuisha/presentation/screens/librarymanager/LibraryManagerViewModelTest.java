@@ -18,7 +18,7 @@ import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.service.LibraryIndexer;
-import com.sosuisha.repository.SettingsRepository;
+import com.sosuisha.repository.SettingsRepositoryImpl;
 
 import javafx.collections.ObservableList;
 
@@ -30,7 +30,7 @@ class LibraryManagerViewModelTest {
             new LibraryManagerViewModel(
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
-                    new SettingsAppModel(new SettingsRepository())
+                    new SettingsAppModel(new SettingsRepositoryImpl())
                 ), new NullMusicPlayer(), _ -> {
                 }
             );
@@ -50,7 +50,7 @@ class LibraryManagerViewModelTest {
     void returns_the_file_list_of_the_app_model() {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new SettingsRepository())
+            new SettingsAppModel(new SettingsRepositoryImpl())
         );
         var viewModel =
             new LibraryManagerViewModel(new WindowManager(), appModel, new NullMusicPlayer(), _ -> {
@@ -66,7 +66,7 @@ class LibraryManagerViewModelTest {
             new LibraryManagerViewModel(
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
-                    new SettingsAppModel(new SettingsRepository())
+                    new SettingsAppModel(new SettingsRepositoryImpl())
                 ), new NullMusicPlayer(), _ -> {
                 }
             );
@@ -84,7 +84,7 @@ class LibraryManagerViewModelTest {
             new LibraryManagerViewModel(
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
-                    new SettingsAppModel(new SettingsRepository())
+                    new SettingsAppModel(new SettingsRepositoryImpl())
                 ), new NullMusicPlayer(), _ -> {
                 }
             );

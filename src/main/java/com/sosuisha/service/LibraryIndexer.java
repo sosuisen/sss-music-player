@@ -39,8 +39,8 @@ public class LibraryIndexer {
     /**
      * Returns all supported audio files (mp3 and m4a) with their sizes and
      * track metadata in the given folder and its subfolders. The extension is
-     * matched ignoring case. A file whose tag cannot be read gets
-     * {@link TrackMetadata#EMPTY}.
+     * matched ignoring case. A hidden file whose name starts with a dot is
+     * skipped. A file whose tag cannot be read gets {@link TrackMetadata#EMPTY}.
      *
      * @param folderPath path of the folder to scan
      * @return list of audio files in the folder and its subfolders
@@ -70,6 +70,7 @@ public class LibraryIndexer {
         try (var files = Files.walk(folderPath)) {
             return files
                 .filter(Files::isRegularFile)
+                .filter(path -> !isHiddenFile(path))
                 .filter(LibraryIndexer::isSupportedAudioFile)
                 .map(path -> toMusicFile(path, onFileRead))
                 .toList();
@@ -115,6 +116,10 @@ public class LibraryIndexer {
             // A file whose tag cannot be read is kept in the library with empty metadata.
             return TrackMetadata.EMPTY;
         }
+    }
+
+    private static boolean isHiddenFile(Path path) {
+        return path.getFileName().toString().startsWith(".");
     }
 
     private static boolean isSupportedAudioFile(Path path) {

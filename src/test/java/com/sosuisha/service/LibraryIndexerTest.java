@@ -72,6 +72,18 @@ class LibraryIndexerTest {
     }
 
     @Test
+    @DisplayName("先頭が.で始まる隠しファイルはスキップされる")
+    void skips_hidden_files_whose_names_start_with_a_dot() throws Exception {
+        var visible = Files.createFile(folder.resolve("song.mp3"));
+        Files.createFile(folder.resolve(".hidden.mp3"));
+
+        var scanner = new LibraryIndexer(new NullLibraryDatabase());
+        var musicFiles = scanner.scan(folder);
+
+        assertEquals(List.of(visible), musicFiles.stream().map(MusicFile::path).toList());
+    }
+
+    @Test
     @DisplayName("ロードしたmp3ファイルのMusicFileにID3タグが含まれる")
     void music_file_of_loaded_mp3_file_contains_id3_tag() throws Exception {
         // The mp3 files in src/test/resources/id3 and their ID3 tag values are

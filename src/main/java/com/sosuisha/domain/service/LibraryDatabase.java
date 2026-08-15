@@ -14,13 +14,14 @@ import com.sosuisha.domain.model.TrackMetadata;
  */
 public interface LibraryDatabase {
     /**
-     * Finds the cached track metadata of an audio file.
+     * Finds the cached track metadata of an audio file. An entry matches when
+     * it has the same path and size and its last-modified time is at or after
+     * the file's last-modified time.
      *
      * @param path path of the audio file
      * @param size size of the audio file in bytes
      * @param lastModified last-modified time of the audio file
-     * @return the cached metadata, or an empty Optional if the file is not
-     *     cached
+     * @return the cached metadata, or an empty Optional if no entry matches
      */
     Optional<TrackMetadata> find(Path path, long size, FileTime lastModified);
 

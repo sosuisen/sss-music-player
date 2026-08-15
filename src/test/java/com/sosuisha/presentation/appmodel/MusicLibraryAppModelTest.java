@@ -212,7 +212,8 @@ class MusicLibraryAppModelTest {
         @Override
         public Optional<TrackMetadata> find(Path path, long size, FileTime lastModified) {
             var entry = entries.get(path);
-            if (entry == null || entry.size != size || !entry.lastModified.equals(lastModified)) {
+            if (entry == null || entry.size != size
+                || entry.lastModified.compareTo(lastModified) < 0) {
                 return Optional.empty();
             }
             return Optional.of(entry.tag);

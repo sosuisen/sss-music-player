@@ -126,7 +126,7 @@ public class SqliteLibraryRepository implements LibraryDatabase {
                 .where(
                     TRACK.PATH.eq(path.toString())
                         .and(TRACK.SIZE.eq(size))
-                        .and(TRACK.LAST_MODIFIED.eq(lastModified.toMillis()))
+                        .and(TRACK.LAST_MODIFIED.ge(lastModified.toMillis()))
                 )
                 .fetchOptional()
                 .map(

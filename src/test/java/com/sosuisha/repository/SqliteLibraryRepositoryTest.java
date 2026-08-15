@@ -76,6 +76,19 @@ class SqliteLibraryRepositoryTest {
     }
 
     @Test
+    @DisplayName("ファイル側の更新日時がDB側以前なら、同じパス・サイズのfindはメタデータを返す")
+    void find_returns_saved_metadata_when_the_file_is_not_newer_than_the_entry() {
+        var database = new SqliteLibraryRepository(folder.resolve("library.db"));
+        var file = folder.resolve("song.mp3");
+        var tag = new TrackMetadata(
+            "Saved Song", "Saved Artist", "Saved Album", "Saved Album Artist", "2", "2010"
+        );
+        database.save(new MusicFile(file, 123, tag), FileTime.fromMillis(2_000L));
+
+        assertEquals(Optional.of(tag), database.find(file, 123, FileTime.fromMillis(1_000L)));
+    }
+
+    @Test
     @DisplayName("マッチするエントリが無い場合、findは空のOptionalを返す")
     void find_returns_empty_optional_when_no_entry_matches() throws Exception {
         var database = new SqliteLibraryRepository(folder.resolve("library.db"));

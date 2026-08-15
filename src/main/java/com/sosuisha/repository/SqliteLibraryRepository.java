@@ -26,7 +26,7 @@ import com.sosuisha.domain.service.LibraryDatabase;
 /**
  * Library database stored in a SQLite file, accessed through jOOQ.
  */
-public class SqliteLibraryDatabase implements LibraryDatabase {
+public class SqliteLibraryRepository implements LibraryDatabase {
     /** Default database file: {@code ~/.sss-music-player/library.db}. */
     public static final Path DEFAULT_FILE =
         Path.of(System.getProperty("user.home"), ".sss-music-player", "library.db");
@@ -52,7 +52,7 @@ public class SqliteLibraryDatabase implements LibraryDatabase {
      *
      * @throws IllegalStateException if the database cannot be opened
      */
-    public SqliteLibraryDatabase() {
+    public SqliteLibraryRepository() {
         this(resolveFile());
     }
 
@@ -65,7 +65,7 @@ public class SqliteLibraryDatabase implements LibraryDatabase {
      * @throws UncheckedIOException  if the parent folder cannot be created
      * @throws IllegalStateException if the database cannot be opened
      */
-    public SqliteLibraryDatabase(Path file) {
+    public SqliteLibraryRepository(Path file) {
         Objects.requireNonNull(file, "file must not be null");
         createParentFolder(file);
         this.url = "jdbc:sqlite:" + file;
@@ -87,7 +87,7 @@ public class SqliteLibraryDatabase implements LibraryDatabase {
     }
 
     private static String loadSchemaSql() {
-        try (var in = SqliteLibraryDatabase.class.getResourceAsStream(SCHEMA_RESOURCE)) {
+        try (var in = SqliteLibraryRepository.class.getResourceAsStream(SCHEMA_RESOURCE)) {
             return new String(in.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

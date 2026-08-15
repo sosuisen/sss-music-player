@@ -181,6 +181,28 @@ class MusicLibraryAppModelTest {
         assertEquals(Set.of(kept), database.paths());
     }
 
+    @Test
+    @DisplayName("rescanを呼んでも、変更されていないファイルのメタデータはDBのキャッシュが使われる")
+    void rescan_uses_the_cached_metadata_of_an_unchanged_file(FxRobot robot) throws Exception {
+        var file = Files.write(folder.resolve("song1.mp3"), new byte[42]);
+        var cachedTag = new TrackMetadata(
+            "Cached Title", "Cached Artist", "Cached Album", "Cached Album Artist", "3", "2020"
+        );
+        var database = new InMemoryLibraryDatabase();
+        database.save(new MusicFile(file, 42, cachedTag), Files.getLastModifiedTime(file));
+        var appModel = new MusicLibraryAppModel(
+            new LibraryIndexer(database),
+            new SettingsAppModel(new SettingsRepository())
+        );
+        robot.interact(() -> appModel.scanFolder(folder));
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> appModel.getFiles().size() == 1);
+
+        robot.interact(() -> appModel.rescan());
+
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> !appModel.scanningProperty().get());
+        assertEquals(List.of(new MusicFile(file, 42, cachedTag)), appModel.getFiles());
+    }
+
     private static class InMemoryLibraryDatabase implements LibraryDatabase {
         private record CachedEntry(long size, FileTime lastModified, TrackMetadata tag) {
         }
@@ -202,8 +224,13 @@ class MusicLibraryAppModelTest {
         }
 
         @Override
-        public void deleteAll() {
-            entries.clear();
+        public List<Path> findAllPaths() {
+            return List.copyOf(entries.keySet());
+        }
+
+        @Override
+        public void delete(Path path) {
+            entries.remove(path);
         }
 
         Set<Path> paths() {

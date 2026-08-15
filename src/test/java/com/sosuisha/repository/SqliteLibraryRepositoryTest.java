@@ -7,6 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -105,8 +106,8 @@ class SqliteLibraryRepositoryTest {
     }
 
     @Test
-    @DisplayName("deleteAllを呼ぶと、保存済みの全エントリが消える")
-    void delete_all_removes_all_saved_entries() {
+    @DisplayName("findAllPathsを呼ぶと、保存済みの全エントリのパスが返る")
+    void find_all_paths_returns_the_paths_of_all_saved_entries() {
         var database = new SqliteLibraryRepository(folder.resolve("library.db"));
         var fileA = folder.resolve("a.mp3");
         var fileB = folder.resolve("b.mp3");
@@ -116,9 +117,24 @@ class SqliteLibraryRepositoryTest {
         database.save(new MusicFile(fileA, 123, tag), FileTime.fromMillis(1_000L));
         database.save(new MusicFile(fileB, 456, tag), FileTime.fromMillis(2_000L));
 
-        database.deleteAll();
+        assertEquals(Set.of(fileA, fileB), Set.copyOf(database.findAllPaths()));
+    }
+
+    @Test
+    @DisplayName("deleteを呼ぶと、そのパスのエントリだけが消える")
+    void delete_removes_only_the_entry_of_the_given_path() {
+        var database = new SqliteLibraryRepository(folder.resolve("library.db"));
+        var fileA = folder.resolve("a.mp3");
+        var fileB = folder.resolve("b.mp3");
+        var tag = new TrackMetadata(
+            "Saved Song", "Saved Artist", "Saved Album", "Saved Album Artist", "2", "2010"
+        );
+        database.save(new MusicFile(fileA, 123, tag), FileTime.fromMillis(1_000L));
+        database.save(new MusicFile(fileB, 456, tag), FileTime.fromMillis(2_000L));
+
+        database.delete(fileA);
 
         assertEquals(Optional.empty(), database.find(fileA, 123, FileTime.fromMillis(1_000L)));
-        assertEquals(Optional.empty(), database.find(fileB, 456, FileTime.fromMillis(2_000L)));
+        assertEquals(Optional.of(tag), database.find(fileB, 456, FileTime.fromMillis(2_000L)));
     }
 }

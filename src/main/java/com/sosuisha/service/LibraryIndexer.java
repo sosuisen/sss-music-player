@@ -41,6 +41,7 @@ public class LibraryIndexer {
      * track metadata in the given folder and its subfolders. The extension is
      * matched ignoring case. A hidden file whose name starts with a dot is
      * skipped. A file whose tag cannot be read gets {@link TrackMetadata#EMPTY}.
+     * After the scan, a database entry whose file no longer exists is deleted.
      *
      * @param folderPath path of the folder to scan
      * @return list of audio files in the folder and its subfolders
@@ -68,21 +69,23 @@ public class LibraryIndexer {
         Objects.requireNonNull(folderPath, "folderPath must not be null");
         Objects.requireNonNull(onFileRead, "onFileRead must not be null");
         try (var files = Files.walk(folderPath)) {
-            return files
+            var musicFiles = files
                 .filter(Files::isRegularFile)
                 .filter(path -> !isHiddenFile(path))
                 .filter(LibraryIndexer::isSupportedAudioFile)
                 .map(path -> toMusicFile(path, onFileRead))
                 .toList();
+            deleteEntriesOfMissingFiles();
+            return musicFiles;
         }
     }
 
-    /**
-     * Deletes all entries of the metadata cache. The next scan reads the
-     * metadata of every file from the file itself.
-     */
-    public void clearCache() {
-        database.deleteAll();
+    private void deleteEntriesOfMissingFiles() {
+        for (var path : database.findAllPaths()) {
+            if (!Files.exists(path)) {
+                database.delete(path);
+            }
+        }
     }
 
     private MusicFile toMusicFile(Path path, Consumer<Path> onFileRead) {

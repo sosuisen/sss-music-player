@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -165,10 +166,29 @@ public class SqliteLibraryRepository implements LibraryDatabase {
     /**
      * {@inheritDoc}
      *
+     * @throws IllegalStateException if the database cannot be read
+     */
+    @Override
+    public List<Path> findAllPaths() {
+        return withDsl(
+            "cannot read the database",
+            dsl -> dsl.select(TRACK.PATH).from(TRACK).fetch(record -> Path.of(record.value1()))
+        );
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws NullPointerException  if path is null
      * @throws IllegalStateException if the database cannot be written
      */
     @Override
-    public void deleteAll() {
-        runWithDsl("cannot write to the database", dsl -> dsl.deleteFrom(TRACK).execute());
+    public void delete(Path path) {
+        Objects.requireNonNull(path, "path must not be null");
+        runWithDsl(
+            "cannot write to the database",
+            dsl -> dsl.deleteFrom(TRACK).where(TRACK.PATH.eq(path.toString())).execute()
+        );
     }
+
 }

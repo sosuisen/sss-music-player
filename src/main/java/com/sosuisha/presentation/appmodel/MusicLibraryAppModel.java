@@ -77,13 +77,11 @@ public class MusicLibraryAppModel {
     }
 
     /**
-     * Deletes all entries of the library database and scans the last scanned
-     * folder again in the background. Does nothing when no folder has been
-     * scanned yet.
+     * Scans the last scanned folder again in the background. Does nothing when
+     * no folder has been scanned yet.
      */
     public void rescan() {
         if (lastScannedFolder != null) {
-            scanner.clearCache();
             scanFolder(lastScannedFolder);
         }
     }

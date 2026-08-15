@@ -2,6 +2,7 @@ package com.sosuisha.domain.service;
 
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
+import java.util.List;
 import java.util.Optional;
 
 import com.sosuisha.domain.model.MusicFile;
@@ -21,5 +22,10 @@ public class NullLibraryDatabase implements LibraryDatabase {
     public void save(MusicFile file, FileTime lastModified) {}
 
     @Override
-    public void deleteAll() {}
+    public List<Path> findAllPaths() {
+        return List.of();
+    }
+
+    @Override
+    public void delete(Path path) {}
 }

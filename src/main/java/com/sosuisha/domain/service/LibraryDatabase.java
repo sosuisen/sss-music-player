@@ -2,6 +2,7 @@ package com.sosuisha.domain.service;
 
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
+import java.util.List;
 import java.util.Optional;
 
 import com.sosuisha.domain.model.MusicFile;
@@ -33,7 +34,17 @@ public interface LibraryDatabase {
     void save(MusicFile file, FileTime lastModified);
 
     /**
-     * Deletes all entries of the database.
+     * Returns the paths of all entries of the database.
+     *
+     * @return paths of all entries
      */
-    void deleteAll();
+    List<Path> findAllPaths();
+
+    /**
+     * Deletes the entry of the given path. Does nothing when the path has no
+     * entry.
+     *
+     * @param path path of the audio file whose entry is deleted
+     */
+    void delete(Path path);
 }

@@ -16,8 +16,8 @@ import com.sosuisha.presentation.screens.librarymanager.LibraryManagerView;
 import com.sosuisha.presentation.screens.librarymanager.LibraryManagerViewModel;
 import com.sosuisha.presentation.screens.settings.SettingsView;
 import com.sosuisha.presentation.screens.settings.SettingsViewModel;
-import com.sosuisha.service.DesktopFolderOpener;
 import com.sosuisha.service.DuplicateFileMover;
+import com.sosuisha.service.ShellFolderOpener;
 import com.sosuisha.service.LibraryIndexer;
 import com.sosuisha.service.MediaMusicPlayer;
 import com.sosuisha.repository.SettingsRepository;
@@ -53,9 +53,10 @@ public class App extends Application {
         );
 
         var windowManager = new WindowManager();
+        var folderOpener = new ShellFolderOpener();
         var libraryManagerViewModel =
             new LibraryManagerViewModel(
-                windowManager, musicLibAppModel, new MediaMusicPlayer(), new DesktopFolderOpener()
+                windowManager, musicLibAppModel, new MediaMusicPlayer(), folderOpener
             );
         windowManager.registerView(new LibraryManagerView(libraryManagerViewModel));
         var settingsFolder = Path.of(System.getProperty("user.home"), ".sss-music-player");
@@ -68,7 +69,7 @@ public class App extends Application {
                         settingsFolder.resolve("duplicates"),
                         settingsFolder.resolve("duplicates.log")
                     ),
-                    new DesktopFolderOpener()
+                    folderOpener
                 )
             )
         );

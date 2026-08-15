@@ -109,4 +109,26 @@ class AlbumEditWindowTest extends LibraryManagerViewTestBase {
         assertTrue(notice.isVisible());
         assertEquals("編集ウィンドウを閉じるとライブラリが再読み込みされます", notice.getText());
     }
+
+    @Test
+    @DisplayName("編集ウィンドウを閉じて開き直すと、再読み込みの表示は消えている")
+    void reopening_the_edit_window_hides_the_reload_notice(FxRobot robot) {
+        var files = List.of(
+            new MusicFile(
+                Path.of("a/one.mp3"), 100,
+                new TrackMetadata("Song One", "Artist X", "Album A", "Artist X", "1", "")
+            )
+        );
+        robot.interact(() -> viewModel.setFiles(files));
+        robot.clickOn("Album A - Artist X");
+        robot.clickOn("#editAlbumButton");
+        robot.clickOn("#albumNameField").write("!");
+        robot.clickOn("#saveButton");
+
+        robot.interact(() -> robot.window("Edit Album").hide());
+        robot.clickOn("#editAlbumButton");
+
+        var notice = robot.lookup("#reloadNotice").queryAs(Label.class);
+        assertFalse(notice.isVisible());
+    }
 }

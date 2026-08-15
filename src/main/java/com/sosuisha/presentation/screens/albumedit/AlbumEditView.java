@@ -44,6 +44,23 @@ public class AlbumEditView implements View {
     public AlbumEditView(AlbumEditViewModel viewModel) {
         this.viewModel = Objects.requireNonNull(viewModel, "viewModel must not be null");
         this.scene = buildSceneGraph();
+        notifyWindowLifecycle();
+    }
+
+    // Each showWindow attaches the scene to a new stage, so the lifecycle is
+    // subscribed per window. The two-argument subscribe skips the initial
+    // value; only real show and hide events reach the view model.
+    private void notifyWindowLifecycle() {
+        scene.windowProperty().subscribe(window -> {
+            if (window == null) { return; }
+            window.showingProperty().subscribe((_, showing) -> {
+                if (showing) {
+                    viewModel.windowOpened();
+                } else {
+                    viewModel.windowClosed();
+                }
+            });
+        });
     }
 
     @Override

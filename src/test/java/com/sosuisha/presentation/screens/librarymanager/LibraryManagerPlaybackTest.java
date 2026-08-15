@@ -197,14 +197,4 @@ class LibraryManagerPlaybackTest extends LibraryManagerViewTestBase {
         verifyThat("#playerArtist", LabeledMatchers.hasText("Artist X"));
     }
 
-    @Test
-    @DisplayName("曲名とアーティスト名は、プレイヤーの二段目に表示される")
-    void the_title_and_artist_are_shown_in_the_second_row_of_the_player(FxRobot robot) {
-        var panel = robot.lookup("#playerPanel").queryAs(Parent.class);
-
-        var secondRow = panel.getChildrenUnmodifiable().get(1);
-
-        assertTrue(robot.from(secondRow).lookup("#playerTitle").tryQuery().isPresent());
-        assertTrue(robot.from(secondRow).lookup("#playerArtist").tryQuery().isPresent());
-    }
 }

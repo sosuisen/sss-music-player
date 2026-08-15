@@ -160,7 +160,16 @@ public class LibraryManagerView implements View {
             .build();
     }
 
-    private HBox buildPlayerPanel() {
+    private VBox buildPlayerPanel() {
+        return VBoxBuilder
+            .withChildren(buildPlayerButtonRow(), buildNowPlayingRow())
+            .id("playerPanel")
+            .spacing(5)
+            .padding(new Insets(10))
+            .build();
+    }
+
+    private HBox buildPlayerButtonRow() {
         return HBoxBuilder
             .withChildren(
                 ButtonBuilder.create()
@@ -188,6 +197,23 @@ public class LibraryManagerView implements View {
                     .id("stopButton")
                     .onAction(_ -> viewModel.stopPlayback())
                     .build(),
+                RegionBuilder.create()
+                    .hGrowInHBox(Priority.ALWAYS)
+                    .build(),
+                ButtonBuilder.create()
+                    .text("Open folder")
+                    .id("openFolderButton")
+                    .onAction(_ -> viewModel.openTrackFolder())
+                    .build()
+            )
+            .spacing(10)
+            .alignment(Pos.CENTER_LEFT)
+            .build();
+    }
+
+    private HBox buildNowPlayingRow() {
+        return HBoxBuilder
+            .withChildren(
                 LabelBuilder.create()
                     .id("playerTitle")
                     .textPropertyApply(
@@ -203,19 +229,9 @@ public class LibraryManagerView implements View {
                             viewModel.selectedTrackProperty().map(track -> track.tag().artist())
                         )
                     )
-                    .build(),
-                RegionBuilder.create()
-                    .hGrowInHBox(Priority.ALWAYS)
-                    .build(),
-                ButtonBuilder.create()
-                    .text("Open folder")
-                    .id("openFolderButton")
-                    .onAction(_ -> viewModel.openTrackFolder())
                     .build()
             )
-            .id("playerPanel")
             .spacing(10)
-            .padding(new Insets(10))
             .alignment(Pos.CENTER_LEFT)
             .build();
     }

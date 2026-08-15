@@ -19,6 +19,7 @@ import org.testfx.util.WaitForAsyncUtils;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
 
+import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -135,13 +136,14 @@ class LibraryManagerPlaybackTest extends LibraryManagerViewTestBase {
     @Test
     @DisplayName("プレイヤーパネルの右端に、Open folderボタンが表示される")
     void the_player_panel_shows_an_open_folder_button_at_the_right_end(FxRobot robot) {
-        var panel = robot.lookup("#playerPanel").queryAs(HBox.class);
+        var panel = robot.lookup("#playerPanel").queryAs(Parent.class);
+        var buttonRow = (HBox) panel.getChildrenUnmodifiable().getFirst();
 
-        var openFolder = robot.from(panel).lookup("#openFolderButton").tryQueryAs(Button.class);
+        var openFolder = robot.from(buttonRow).lookup("#openFolderButton").tryQueryAs(Button.class);
 
         assertTrue(openFolder.isPresent());
         assertEquals("Open folder", openFolder.get().getText());
-        assertEquals(openFolder.get(), panel.getChildren().getLast());
+        assertEquals(openFolder.get(), buttonRow.getChildren().getLast());
     }
 
     @Test
@@ -193,5 +195,16 @@ class LibraryManagerPlaybackTest extends LibraryManagerViewTestBase {
 
         verifyThat("#playerTitle", LabeledMatchers.hasText("Song One"));
         verifyThat("#playerArtist", LabeledMatchers.hasText("Artist X"));
+    }
+
+    @Test
+    @DisplayName("曲名とアーティスト名は、プレイヤーの二段目に表示される")
+    void the_title_and_artist_are_shown_in_the_second_row_of_the_player(FxRobot robot) {
+        var panel = robot.lookup("#playerPanel").queryAs(Parent.class);
+
+        var secondRow = panel.getChildrenUnmodifiable().get(1);
+
+        assertTrue(robot.from(secondRow).lookup("#playerTitle").tryQuery().isPresent());
+        assertTrue(robot.from(secondRow).lookup("#playerArtist").tryQuery().isPresent());
     }
 }

@@ -203,7 +203,7 @@
           </execution>
         </executions>
         <configuration>
-          <name>SSS Music Player</name>
+          <name>sss-music-player</name>
           <appVersion>1.0.0</appVersion>
           <vendor>${project.groupId}</vendor>
           <input>${project.build.directory}/app/</input>

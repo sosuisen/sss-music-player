@@ -104,12 +104,10 @@ public class LibraryManagerView implements View {
         VBox.setVgrow(albumList, Priority.ALWAYS);
         return VBoxBuilder
             .withChildren(
-                ComboBoxBuilder.<String>create()
+                ComboBoxBuilder.<SortKey>create()
                     .id("sortKey")
-                    .apply(comboBox -> {
-                        comboBox.getItems().add("Album");
-                        comboBox.setValue("Album");
-                    })
+                    .apply(comboBox -> comboBox.getItems().addAll(SortKey.ALBUM, SortKey.ARTIST))
+                    .valuePropertyApply(prop -> prop.bindBidirectional(viewModel.sortKeyProperty()))
                     .build(),
                 albumList
             )

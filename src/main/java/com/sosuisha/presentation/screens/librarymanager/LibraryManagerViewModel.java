@@ -36,6 +36,7 @@ public class LibraryManagerViewModel {
     private final ObjectProperty<PlayerState> playerState =
         new SimpleObjectProperty<>(PlayerState.STOPPED);
     private final ObjectProperty<MusicFile> selectedTrack = new SimpleObjectProperty<>();
+    private final ObjectProperty<SortKey> sortKey = new SimpleObjectProperty<>(SortKey.ALBUM);
 
     /**
      * Creates the view model.
@@ -53,7 +54,9 @@ public class LibraryManagerViewModel {
         this.musicPlayer = Objects.requireNonNull(musicPlayer, "musicPlayer must not be null");
         musicPlayer.setOnFinished(this::playNextWhenTrackFinishes);
         appModel.getFiles().subscribe(this::updateAlbums);
-        updateAlbums();
+        // subscribe(Consumer) also fires with the current value, which
+        // computes the initial album list here.
+        sortKey.subscribe(_ -> updateAlbums());
     }
 
     private void playNextWhenTrackFinishes() {
@@ -65,9 +68,26 @@ public class LibraryManagerViewModel {
     private void updateAlbums() {
         albums.setAll(
             new AlbumDetector(appModel.getFiles()).detect().stream()
-                .sorted(Comparator.comparing(Album::name, String.CASE_INSENSITIVE_ORDER))
+                .sorted(albumComparator())
                 .toList()
         );
+    }
+
+    private Comparator<Album> albumComparator() {
+        return switch (sortKey.get()) {
+            case ALBUM -> Comparator.comparing(Album::name, String.CASE_INSENSITIVE_ORDER);
+            case ARTIST -> Comparator.comparing(Album::artist, String.CASE_INSENSITIVE_ORDER);
+        };
+    }
+
+    /**
+     * Returns the sort key of the album list. The albums are re-published in
+     * ascending order of the key, ignoring case, whenever the key changes.
+     *
+     * @return object property of the sort key
+     */
+    public ObjectProperty<SortKey> sortKeyProperty() {
+        return sortKey;
     }
 
     /**

@@ -179,4 +179,19 @@ class LibraryManagerPlaybackTest extends LibraryManagerViewTestBase {
         assertTrue(robot.from(panel).lookup("#playButton").tryQuery().isPresent());
         assertTrue(robot.from(panel).lookup("#stopButton").tryQuery().isPresent());
     }
+
+    @Test
+    @DisplayName("プレイヤーに、選択中の曲の曲名とアーティスト名が表示される")
+    void the_player_shows_the_title_and_artist_of_the_selected_track(FxRobot robot) {
+        var track = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("Song One", "Artist X", "Album A", "Artist X", "1", "")
+        );
+        robot.interact(() -> viewModel.setFiles(List.of(track)));
+
+        robot.clickOn("Album A - Artist X");
+
+        verifyThat("#playerTitle", LabeledMatchers.hasText("Song One"));
+        verifyThat("#playerArtist", LabeledMatchers.hasText("Artist X"));
+    }
 }

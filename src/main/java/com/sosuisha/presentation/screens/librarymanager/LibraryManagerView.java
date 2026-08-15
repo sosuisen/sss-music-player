@@ -188,6 +188,22 @@ public class LibraryManagerView implements View {
                     .id("stopButton")
                     .onAction(_ -> viewModel.stopPlayback())
                     .build(),
+                LabelBuilder.create()
+                    .id("playerTitle")
+                    .textPropertyApply(
+                        prop -> prop.bind(
+                            viewModel.selectedTrackProperty().map(track -> track.tag().title())
+                        )
+                    )
+                    .build(),
+                LabelBuilder.create()
+                    .id("playerArtist")
+                    .textPropertyApply(
+                        prop -> prop.bind(
+                            viewModel.selectedTrackProperty().map(track -> track.tag().artist())
+                        )
+                    )
+                    .build(),
                 RegionBuilder.create()
                     .hGrowInHBox(Priority.ALWAYS)
                     .build(),

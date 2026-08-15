@@ -134,7 +134,8 @@ class LibraryManagerWindowTest extends LibraryManagerViewTestBase {
         );
         var blockingViewModel =
             new LibraryManagerViewModel(
-                new WindowManager(), blockingAppModel, new NullMusicPlayer()
+                new WindowManager(), blockingAppModel, new NullMusicPlayer(), _ -> {
+                }
             );
         try {
             robot.interact(() -> {

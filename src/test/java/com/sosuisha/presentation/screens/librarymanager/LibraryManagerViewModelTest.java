@@ -30,7 +30,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryDatabase()),
                     new SettingsAppModel(new SettingsRepository())
-                ), new NullMusicPlayer()
+                ), new NullMusicPlayer(), _ -> {
+                }
             );
         var files = List.of(
             new MusicFile(Path.of("first.mp3"), 100),
@@ -51,7 +52,8 @@ class LibraryManagerViewModelTest {
             new SettingsAppModel(new SettingsRepository())
         );
         var viewModel =
-            new LibraryManagerViewModel(new WindowManager(), appModel, new NullMusicPlayer());
+            new LibraryManagerViewModel(new WindowManager(), appModel, new NullMusicPlayer(), _ -> {
+            });
 
         assertSame(appModel.getFiles(), viewModel.getFiles());
     }

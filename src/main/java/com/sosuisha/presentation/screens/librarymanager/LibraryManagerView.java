@@ -15,6 +15,7 @@ import io.github.sosuisen.jfxbuilder.controls.MenuBuilder;
 import io.github.sosuisen.jfxbuilder.controls.MenuItemBuilder;
 import io.github.sosuisen.jfxbuilder.controls.SplitPaneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.HBoxBuilder;
+import io.github.sosuisen.jfxbuilder.graphics.RegionBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.SceneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.StageBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
@@ -186,6 +187,14 @@ public class LibraryManagerView implements View {
                     .text("■")
                     .id("stopButton")
                     .onAction(_ -> viewModel.stopPlayback())
+                    .build(),
+                RegionBuilder.create()
+                    .hGrowInHBox(Priority.ALWAYS)
+                    .build(),
+                ButtonBuilder.create()
+                    .text("Open folder")
+                    .id("openFolderButton")
+                    .onAction(_ -> viewModel.openTrackFolder())
                     .build()
             )
             .id("playerPanel")

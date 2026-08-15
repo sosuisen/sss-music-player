@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
+import com.sosuisha.domain.service.FolderOpener;
 import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
@@ -31,6 +32,7 @@ public class LibraryManagerViewModel {
     private final WindowManager windowManager;
     private final MusicLibraryAppModel appModel;
     private final MusicPlayer musicPlayer;
+    private final FolderOpener folderOpener;
     private final ObservableList<Album> albums = FXCollections.observableArrayList();
     private final ObservableList<MusicFile> selectedTracks = FXCollections.observableArrayList();
     private final ObjectProperty<PlayerState> playerState =
@@ -44,14 +46,17 @@ public class LibraryManagerViewModel {
      * @param windowManager window manager used to open other windows
      * @param appModel application-wide state of the music library
      * @param musicPlayer player used to play audio files
-     * @throws NullPointerException if windowManager, appModel, or musicPlayer is null
+     * @param folderOpener opener that shows a folder in the file manager
+     * @throws NullPointerException if windowManager, appModel, musicPlayer, or
+     *             folderOpener is null
      */
     public LibraryManagerViewModel(WindowManager windowManager, MusicLibraryAppModel appModel,
-        MusicPlayer musicPlayer) {
+        MusicPlayer musicPlayer, FolderOpener folderOpener) {
         this.windowManager =
             Objects.requireNonNull(windowManager, "windowManager must not be null");
         this.appModel = Objects.requireNonNull(appModel, "appModel must not be null");
         this.musicPlayer = Objects.requireNonNull(musicPlayer, "musicPlayer must not be null");
+        this.folderOpener = Objects.requireNonNull(folderOpener, "folderOpener must not be null");
         musicPlayer.setOnFinished(this::playNextWhenTrackFinishes);
         appModel.getFiles().subscribe(this::updateAlbums);
         // subscribe(Consumer) also fires with the current value, which
@@ -259,6 +264,16 @@ public class LibraryManagerViewModel {
                 }
             }
         }
+    }
+
+    /**
+     * Opens the folder of the selected track in the file manager. Does nothing
+     * when no track is selected.
+     */
+    public void openTrackFolder() {
+        var selected = selectedTrack.get();
+        if (selected == null) { return; }
+        folderOpener.open(selected.path().getParent());
     }
 
     /**

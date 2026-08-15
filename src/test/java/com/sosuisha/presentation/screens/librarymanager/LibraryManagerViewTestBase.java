@@ -45,6 +45,7 @@ abstract class LibraryManagerViewTestBase {
     AtomicBoolean playbackResumed;
     AtomicReference<Runnable> trackFinishedCallback;
     AtomicReference<Path> loadedPath;
+    AtomicReference<Path> openedFolder;
 
     // TestFX's ApplicationExtension looks up @Start with getDeclaredMethods(),
     // which does not see inherited methods, so each subclass declares a
@@ -68,6 +69,7 @@ abstract class LibraryManagerViewTestBase {
         playbackResumed = new AtomicBoolean(false);
         trackFinishedCallback = new AtomicReference<>();
         loadedPath = new AtomicReference<>();
+        openedFolder = new AtomicReference<>();
         viewModel = new LibraryManagerViewModel(windowManager, appModel, new MusicPlayer() {
             @Override
             public void play(Path path) {
@@ -100,7 +102,7 @@ abstract class LibraryManagerViewTestBase {
             public Optional<Path> playingPath() {
                 return Optional.ofNullable(loadedPath.get());
             }
-        });
+        }, openedFolder::set);
         var view = new LibraryManagerView(viewModel);
         windowManager.registerView(view);
         windowManager.registerView(

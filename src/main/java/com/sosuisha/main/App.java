@@ -54,7 +54,9 @@ public class App extends Application {
 
         var windowManager = new WindowManager();
         var libraryManagerViewModel =
-            new LibraryManagerViewModel(windowManager, musicLibAppModel, new MediaMusicPlayer());
+            new LibraryManagerViewModel(
+                windowManager, musicLibAppModel, new MediaMusicPlayer(), new DesktopFolderOpener()
+            );
         windowManager.registerView(new LibraryManagerView(libraryManagerViewModel));
         var settingsFolder = Path.of(System.getProperty("user.home"), ".sss-music-player");
         windowManager.registerView(

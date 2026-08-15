@@ -2,6 +2,7 @@ package com.sosuisha.presentation.screens.librarymanager;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testfx.api.FxAssert.verifyThat;
 
@@ -13,10 +14,13 @@ import org.junit.jupiter.api.Test;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.LabeledMatchers;
+import org.testfx.util.WaitForAsyncUtils;
 
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
 
+import javafx.scene.control.Button;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 
 class LibraryManagerPlaybackTest extends LibraryManagerViewTestBase {
@@ -126,6 +130,45 @@ class LibraryManagerPlaybackTest extends LibraryManagerViewTestBase {
         robot.clickOn("#stopButton");
 
         assertTrue(playbackStopped.get());
+    }
+
+    @Test
+    @DisplayName("プレイヤーパネルの右端に、Open folderボタンが表示される")
+    void the_player_panel_shows_an_open_folder_button_at_the_right_end(FxRobot robot) {
+        var panel = robot.lookup("#playerPanel").queryAs(HBox.class);
+
+        var openFolder = robot.from(panel).lookup("#openFolderButton").tryQueryAs(Button.class);
+
+        assertTrue(openFolder.isPresent());
+        assertEquals("Open folder", openFolder.get().getText());
+        assertEquals(openFolder.get(), panel.getChildren().getLast());
+    }
+
+    @Test
+    @DisplayName("Open folderボタンを押すと、選択中の曲のフォルダを開く処理が呼ばれる")
+    void clicking_the_open_folder_button_opens_the_folder_of_the_selected_track(FxRobot robot) {
+        var track = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("Song One", "", "Album A", "Artist X", "1", "")
+        );
+        robot.interact(() -> viewModel.setFiles(List.of(track)));
+        robot.clickOn("Album A - Artist X");
+        robot.clickOn("1. Song One");
+
+        robot.clickOn("#openFolderButton");
+
+        assertEquals(Path.of("a"), openedFolder.get());
+    }
+
+    @Test
+    @DisplayName("曲が未選択のときにOpen folderボタンを押しても、何も起きない")
+    void clicking_the_open_folder_button_does_nothing_when_no_track_is_selected(FxRobot robot)
+        throws Throwable {
+        robot.clickOn("#openFolderButton");
+
+        // FXスレッド上のイベントハンドラで起きた例外（NPE）があれば、投げ直してテスト失敗。
+        WaitForAsyncUtils.checkException();
+        assertNull(openedFolder.get());
     }
 
     @Test

@@ -1,4 +1,4 @@
-package com.sosuisha.service;
+package com.sosuisha.repository;
 
 import static com.sosuisha.db.Tables.TRACK;
 

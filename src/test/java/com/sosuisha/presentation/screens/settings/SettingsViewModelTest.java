@@ -16,7 +16,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
-import com.sosuisha.service.SettingsRepository;
+import com.sosuisha.repository.SettingsRepository;
 
 class SettingsViewModelTest {
     @TempDir

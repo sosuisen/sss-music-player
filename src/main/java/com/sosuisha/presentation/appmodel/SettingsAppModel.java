@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.sosuisha.domain.model.Settings;
-import com.sosuisha.service.SettingsRepository;
+import com.sosuisha.repository.SettingsRepository;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;

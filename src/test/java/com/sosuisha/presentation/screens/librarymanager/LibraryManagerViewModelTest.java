@@ -17,7 +17,7 @@ import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.service.LibraryScanner;
-import com.sosuisha.service.SettingsRepository;
+import com.sosuisha.repository.SettingsRepository;
 
 import javafx.collections.ObservableList;
 

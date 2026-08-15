@@ -1,4 +1,4 @@
-package com.sosuisha.service;
+package com.sosuisha.repository;
 
 import java.io.IOException;
 import java.nio.file.Files;

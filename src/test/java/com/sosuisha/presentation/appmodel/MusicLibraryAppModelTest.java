@@ -30,7 +30,7 @@ import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.service.LibraryDatabase;
 import com.sosuisha.domain.service.NullLibraryDatabase;
 import com.sosuisha.service.LibraryScanner;
-import com.sosuisha.service.SettingsRepository;
+import com.sosuisha.repository.SettingsRepository;
 
 import javafx.stage.Stage;
 

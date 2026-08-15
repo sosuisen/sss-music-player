@@ -1,4 +1,4 @@
-package com.sosuisha.service;
+package com.sosuisha.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;

@@ -19,7 +19,7 @@ import org.testfx.matcher.control.LabeledMatchers;
 
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
-import com.sosuisha.service.SettingsRepository;
+import com.sosuisha.repository.SettingsRepository;
 
 import javafx.scene.control.Button;
 import javafx.stage.Stage;

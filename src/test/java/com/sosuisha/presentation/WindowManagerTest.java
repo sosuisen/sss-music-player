@@ -19,7 +19,7 @@ import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListViewModel;
 import com.sosuisha.service.DuplicateFileMover;
 import com.sosuisha.service.LibraryScanner;
-import com.sosuisha.service.SettingsRepository;
+import com.sosuisha.repository.SettingsRepository;
 
 import javafx.stage.Stage;
 

@@ -31,7 +31,7 @@ import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.presentation.screens.duplicatelist.components.DetailedPanel;
 import com.sosuisha.service.DuplicateFileMover;
 import com.sosuisha.service.LibraryScanner;
-import com.sosuisha.service.SettingsRepository;
+import com.sosuisha.repository.SettingsRepository;
 
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;

@@ -20,8 +20,8 @@ import com.sosuisha.service.DesktopFolderOpener;
 import com.sosuisha.service.DuplicateFileMover;
 import com.sosuisha.service.LibraryScanner;
 import com.sosuisha.service.MediaMusicPlayer;
-import com.sosuisha.service.SettingsRepository;
-import com.sosuisha.service.SqliteLibraryDatabase;
+import com.sosuisha.repository.SettingsRepository;
+import com.sosuisha.repository.SqliteLibraryDatabase;
 
 import javafx.application.Application;
 import javafx.stage.DirectoryChooser;

@@ -21,7 +21,7 @@ import com.sosuisha.presentation.screens.duplicatelist.DuplicateListViewModel;
 import com.sosuisha.presentation.screens.settings.SettingsView;
 import com.sosuisha.presentation.screens.settings.SettingsViewModel;
 import com.sosuisha.service.DuplicateFileMover;
-import com.sosuisha.service.LibraryScanner;
+import com.sosuisha.service.LibraryIndexer;
 import com.sosuisha.repository.SettingsRepository;
 
 import javafx.stage.Stage;
@@ -54,7 +54,7 @@ abstract class LibraryManagerViewTestBase {
         var windowManager = new WindowManager();
         rescanned = new AtomicBoolean(false);
         appModel = new MusicLibraryAppModel(
-            new LibraryScanner(new NullLibraryDatabase()),
+            new LibraryIndexer(new NullLibraryDatabase()),
             new SettingsAppModel(new SettingsRepository())
         ) {
             @Override

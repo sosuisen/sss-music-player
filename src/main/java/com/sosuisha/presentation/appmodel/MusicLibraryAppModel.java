@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.sosuisha.domain.model.MusicFile;
-import com.sosuisha.service.LibraryScanner;
+import com.sosuisha.service.LibraryIndexer;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
@@ -24,7 +24,7 @@ public class MusicLibraryAppModel {
     private final ObservableList<MusicFile> files = FXCollections.observableArrayList();
     private final BooleanProperty scanning = new SimpleBooleanProperty(false);
     private final StringProperty scanningFile = new SimpleStringProperty("");
-    private final LibraryScanner scanner;
+    private final LibraryIndexer scanner;
     private Path lastScannedFolder;
 
     /**
@@ -37,7 +37,7 @@ public class MusicLibraryAppModel {
      * @param settingsAppModel application-wide state of the settings
      * @throws NullPointerException if scanner or settingsAppModel is null
      */
-    public MusicLibraryAppModel(LibraryScanner scanner, SettingsAppModel settingsAppModel) {
+    public MusicLibraryAppModel(LibraryIndexer scanner, SettingsAppModel settingsAppModel) {
         this.scanner = Objects.requireNonNull(scanner, "scanner must not be null");
         Objects.requireNonNull(settingsAppModel, "settingsAppModel must not be null");
         settingsAppModel.settingsProperty().subscribe(settings -> {

@@ -29,7 +29,7 @@ import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.service.LibraryDatabase;
 import com.sosuisha.domain.service.NullLibraryDatabase;
-import com.sosuisha.service.LibraryScanner;
+import com.sosuisha.service.LibraryIndexer;
 import com.sosuisha.repository.SettingsRepository;
 
 import javafx.stage.Stage;
@@ -52,7 +52,7 @@ class MusicLibraryAppModelTest {
         Files.createFile(folder.resolve("song1.mp3"));
         Files.createFile(folder.resolve("song2.m4a"));
         var appModel = new MusicLibraryAppModel(
-            new LibraryScanner(new NullLibraryDatabase()),
+            new LibraryIndexer(new NullLibraryDatabase()),
             new SettingsAppModel(new SettingsRepository())
         );
 
@@ -74,7 +74,7 @@ class MusicLibraryAppModelTest {
         throws Exception {
         Files.createFile(folder.resolve("song1.mp3"));
         var appModel = new MusicLibraryAppModel(
-            new LibraryScanner(new NullLibraryDatabase()),
+            new LibraryIndexer(new NullLibraryDatabase()),
             new SettingsAppModel(new SettingsRepository())
         );
 
@@ -92,7 +92,7 @@ class MusicLibraryAppModelTest {
     @DisplayName("スキャンが失敗してもscanningはfalseに戻る")
     void scanning_returns_to_false_when_the_scan_fails(FxRobot robot) throws Exception {
         var appModel = new MusicLibraryAppModel(
-            new LibraryScanner(new NullLibraryDatabase()),
+            new LibraryIndexer(new NullLibraryDatabase()),
             new SettingsAppModel(new SettingsRepository())
         );
 
@@ -107,7 +107,7 @@ class MusicLibraryAppModelTest {
         throws Exception {
         var file = Files.createFile(folder.resolve("song1.mp3"));
         var appModel = new MusicLibraryAppModel(
-            new LibraryScanner(new NullLibraryDatabase()),
+            new LibraryIndexer(new NullLibraryDatabase()),
             new SettingsAppModel(new SettingsRepository())
         );
 
@@ -133,7 +133,7 @@ class MusicLibraryAppModelTest {
         Files.createFile(folderB.resolve("song3.m4a"));
         var settingsAppModel = new SettingsAppModel(new SettingsRepository());
         var appModel = new MusicLibraryAppModel(
-            new LibraryScanner(new NullLibraryDatabase()), settingsAppModel
+            new LibraryIndexer(new NullLibraryDatabase()), settingsAppModel
         );
 
         robot.interact(() -> settingsAppModel.setSettings(new Settings(folderA)));
@@ -148,7 +148,7 @@ class MusicLibraryAppModelTest {
     void rescan_scans_the_last_scanned_folder_again(FxRobot robot) throws Exception {
         Files.createFile(folder.resolve("song1.mp3"));
         var appModel = new MusicLibraryAppModel(
-            new LibraryScanner(new NullLibraryDatabase()),
+            new LibraryIndexer(new NullLibraryDatabase()),
             new SettingsAppModel(new SettingsRepository())
         );
         robot.interact(() -> appModel.scanFolder(folder));
@@ -168,7 +168,7 @@ class MusicLibraryAppModelTest {
         var deleted = Files.write(folder.resolve("song2.mp3"), new byte[42]);
         var database = new InMemoryLibraryDatabase();
         var appModel = new MusicLibraryAppModel(
-            new LibraryScanner(database),
+            new LibraryIndexer(database),
             new SettingsAppModel(new SettingsRepository())
         );
         robot.interact(() -> appModel.scanFolder(folder));
@@ -218,7 +218,7 @@ class MusicLibraryAppModelTest {
         var file = folder.resolve("song1.mp3");
         Files.write(file, new byte[42]);
         var appModel = new MusicLibraryAppModel(
-            new LibraryScanner(new NullLibraryDatabase()),
+            new LibraryIndexer(new NullLibraryDatabase()),
             new SettingsAppModel(new SettingsRepository())
         );
 

@@ -26,7 +26,7 @@ import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
-import com.sosuisha.service.LibraryScanner;
+import com.sosuisha.service.LibraryIndexer;
 import com.sosuisha.repository.SettingsRepository;
 
 import javafx.scene.control.Label;
@@ -114,7 +114,7 @@ class LibraryManagerWindowTest extends LibraryManagerViewTestBase {
         throws Exception {
         var file = Files.createFile(folder.resolve("song1.mp3"));
         var scanFinished = new CountDownLatch(1);
-        var blockingScanner = new LibraryScanner(new NullLibraryDatabase()) {
+        var blockingScanner = new LibraryIndexer(new NullLibraryDatabase()) {
             @Override
             public List<MusicFile> scan(Path folderPath, Consumer<Path> onFileRead)
                 throws IOException {

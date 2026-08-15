@@ -21,7 +21,7 @@ import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.service.DuplicateFileMover;
-import com.sosuisha.service.LibraryScanner;
+import com.sosuisha.service.LibraryIndexer;
 import com.sosuisha.repository.SettingsRepository;
 
 import javafx.collections.ObservableList;
@@ -41,7 +41,7 @@ class DuplicateListViewModelTest {
         );
         var viewModel = new DuplicateListViewModel(
             new MusicLibraryAppModel(
-                new LibraryScanner(new NullLibraryDatabase()),
+                new LibraryIndexer(new NullLibraryDatabase()),
                 new SettingsAppModel(new SettingsRepository())
             ),
             new NullMusicPlayer(),
@@ -68,7 +68,7 @@ class DuplicateListViewModelTest {
         );
         var viewModel = new DuplicateListViewModel(
             new MusicLibraryAppModel(
-                new LibraryScanner(new NullLibraryDatabase()),
+                new LibraryIndexer(new NullLibraryDatabase()),
                 new SettingsAppModel(new SettingsRepository())
             ),
             new NullMusicPlayer(),
@@ -112,7 +112,7 @@ class DuplicateListViewModelTest {
         };
         var viewModel = new DuplicateListViewModel(
             new MusicLibraryAppModel(
-                new LibraryScanner(new NullLibraryDatabase()),
+                new LibraryIndexer(new NullLibraryDatabase()),
                 new SettingsAppModel(new SettingsRepository())
             ),
             new NullMusicPlayer(),
@@ -132,7 +132,7 @@ class DuplicateListViewModelTest {
     @DisplayName("detectByMetadataは、曲名とアーティストの一致で重複を判定して格納する")
     void detect_by_metadata_stores_duplicates_detected_by_title_and_artist() {
         var appModel = new MusicLibraryAppModel(
-            new LibraryScanner(new NullLibraryDatabase()),
+            new LibraryIndexer(new NullLibraryDatabase()),
             new SettingsAppModel(new SettingsRepository())
         );
         var viewModel = new DuplicateListViewModel(
@@ -163,7 +163,7 @@ class DuplicateListViewModelTest {
     @DisplayName("ライブラリのファイル一覧が変わると、最後の判定条件で候補リストが更新される")
     void the_candidate_list_is_updated_with_the_last_detector_when_the_library_files_change() {
         var appModel = new MusicLibraryAppModel(
-            new LibraryScanner(new NullLibraryDatabase()),
+            new LibraryIndexer(new NullLibraryDatabase()),
             new SettingsAppModel(new SettingsRepository())
         );
         var viewModel = new DuplicateListViewModel(
@@ -191,7 +191,7 @@ class DuplicateListViewModelTest {
     void removing_checked_duplicates_rescans_the_library() {
         var rescanned = new AtomicBoolean(false);
         var appModel = new MusicLibraryAppModel(
-            new LibraryScanner(new NullLibraryDatabase()),
+            new LibraryIndexer(new NullLibraryDatabase()),
             new SettingsAppModel(new SettingsRepository())
         ) {
             @Override

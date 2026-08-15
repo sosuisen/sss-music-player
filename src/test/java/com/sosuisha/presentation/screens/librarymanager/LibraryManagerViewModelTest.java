@@ -16,7 +16,7 @@ import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
-import com.sosuisha.service.LibraryScanner;
+import com.sosuisha.service.LibraryIndexer;
 import com.sosuisha.repository.SettingsRepository;
 
 import javafx.collections.ObservableList;
@@ -28,7 +28,7 @@ class LibraryManagerViewModelTest {
         var viewModel =
             new LibraryManagerViewModel(
                 new WindowManager(), new MusicLibraryAppModel(
-                    new LibraryScanner(new NullLibraryDatabase()),
+                    new LibraryIndexer(new NullLibraryDatabase()),
                     new SettingsAppModel(new SettingsRepository())
                 ), new NullMusicPlayer()
             );
@@ -47,7 +47,7 @@ class LibraryManagerViewModelTest {
     @DisplayName("AppModelのファイルリストをそのまま返す")
     void returns_the_file_list_of_the_app_model() {
         var appModel = new MusicLibraryAppModel(
-            new LibraryScanner(new NullLibraryDatabase()),
+            new LibraryIndexer(new NullLibraryDatabase()),
             new SettingsAppModel(new SettingsRepository())
         );
         var viewModel =

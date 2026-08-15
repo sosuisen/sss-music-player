@@ -18,20 +18,21 @@ import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.service.LibraryDatabase;
 
 /**
- * Scans a music library folder.
+ * Indexes a music library: scans the audio files of a folder and maintains
+ * their metadata cache in the library database.
  */
-public class LibraryScanner {
+public class LibraryIndexer {
     private static final Set<String> SUPPORTED_EXTENSIONS = Set.of(".mp3", ".m4a");
 
     private final LibraryDatabase database;
 
     /**
-     * Creates the scanner.
+     * Creates the indexer.
      *
      * @param database library database used as a metadata cache
      * @throws NullPointerException if database is null
      */
-    public LibraryScanner(LibraryDatabase database) {
+    public LibraryIndexer(LibraryDatabase database) {
         this.database = Objects.requireNonNull(database, "database must not be null");
     }
 
@@ -69,7 +70,7 @@ public class LibraryScanner {
         try (var files = Files.walk(folderPath)) {
             return files
                 .filter(Files::isRegularFile)
-                .filter(LibraryScanner::isSupportedAudioFile)
+                .filter(LibraryIndexer::isSupportedAudioFile)
                 .map(path -> toMusicFile(path, onFileRead))
                 .toList();
         }

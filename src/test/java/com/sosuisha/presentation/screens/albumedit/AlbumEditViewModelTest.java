@@ -148,6 +148,25 @@ class AlbumEditViewModelTest {
     }
 
     @Test
+    @DisplayName("Saveすると、変更プロパティはすべてfalseになる")
+    void saving_clears_all_changed_properties() {
+        var appModel = new MusicLibraryAppModel(
+            new LibraryIndexer(new NullLibraryRepository()),
+            new SettingsAppModel(new NullSettingsRepository())
+        );
+        var viewModel = new AlbumEditViewModel(appModel, (_, _, _) -> {
+        });
+        appModel.selectAlbum(new Album("Album A", "Artist X", List.of()));
+        viewModel.albumNameProperty().set("New Album");
+        viewModel.albumArtistProperty().set("New Artist");
+
+        viewModel.save();
+
+        assertFalse(viewModel.albumNameChangedProperty().get());
+        assertFalse(viewModel.albumArtistChangedProperty().get());
+    }
+
+    @Test
     @DisplayName("編集ウィンドウを開くと、ライブラリ変更フラグが落ちる")
     void opening_the_window_clears_the_library_changed_flag() {
         var appModel = new MusicLibraryAppModel(

@@ -21,6 +21,10 @@ public class AlbumEditViewModel {
     private final TagWriter tagWriter;
     private final StringProperty albumName = new SimpleStringProperty("");
     private final StringProperty albumArtist = new SimpleStringProperty("");
+    // Baseline of the changed flags: the album values at selection or at the
+    // last save.
+    private final StringProperty originalAlbumName = new SimpleStringProperty("");
+    private final StringProperty originalAlbumArtist = new SimpleStringProperty("");
     private final BooleanProperty albumNameChanged = new SimpleBooleanProperty(false);
     private final BooleanProperty albumArtistChanged = new SimpleBooleanProperty(false);
     private final BooleanProperty libraryChanged = new SimpleBooleanProperty(false);
@@ -39,31 +43,23 @@ public class AlbumEditViewModel {
         this.appModel = Objects.requireNonNull(appModel, "appModel must not be null");
         this.tagWriter = Objects.requireNonNull(tagWriter, "tagWriter must not be null");
         appModel.selectedAlbumProperty().subscribe(album -> {
+            originalAlbumName.set(album == null ? "" : album.name());
+            originalAlbumArtist.set(album == null ? "" : album.artist());
             albumName.set(album == null ? "" : album.name());
             albumArtist.set(album == null ? "" : albumArtistOf(album));
         });
         albumNameChanged.bind(
             Bindings.createBooleanBinding(
-                () -> !albumName.get().equals(originalAlbumName(appModel)),
-                albumName, appModel.selectedAlbumProperty()
+                () -> !albumName.get().equals(originalAlbumName.get()),
+                albumName, originalAlbumName
             )
         );
         albumArtistChanged.bind(
             Bindings.createBooleanBinding(
-                () -> !albumArtist.get().equals(originalAlbumArtist(appModel)),
-                albumArtist, appModel.selectedAlbumProperty()
+                () -> !albumArtist.get().equals(originalAlbumArtist.get()),
+                albumArtist, originalAlbumArtist
             )
         );
-    }
-
-    private static String originalAlbumName(MusicLibraryAppModel appModel) {
-        var album = appModel.selectedAlbumProperty().get();
-        return album == null ? "" : album.name();
-    }
-
-    private static String originalAlbumArtist(MusicLibraryAppModel appModel) {
-        var album = appModel.selectedAlbumProperty().get();
-        return album == null ? "" : album.artist();
     }
 
     private static String albumArtistOf(Album album) {
@@ -114,8 +110,9 @@ public class AlbumEditViewModel {
 
     /**
      * Saves the edited album name and album artist to the tags of all tracks
-     * of the selected album and marks the library as changed. Does nothing
-     * when no album is selected.
+     * of the selected album and marks the library as changed. The saved values
+     * become the new baseline of the changed flags. Does nothing when no album
+     * is selected.
      */
     public void save() {
         var album = appModel.selectedAlbumProperty().get();
@@ -123,6 +120,8 @@ public class AlbumEditViewModel {
         for (var file : album.files()) {
             tagWriter.writeAlbumTag(file.path(), albumName.get(), albumArtist.get());
         }
+        originalAlbumName.set(albumName.get());
+        originalAlbumArtist.set(albumArtist.get());
         libraryChanged.set(true);
     }
 

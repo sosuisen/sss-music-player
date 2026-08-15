@@ -1,10 +1,11 @@
 # SSS Music Player
 
-A desktop music player built with JavaFX. Its main purpose is to manage a music library: find duplicate files, fix garbled tags, and play music while you work.
+A music file manager built with JavaFX.
 
-## Features
-
-- **Library scan**: Scans a folder and its subfolders, and lists all supported audio files (mp3 and m4a). File extensions are matched ignoring case.
+- Scans a folder tree for mp3 and m4a files.
+- Detects duplicates by file name, size, and metadata.
+- Edits metadata.
+- Plays music with a basic built-in player.
 
 ## Requirements
 

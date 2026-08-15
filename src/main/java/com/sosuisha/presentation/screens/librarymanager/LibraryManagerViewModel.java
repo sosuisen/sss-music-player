@@ -38,6 +38,7 @@ public class LibraryManagerViewModel {
     private final ObjectProperty<PlayerState> playerState =
         new SimpleObjectProperty<>(PlayerState.STOPPED);
     private final ObjectProperty<MusicFile> selectedTrack = new SimpleObjectProperty<>();
+    private final ObjectProperty<Album> selectedAlbum = new SimpleObjectProperty<>();
     private final ObjectProperty<SortKey> sortKey = new SimpleObjectProperty<>(SortKey.ALBUM);
 
     /**
@@ -176,9 +177,20 @@ public class LibraryManagerViewModel {
      * @param album album to select, or null to clear the selection
      */
     public void selectAlbum(Album album) {
+        selectedAlbum.set(album);
         selectedTracks.setAll(album == null ? List.of() : orderByTrackNumber(album.files()));
         if (playerState.get() == PlayerState.PLAYING) { return; }
         selectedTrack.set(selectedTracks.isEmpty() ? null : selectedTracks.getFirst());
+    }
+
+    /**
+     * Returns the selected album.
+     *
+     * @return read-only property of the selected album, holding null when no
+     *     album is selected
+     */
+    public ReadOnlyObjectProperty<Album> selectedAlbumProperty() {
+        return selectedAlbum;
     }
 
     /**

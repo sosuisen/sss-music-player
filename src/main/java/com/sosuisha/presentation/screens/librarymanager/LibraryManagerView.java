@@ -132,6 +132,36 @@ public class LibraryManagerView implements View {
             .build();
     }
 
+    private VBox buildTrackPane() {
+        var trackList = buildTrackList();
+        VBox.setVgrow(trackList, Priority.ALWAYS);
+        return VBoxBuilder
+            .withChildren(buildAlbumInfoPanel(), trackList)
+            .build();
+    }
+
+    private HBox buildAlbumInfoPanel() {
+        return HBoxBuilder
+            .withChildren(
+                LabelBuilder.create()
+                    .id("albumInfoName")
+                    .textPropertyApply(
+                        prop -> prop.bind(viewModel.selectedAlbumProperty().map(Album::name))
+                    )
+                    .build(),
+                LabelBuilder.create()
+                    .id("albumInfoArtist")
+                    .textPropertyApply(
+                        prop -> prop.bind(viewModel.selectedAlbumProperty().map(Album::artist))
+                    )
+                    .build()
+            )
+            .spacing(10)
+            .padding(new Insets(5))
+            .alignment(Pos.CENTER_LEFT)
+            .build();
+    }
+
     private ListView<MusicFile> buildTrackList() {
         return ListViewBuilder.create(viewModel.getSelectedTracks())
             .id("trackList")
@@ -281,7 +311,7 @@ public class LibraryManagerView implements View {
                             )
                             .build(),
                         SplitPaneBuilder
-                            .withItems(buildAlbumPane(), buildTrackList())
+                            .withItems(buildAlbumPane(), buildTrackPane())
                             .vGrowInVBox(Priority.ALWAYS)
                             .build(),
                         buildPlayerPanel()

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.Start;
+import org.testfx.matcher.control.LabeledMatchers;
 import org.testfx.matcher.control.ListViewMatchers;
 
 import com.sosuisha.domain.model.Album;
@@ -145,6 +146,20 @@ class LibraryManagerListTest extends LibraryManagerViewTestBase {
         robot.clickOn("Album A - Artist X");
 
         assertTrue(robot.lookup("1. song.mp3").tryQuery().isPresent());
+    }
+
+    @Test
+    @DisplayName("アルバムを選択すると、曲リストの上のパネルにアルバム名とアーティスト名が表示される")
+    void selecting_an_album_shows_its_name_and_artist_in_the_album_info_panel(FxRobot robot) {
+        var files = List.of(
+            new MusicFile(Path.of("a/one.mp3"), 100, albumTag("Album A", "Artist X"))
+        );
+        robot.interact(() -> viewModel.setFiles(files));
+
+        robot.clickOn("Album A - Artist X");
+
+        verifyThat("#albumInfoName", LabeledMatchers.hasText("Album A"));
+        verifyThat("#albumInfoArtist", LabeledMatchers.hasText("Artist X"));
     }
 
     private static TrackMetadata albumTag(String album, String albumArtist) {

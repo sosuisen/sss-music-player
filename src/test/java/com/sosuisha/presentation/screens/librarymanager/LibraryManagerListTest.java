@@ -162,6 +162,32 @@ class LibraryManagerListTest extends LibraryManagerViewTestBase {
         verifyThat("#albumInfoArtist", LabeledMatchers.hasText("Artist X"));
     }
 
+    @Test
+    @DisplayName("アルバム情報パネルのEditボタンを押すと、メタデータ編集ウィンドウが開く")
+    void clicking_the_edit_button_in_the_album_info_panel_opens_the_metadata_edit_window(
+        FxRobot robot) {
+        var files = List.of(
+            new MusicFile(Path.of("a/one.mp3"), 100, albumTag("Album A", "Artist X"))
+        );
+        robot.interact(() -> viewModel.setFiles(files));
+        robot.clickOn("Album A - Artist X");
+
+        robot.clickOn("#editAlbumButton");
+
+        var window = robot.window("Edit Album");
+        assertTrue(window.isShowing());
+    }
+
+    @Test
+    @DisplayName("アルバム未選択のとき、Editボタンは無効である")
+    void the_edit_button_is_disabled_when_no_album_is_selected(FxRobot robot) {
+        robot.interact(() -> viewModel.selectAlbum(null));
+
+        var editButton = robot.lookup("#editAlbumButton").queryButton();
+
+        assertTrue(editButton.isDisabled());
+    }
+
     private static TrackMetadata albumTag(String album, String albumArtist) {
         return new TrackMetadata("", "", album, albumArtist, "", "");
     }

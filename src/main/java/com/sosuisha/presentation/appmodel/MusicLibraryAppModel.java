@@ -4,13 +4,17 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 
+import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.service.LibraryIndexer;
 
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -24,6 +28,7 @@ public class MusicLibraryAppModel {
     private final ObservableList<MusicFile> files = FXCollections.observableArrayList();
     private final BooleanProperty scanning = new SimpleBooleanProperty(false);
     private final StringProperty scanningFile = new SimpleStringProperty("");
+    private final ObjectProperty<Album> selectedAlbum = new SimpleObjectProperty<>();
     private final LibraryIndexer scanner;
     private Path lastScannedFolder;
 
@@ -105,6 +110,25 @@ public class MusicLibraryAppModel {
      */
     public ObservableList<MusicFile> getFiles() {
         return files;
+    }
+
+    /**
+     * Selects the given album as the album shared by the screens.
+     *
+     * @param album album to select, or null to clear the selection
+     */
+    public void selectAlbum(Album album) {
+        selectedAlbum.set(album);
+    }
+
+    /**
+     * Returns the selected album.
+     *
+     * @return read-only property of the selected album, holding null when no
+     *     album is selected
+     */
+    public ReadOnlyObjectProperty<Album> selectedAlbumProperty() {
+        return selectedAlbum;
     }
 
     /**

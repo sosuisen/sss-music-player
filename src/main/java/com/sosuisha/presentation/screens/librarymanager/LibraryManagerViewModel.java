@@ -11,6 +11,7 @@ import com.sosuisha.domain.service.FolderOpener;
 import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
+import com.sosuisha.presentation.screens.albumedit.AlbumEditView;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
 import com.sosuisha.presentation.screens.settings.SettingsView;
 import com.sosuisha.service.AlbumDetector;
@@ -38,7 +39,6 @@ public class LibraryManagerViewModel {
     private final ObjectProperty<PlayerState> playerState =
         new SimpleObjectProperty<>(PlayerState.STOPPED);
     private final ObjectProperty<MusicFile> selectedTrack = new SimpleObjectProperty<>();
-    private final ObjectProperty<Album> selectedAlbum = new SimpleObjectProperty<>();
     private final ObjectProperty<SortKey> sortKey = new SimpleObjectProperty<>(SortKey.ALBUM);
 
     /**
@@ -128,6 +128,13 @@ public class LibraryManagerViewModel {
     }
 
     /**
+     * Opens the album metadata edit window.
+     */
+    public void openAlbumEditWindow() {
+        windowManager.showWindow(AlbumEditView.class, StageBuilder.create().build());
+    }
+
+    /**
      * Opens the settings window. The window is application modal.
      */
     public void openSettingsWindow() {
@@ -177,20 +184,20 @@ public class LibraryManagerViewModel {
      * @param album album to select, or null to clear the selection
      */
     public void selectAlbum(Album album) {
-        selectedAlbum.set(album);
+        appModel.selectAlbum(album);
         selectedTracks.setAll(album == null ? List.of() : orderByTrackNumber(album.files()));
         if (playerState.get() == PlayerState.PLAYING) { return; }
         selectedTrack.set(selectedTracks.isEmpty() ? null : selectedTracks.getFirst());
     }
 
     /**
-     * Returns the selected album.
+     * Returns the selected album shared through the app model.
      *
      * @return read-only property of the selected album, holding null when no
      *     album is selected
      */
     public ReadOnlyObjectProperty<Album> selectedAlbumProperty() {
-        return selectedAlbum;
+        return appModel.selectedAlbumProperty();
     }
 
     /**

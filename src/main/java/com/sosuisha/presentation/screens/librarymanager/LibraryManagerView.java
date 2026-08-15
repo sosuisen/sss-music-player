@@ -154,6 +154,14 @@ public class LibraryManagerView implements View {
                     .textPropertyApply(
                         prop -> prop.bind(viewModel.selectedAlbumProperty().map(Album::artist))
                     )
+                    .build(),
+                ButtonBuilder.create()
+                    .text("Edit")
+                    .id("editAlbumButton")
+                    .disablePropertyApply(
+                        prop -> prop.bind(viewModel.selectedAlbumProperty().isNull())
+                    )
+                    .onAction(_ -> viewModel.openAlbumEditWindow())
                     .build()
             )
             .spacing(10)

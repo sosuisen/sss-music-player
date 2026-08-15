@@ -9,8 +9,10 @@ import io.github.sosuisen.jfxbuilder.controls.TextFieldBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.ColumnConstraintsBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.GridPaneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.SceneBuilder;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.Priority;
 
 /**
@@ -20,6 +22,13 @@ public class AlbumEditView implements View {
     private static final String TITLE = "Edit Album";
     private static final double WIDTH = 400;
     private static final double HEIGHT = 200;
+    private static final String CHANGED_FIELD_CLASS = "changed-field";
+    // Light yellow marks a field whose value differs from the album.
+    private static final String CSS = """
+                                      .changed-field {
+                                          -fx-control-inner-background: #ffff99;
+                                      }
+                                      """;
 
     private final AlbumEditViewModel viewModel;
     private final Scene scene;
@@ -66,6 +75,11 @@ public class AlbumEditView implements View {
                             .textPropertyApply(
                                 prop -> prop.bindBidirectional(viewModel.albumNameProperty())
                             )
+                            .apply(
+                                field -> showChangedStyle(
+                                    field, viewModel.albumNameChangedProperty()
+                                )
+                            )
                             .build()
                     )
                     .addRow(
@@ -78,12 +92,28 @@ public class AlbumEditView implements View {
                             .textPropertyApply(
                                 prop -> prop.bindBidirectional(viewModel.albumArtistProperty())
                             )
+                            .apply(
+                                field -> showChangedStyle(
+                                    field, viewModel.albumArtistChangedProperty()
+                                )
+                            )
                             .build()
                     )
                     .build(),
                 WIDTH,
                 HEIGHT
             )
+            .addStylesheetsText(CSS)
             .build();
+    }
+
+    private static void showChangedStyle(TextField field, ObservableValue<Boolean> changed) {
+        changed.subscribe(isChanged -> {
+            if (isChanged) {
+                field.getStyleClass().add(CHANGED_FIELD_CLASS);
+            } else {
+                field.getStyleClass().remove(CHANGED_FIELD_CLASS);
+            }
+        });
     }
 }

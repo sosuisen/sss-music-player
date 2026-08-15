@@ -5,6 +5,10 @@ import java.util.Objects;
 import com.sosuisha.domain.model.Album;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ReadOnlyBooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -14,6 +18,8 @@ import javafx.beans.property.StringProperty;
 public class AlbumEditViewModel {
     private final StringProperty albumName = new SimpleStringProperty("");
     private final StringProperty albumArtist = new SimpleStringProperty("");
+    private final BooleanProperty albumNameChanged = new SimpleBooleanProperty(false);
+    private final BooleanProperty albumArtistChanged = new SimpleBooleanProperty(false);
 
     /**
      * Creates the view model. The editable fields are reset to the values of
@@ -30,6 +36,28 @@ public class AlbumEditViewModel {
             albumName.set(album == null ? "" : album.name());
             albumArtist.set(album == null ? "" : albumArtistOf(album));
         });
+        albumNameChanged.bind(
+            Bindings.createBooleanBinding(
+                () -> !albumName.get().equals(originalAlbumName(appModel)),
+                albumName, appModel.selectedAlbumProperty()
+            )
+        );
+        albumArtistChanged.bind(
+            Bindings.createBooleanBinding(
+                () -> !albumArtist.get().equals(originalAlbumArtist(appModel)),
+                albumArtist, appModel.selectedAlbumProperty()
+            )
+        );
+    }
+
+    private static String originalAlbumName(MusicLibraryAppModel appModel) {
+        var album = appModel.selectedAlbumProperty().get();
+        return album == null ? "" : album.name();
+    }
+
+    private static String originalAlbumArtist(MusicLibraryAppModel appModel) {
+        var album = appModel.selectedAlbumProperty().get();
+        return album == null ? "" : album.artist();
     }
 
     private static String albumArtistOf(Album album) {
@@ -54,6 +82,28 @@ public class AlbumEditViewModel {
      */
     public StringProperty albumArtistProperty() {
         return albumArtist;
+    }
+
+    /**
+     * Returns whether the editable album name differs from the name of the
+     * selected album.
+     *
+     * @return read-only property that is true while the editable album name
+     *     differs from the name of the selected album
+     */
+    public ReadOnlyBooleanProperty albumNameChangedProperty() {
+        return albumNameChanged;
+    }
+
+    /**
+     * Returns whether the editable album artist differs from the artist of
+     * the selected album. An auto-filled album artist also counts as changed.
+     *
+     * @return read-only property that is true while the editable album artist
+     *     differs from the artist of the selected album
+     */
+    public ReadOnlyBooleanProperty albumArtistChangedProperty() {
+        return albumArtistChanged;
     }
 
 }

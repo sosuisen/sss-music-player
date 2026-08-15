@@ -1,6 +1,7 @@
 package com.sosuisha.presentation.screens.albumedit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
@@ -50,6 +51,39 @@ class AlbumEditViewModelTest {
         appModel.selectAlbum(new Album("Album A", "", List.of(first)));
 
         assertEquals("Artist X", viewModel.albumArtistProperty().get());
+    }
+
+    @Test
+    @DisplayName("編集用のアルバム名をアルバムの元の値と異なる値にすると、albumNameChangedがtrueになる")
+    void album_name_changed_is_true_when_the_editable_album_name_differs_from_the_album() {
+        var appModel = new MusicLibraryAppModel(
+            new LibraryIndexer(new NullLibraryRepository()),
+            new SettingsAppModel(new SettingsRepository())
+        );
+        var viewModel = new AlbumEditViewModel(appModel);
+        appModel.selectAlbum(new Album("Album A", "Artist X", List.of()));
+
+        viewModel.albumNameProperty().set("New Album");
+
+        assertTrue(viewModel.albumNameChangedProperty().get());
+    }
+
+    @Test
+    @DisplayName("アルバムアーティストが自動入力されたとき、albumArtistChangedはtrueである")
+    void album_artist_changed_is_true_when_the_album_artist_is_auto_filled() {
+        var appModel = new MusicLibraryAppModel(
+            new LibraryIndexer(new NullLibraryRepository()),
+            new SettingsAppModel(new SettingsRepository())
+        );
+        var viewModel = new AlbumEditViewModel(appModel);
+        var first = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("Song One", "Artist X", "Album A", "", "1", "")
+        );
+
+        appModel.selectAlbum(new Album("Album A", "", List.of(first)));
+
+        assertTrue(viewModel.albumArtistChangedProperty().get());
     }
 
 }

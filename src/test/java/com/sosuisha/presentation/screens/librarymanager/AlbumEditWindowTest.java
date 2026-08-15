@@ -1,5 +1,7 @@
 package com.sosuisha.presentation.screens.librarymanager;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testfx.api.FxAssert.verifyThat;
 
 import java.nio.file.Path;
@@ -14,6 +16,7 @@ import org.testfx.matcher.control.TextInputControlMatchers;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
 
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 class AlbumEditWindowTest extends LibraryManagerViewTestBase {
@@ -41,4 +44,24 @@ class AlbumEditWindowTest extends LibraryManagerViewTestBase {
         verifyThat("#albumArtistField", TextInputControlMatchers.hasText("Artist X"));
     }
 
+    @Test
+    @DisplayName("アルバムの元の値と異なる値のフィールドだけが、明るい黄色のchanged-fieldスタイルになる")
+    void only_a_field_whose_value_differs_from_the_album_has_the_changed_field_style(
+        FxRobot robot) {
+        var files = List.of(
+            new MusicFile(
+                Path.of("a/one.mp3"), 100,
+                new TrackMetadata("Song One", "Artist X", "Album A", "", "1", "")
+            )
+        );
+        robot.interact(() -> viewModel.setFiles(files));
+        robot.clickOn("Album A - ");
+
+        robot.clickOn("#editAlbumButton");
+
+        var nameField = robot.lookup("#albumNameField").queryAs(TextField.class);
+        var artistField = robot.lookup("#albumArtistField").queryAs(TextField.class);
+        assertFalse(nameField.getStyleClass().contains("changed-field"));
+        assertTrue(artistField.getStyleClass().contains("changed-field"));
+    }
 }

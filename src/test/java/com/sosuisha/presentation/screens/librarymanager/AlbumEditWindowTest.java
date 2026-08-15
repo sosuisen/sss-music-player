@@ -64,4 +64,25 @@ class AlbumEditWindowTest extends LibraryManagerViewTestBase {
         assertFalse(nameField.getStyleClass().contains("changed-field"));
         assertTrue(artistField.getStyleClass().contains("changed-field"));
     }
+
+    @Test
+    @DisplayName("フィールドが変更されていないときSaveボタンは無効で、変更すると有効になる")
+    void the_save_button_is_enabled_only_while_a_field_differs_from_the_album(FxRobot robot) {
+        var files = List.of(
+            new MusicFile(
+                Path.of("a/one.mp3"), 100,
+                new TrackMetadata("Song One", "Artist X", "Album A", "Artist X", "1", "")
+            )
+        );
+        robot.interact(() -> viewModel.setFiles(files));
+        robot.clickOn("Album A - Artist X");
+        robot.clickOn("#editAlbumButton");
+
+        var saveButton = robot.lookup("#saveButton").queryButton();
+        assertTrue(saveButton.isDisabled());
+
+        robot.clickOn("#albumNameField").write("!");
+
+        assertFalse(saveButton.isDisabled());
+    }
 }

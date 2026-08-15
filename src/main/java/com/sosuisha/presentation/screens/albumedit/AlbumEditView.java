@@ -4,12 +4,14 @@ import java.util.Objects;
 
 import com.sosuisha.presentation.View;
 
+import io.github.sosuisen.jfxbuilder.controls.ButtonBuilder;
 import io.github.sosuisen.jfxbuilder.controls.LabelBuilder;
 import io.github.sosuisen.jfxbuilder.controls.TextFieldBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.ColumnConstraintsBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.GridPaneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.SceneBuilder;
 import javafx.beans.value.ObservableValue;
+import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.TextField;
@@ -97,6 +99,22 @@ public class AlbumEditView implements View {
                                     field, viewModel.albumArtistChangedProperty()
                                 )
                             )
+                            .build()
+                    )
+                    .addRow(
+                        2,
+                        ButtonBuilder.create()
+                            .text("Save")
+                            .id("saveButton")
+                            .disablePropertyApply(
+                                prop -> prop.bind(
+                                    viewModel.albumNameChangedProperty()
+                                        .or(viewModel.albumArtistChangedProperty())
+                                        .not()
+                                )
+                            )
+                            .columnSpanInGridPane(2)
+                            .hAlignmentInGridPane(HPos.RIGHT)
                             .build()
                     )
                     .build(),

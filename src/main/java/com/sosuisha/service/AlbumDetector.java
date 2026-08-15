@@ -40,8 +40,9 @@ public class AlbumDetector {
      * Returns the albums recognized in the files. Files whose album name and
      * album artist are both the same form one album. Files whose album name is
      * empty form one album per parent folder instead, whose name is the folder
-     * name and whose artist is empty. Albums and their files keep the
-     * encounter order.
+     * name and whose artist is empty. The year of an album is the first
+     * non-empty year of its files, or an empty string when every year is
+     * empty. Albums and their files keep the encounter order.
      *
      * @return recognized albums
      */
@@ -63,11 +64,22 @@ public class AlbumDetector {
     }
 
     private static Album toAlbum(GroupKey key, List<MusicFile> albumFiles) {
+        var year = firstNonEmptyYear(albumFiles);
         return switch (key) {
-            case MetadataKey(String name, String artist) -> new Album(name, artist, albumFiles);
+            case MetadataKey(String name, String artist) -> new Album(
+                name, artist, year, albumFiles
+            );
             case FolderKey(Path folder) -> new Album(
-                folder == null ? "" : folder.getFileName().toString(), "", albumFiles
+                folder == null ? "" : folder.getFileName().toString(), "", year, albumFiles
             );
         };
+    }
+
+    private static String firstNonEmptyYear(List<MusicFile> albumFiles) {
+        return albumFiles.stream()
+            .map(file -> file.tag().year())
+            .filter(year -> !year.isEmpty())
+            .findFirst()
+            .orElse("");
     }
 }

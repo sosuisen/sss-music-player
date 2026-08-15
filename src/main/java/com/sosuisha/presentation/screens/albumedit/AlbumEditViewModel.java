@@ -2,7 +2,6 @@ package com.sosuisha.presentation.screens.albumedit;
 
 import java.util.Objects;
 
-import com.sosuisha.domain.model.Album;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -29,13 +28,8 @@ public class AlbumEditViewModel {
         appModel.selectedAlbumProperty().subscribe(album -> {
             albumName.set(album == null ? "" : album.name());
             albumArtist.set(album == null ? "" : album.artist());
-            albumYear.set(yearOfFirstFile(album));
+            albumYear.set(album == null ? "" : album.year());
         });
-    }
-
-    private static String yearOfFirstFile(Album album) {
-        if (album == null || album.files().isEmpty()) { return ""; }
-        return album.files().getFirst().tag().year();
     }
 
     /**
@@ -57,8 +51,7 @@ public class AlbumEditViewModel {
     }
 
     /**
-     * Returns the editable release year. The album itself has no year, so the
-     * year of the tag of the first file is filled in on selection.
+     * Returns the editable release year.
      *
      * @return string property of the release year
      */

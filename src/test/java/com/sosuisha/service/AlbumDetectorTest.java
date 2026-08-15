@@ -56,6 +56,31 @@ class AlbumDetectorTest {
         assertEquals(List.of(new Album("", "", List.of(rootFile))), detector.detect());
     }
 
+    @Test
+    @DisplayName("アルバムの年は、ファイルのタグの最初の空でない年になる")
+    void the_year_of_an_album_is_the_first_non_empty_year_of_its_files() {
+        var noYear = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("", "", "Album A", "Artist X", "", "")
+        );
+        var year2001 = new MusicFile(
+            Path.of("a/two.mp3"), 200,
+            new TrackMetadata("", "", "Album A", "Artist X", "", "2001")
+        );
+        var year2002 = new MusicFile(
+            Path.of("a/three.mp3"), 300,
+            new TrackMetadata("", "", "Album A", "Artist X", "", "2002")
+        );
+        var detector = new AlbumDetector(List.of(noYear, year2001, year2002));
+
+        assertEquals(
+            List.of(
+                new Album("Album A", "Artist X", "2001", List.of(noYear, year2001, year2002))
+            ),
+            detector.detect()
+        );
+    }
+
     private static TrackMetadata tag(String album, String albumArtist) {
         return new TrackMetadata("", "", album, albumArtist, "", "");
     }

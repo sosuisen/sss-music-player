@@ -2,6 +2,7 @@ package com.sosuisha.presentation.screens.albumedit;
 
 import java.util.Objects;
 
+import com.sosuisha.domain.model.Album;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 
 import javafx.beans.property.SimpleStringProperty;
@@ -17,7 +18,8 @@ public class AlbumEditViewModel {
     /**
      * Creates the view model. The editable fields are reset to the values of
      * the selected album of the given app model whenever the selection
-     * changes.
+     * changes. An empty album artist is auto-filled with the artist of the
+     * first track of the album.
      *
      * @param appModel application-wide state of the music library
      * @throws NullPointerException if appModel is null
@@ -26,8 +28,14 @@ public class AlbumEditViewModel {
         Objects.requireNonNull(appModel, "appModel must not be null");
         appModel.selectedAlbumProperty().subscribe(album -> {
             albumName.set(album == null ? "" : album.name());
-            albumArtist.set(album == null ? "" : album.artist());
+            albumArtist.set(album == null ? "" : albumArtistOf(album));
         });
+    }
+
+    private static String albumArtistOf(Album album) {
+        if (!album.artist().isEmpty() || album.files().isEmpty()) { return album.artist(); }
+        // An empty album artist is auto-filled with the artist of the first track.
+        return album.files().getFirst().tag().artist();
     }
 
     /**

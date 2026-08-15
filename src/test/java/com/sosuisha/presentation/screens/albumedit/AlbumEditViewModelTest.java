@@ -7,7 +7,11 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Path;
+
 import com.sosuisha.domain.model.Album;
+import com.sosuisha.domain.model.MusicFile;
+import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.service.NullLibraryRepository;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
@@ -27,6 +31,24 @@ class AlbumEditViewModelTest {
         appModel.selectAlbum(new Album("Album A", "Artist X", List.of()));
 
         assertEquals("Album A", viewModel.albumNameProperty().get());
+        assertEquals("Artist X", viewModel.albumArtistProperty().get());
+    }
+
+    @Test
+    @DisplayName("アルバムアーティストが空のアルバムを選択すると、編集用のアルバムアーティストに最初の曲のアーティスト名が自動入力される")
+    void the_editable_album_artist_is_auto_filled_with_the_artist_of_the_first_track() {
+        var appModel = new MusicLibraryAppModel(
+            new LibraryIndexer(new NullLibraryRepository()),
+            new SettingsAppModel(new SettingsRepository())
+        );
+        var viewModel = new AlbumEditViewModel(appModel);
+        var first = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("Song One", "Artist X", "Album A", "", "1", "")
+        );
+
+        appModel.selectAlbum(new Album("Album A", "", List.of(first)));
+
         assertEquals("Artist X", viewModel.albumArtistProperty().get());
     }
 

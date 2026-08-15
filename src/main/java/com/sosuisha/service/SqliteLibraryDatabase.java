@@ -161,4 +161,14 @@ public class SqliteLibraryDatabase implements LibraryDatabase {
             record.merge(); // upsert
         });
     }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @throws IllegalStateException if the database cannot be written
+     */
+    @Override
+    public void deleteAll() {
+        runWithDsl("cannot write to the database", dsl -> dsl.deleteFrom(TRACK).execute());
+    }
 }

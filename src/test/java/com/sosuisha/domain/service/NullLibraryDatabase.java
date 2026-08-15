@@ -19,4 +19,7 @@ public class NullLibraryDatabase implements LibraryDatabase {
 
     @Override
     public void save(MusicFile file, FileTime lastModified) {}
+
+    @Override
+    public void deleteAll() {}
 }

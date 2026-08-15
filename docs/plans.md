@@ -11,7 +11,8 @@ TDDの作業用todoリスト（使い捨て）。
 
 ## ライブラリマネージャー
 
-- [ ] Rescanでlibrary.dbを全て消して再スキャン。
+- [x] Rescanでlibrary.dbを全て消して再スキャン。
+  - [x] rescanメソッドは、library.dbを消してscanを実行する。
 - [x] アルバム名でソート。
   - [x] ソートキーのComboBox（初期値Album）が表示され、アルバムリストはアルバム名の昇順（大文字小文字無視）で並ぶ。
   - 決定: ComboBoxで切替。昇順・大文字小文字無視。

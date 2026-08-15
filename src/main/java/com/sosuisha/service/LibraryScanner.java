@@ -75,6 +75,14 @@ public class LibraryScanner {
         }
     }
 
+    /**
+     * Deletes all entries of the metadata cache. The next scan reads the
+     * metadata of every file from the file itself.
+     */
+    public void clearCache() {
+        database.deleteAll();
+    }
+
     private MusicFile toMusicFile(Path path, Consumer<Path> onFileRead) {
         onFileRead.accept(path);
         try {

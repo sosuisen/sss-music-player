@@ -5,7 +5,12 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.FileTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,6 +26,8 @@ import org.testfx.util.WaitForAsyncUtils;
 
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.Settings;
+import com.sosuisha.domain.model.TrackMetadata;
+import com.sosuisha.domain.service.LibraryDatabase;
 import com.sosuisha.domain.service.NullLibraryDatabase;
 import com.sosuisha.service.LibraryScanner;
 import com.sosuisha.service.SettingsRepository;
@@ -151,6 +158,57 @@ class MusicLibraryAppModelTest {
         robot.interact(() -> appModel.rescan());
 
         WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> appModel.getFiles().size() == 2);
+    }
+
+    @Test
+    @DisplayName("rescanを呼ぶと、削除されたファイルのエントリがライブラリDBから消える")
+    void rescan_removes_the_entries_of_deleted_files_from_the_library_database(FxRobot robot)
+        throws Exception {
+        var kept = Files.write(folder.resolve("song1.mp3"), new byte[42]);
+        var deleted = Files.write(folder.resolve("song2.mp3"), new byte[42]);
+        var database = new InMemoryLibraryDatabase();
+        var appModel = new MusicLibraryAppModel(
+            new LibraryScanner(database),
+            new SettingsAppModel(new SettingsRepository())
+        );
+        robot.interact(() -> appModel.scanFolder(folder));
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> appModel.getFiles().size() == 2);
+        Files.delete(deleted);
+
+        robot.interact(() -> appModel.rescan());
+
+        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> appModel.getFiles().size() == 1);
+        assertEquals(Set.of(kept), database.paths());
+    }
+
+    private static class InMemoryLibraryDatabase implements LibraryDatabase {
+        private record CachedEntry(long size, FileTime lastModified, TrackMetadata tag) {
+        }
+
+        private final Map<Path, CachedEntry> entries = new HashMap<>();
+
+        @Override
+        public Optional<TrackMetadata> find(Path path, long size, FileTime lastModified) {
+            var entry = entries.get(path);
+            if (entry == null || entry.size != size || !entry.lastModified.equals(lastModified)) {
+                return Optional.empty();
+            }
+            return Optional.of(entry.tag);
+        }
+
+        @Override
+        public void save(MusicFile file, FileTime lastModified) {
+            entries.put(file.path(), new CachedEntry(file.size(), lastModified, file.tag()));
+        }
+
+        @Override
+        public void deleteAll() {
+            entries.clear();
+        }
+
+        Set<Path> paths() {
+            return Set.copyOf(entries.keySet());
+        }
     }
 
     @Test

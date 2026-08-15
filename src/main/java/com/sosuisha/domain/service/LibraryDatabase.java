@@ -31,4 +31,9 @@ public interface LibraryDatabase {
      * @param lastModified last-modified time of the audio file
      */
     void save(MusicFile file, FileTime lastModified);
+
+    /**
+     * Deletes all entries of the database.
+     */
+    void deleteAll();
 }

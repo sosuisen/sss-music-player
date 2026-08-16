@@ -13,6 +13,8 @@ import java.util.Objects;
  * decoded as Latin-1 (ISO-8859-1).
  */
 public class TagRecovery {
+    private static final Charset SJIS = Charset.forName("MS932");
+
     private TagRecovery() {}
 
     /**
@@ -29,8 +31,22 @@ public class TagRecovery {
         return decodesCleanlyAsSjis(text.getBytes(StandardCharsets.ISO_8859_1));
     }
 
+    /**
+     * Redecodes the given string as Shift_JIS: encodes it back to the
+     * original bytes with Latin-1 (ISO-8859-1) and decodes them as
+     * Shift_JIS.
+     *
+     * @param text string misdecoded as Latin-1
+     * @return the string decoded as Shift_JIS
+     * @throws NullPointerException if text is null
+     */
+    public static String redecodeLatin1AsSjis(String text) {
+        Objects.requireNonNull(text, "text must not be null");
+        return new String(text.getBytes(StandardCharsets.ISO_8859_1), SJIS);
+    }
+
     private static boolean decodesCleanlyAsSjis(byte[] bytes) {
-        var decoder = Charset.forName("MS932").newDecoder()
+        var decoder = SJIS.newDecoder()
             .onMalformedInput(CodingErrorAction.REPORT)
             .onUnmappableCharacter(CodingErrorAction.REPORT);
         try {

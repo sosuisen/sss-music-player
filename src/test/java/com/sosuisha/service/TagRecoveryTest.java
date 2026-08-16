@@ -1,5 +1,6 @@
 package com.sosuisha.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -31,5 +32,16 @@ class TagRecoveryTest {
     @DisplayName("Caféのような正しいLatin-1の西欧文字列は、誤復号と判定されない")
     void a_correct_latin1_western_string_is_not_detected() {
         assertFalse(TagRecovery.isSjisMisdecodedAsLatin1("Café"));
+    }
+
+    @Test
+    @DisplayName("Latin-1として誤復号された文字列から、元のShift_JISの文字列を復元する")
+    void redecodes_a_latin1_misdecoded_string_as_sjis() {
+        var garbled = new String(
+            "アンテナスイッチ".getBytes(Charset.forName("MS932")),
+            StandardCharsets.ISO_8859_1
+        );
+
+        assertEquals("アンテナスイッチ", TagRecovery.redecodeLatin1AsSjis(garbled));
     }
 }

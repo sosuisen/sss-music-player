@@ -11,22 +11,43 @@ if (-not (Get-Command ffmpeg -ErrorAction SilentlyContinue)) {
 
 $dir = Join-Path $PSScriptRoot '..\src\test\resources\id3'
 New-Item -ItemType Directory -Force $dir | Out-Null
-$path = Join-Path $dir 'tagged.m4a'
 
 # One second of silent AAC audio with iTunes-style metadata atoms.
-ffmpeg -y -loglevel error `
-    -f lavfi -i anullsrc=r=44100:cl=stereo -t 1 `
-    -c:a aac -b:a 128k `
-    -metadata title='M4A Song' `
-    -metadata artist='M4A Artist' `
-    -metadata album='M4A Album' `
-    -metadata album_artist='M4A Album Artist' `
-    -metadata track='5' `
-    -metadata date='2015' `
-    $path
+function New-TaggedM4a {
+    param([string]$Path, [hashtable]$Meta)
 
-if ($LASTEXITCODE -ne 0) {
-    Write-Error 'ffmpeg failed to generate the m4a file.'
-    exit 1
+    ffmpeg -y -loglevel error `
+        -f lavfi -i anullsrc=r=44100:cl=stereo -t 1 `
+        -c:a aac -b:a 128k `
+        -metadata title=$($Meta.title) `
+        -metadata artist=$($Meta.artist) `
+        -metadata album=$($Meta.album) `
+        -metadata album_artist=$($Meta.album_artist) `
+        -metadata track=$($Meta.track) `
+        -metadata date=$($Meta.date) `
+        $Path
+
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error 'ffmpeg failed to generate the m4a file.'
+        exit 1
+    }
+    Write-Host "Wrote $Path"
 }
-Write-Host "Wrote $path"
+
+New-TaggedM4a -Path (Join-Path $dir 'tagged.m4a') -Meta @{
+    title = 'M4A Song'
+    artist = 'M4A Artist'
+    album = 'M4A Album'
+    album_artist = 'M4A Album Artist'
+    track = '5'
+    date = '2015'
+}
+
+New-TaggedM4a -Path (Join-Path $dir 'tagged-japanese.m4a') -Meta @{
+    title = '春の歌'
+    artist = '春のアーティスト'
+    album = '春のアルバム'
+    album_artist = '春のアルバムアーティスト'
+    track = '6'
+    date = '2018'
+}

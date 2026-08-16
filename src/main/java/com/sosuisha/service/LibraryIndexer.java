@@ -12,6 +12,9 @@ import java.util.function.Consumer;
 
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.FieldKey;
+import org.jaudiotagger.tag.Tag;
+import org.jaudiotagger.tag.TagField;
+import org.jaudiotagger.tag.id3.AbstractID3v2Frame;
 
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
@@ -108,17 +111,34 @@ public class LibraryIndexer {
             var tag = AudioFileIO.read(path.toFile()).getTag();
             if (tag == null) { return TrackMetadata.EMPTY; }
             return new TrackMetadata(
-                tag.getFirst(FieldKey.TITLE),
-                tag.getFirst(FieldKey.ARTIST),
-                tag.getFirst(FieldKey.ALBUM),
-                tag.getFirst(FieldKey.ALBUM_ARTIST),
-                tag.getFirst(FieldKey.TRACK),
-                tag.getFirst(FieldKey.YEAR)
+                readField(tag, FieldKey.TITLE),
+                readField(tag, FieldKey.ARTIST),
+                readField(tag, FieldKey.ALBUM),
+                readField(tag, FieldKey.ALBUM_ARTIST),
+                readField(tag, FieldKey.TRACK),
+                readField(tag, FieldKey.YEAR)
             );
         } catch (Exception e) {
             // A file whose tag cannot be read is kept in the library with empty metadata.
             return TrackMetadata.EMPTY;
         }
+    }
+
+    private static String readField(Tag tag, FieldKey key) {
+        var text = tag.getFirst(key);
+        if (isDeclaredLatin1Id3Frame(tag.getFirstField(key))
+            && TagRecovery.isSjisMisdecodedAsLatin1(text)) {
+            return TagRecovery.redecodeLatin1AsSjis(text);
+        }
+        return text;
+    }
+
+    private static boolean isDeclaredLatin1Id3Frame(TagField field) {
+        // Only an ID3v2 frame of an mp3 file can be a recovery target. A field
+        // of another type (m4a, ID3v1, or a missing field = null) fails the
+        // instanceof test, so no recovery is applied to it.
+        return field instanceof AbstractID3v2Frame frame
+            && frame.getBody().getTextEncoding() == 0;
     }
 
     private static boolean isHiddenFile(Path path) {

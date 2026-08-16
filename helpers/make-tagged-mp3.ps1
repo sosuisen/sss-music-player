@@ -1,7 +1,11 @@
 # Generates minimal mp3 files for test resources:
 # - tagged.mp3 / tagged2.mp3: with an ID3v2.3 tag
 # - untagged.mp3: valid MPEG frames only, without any tag
+# - garbled-sjis.mp3: ID3v2.3 frames declared ISO-8859-1 whose text bytes are Shift_JIS
+# - utf16-japanese.mp3: ID3v2.3 frames correctly declared and encoded as UTF-16
 $enc = [System.Text.Encoding]::GetEncoding('ISO-8859-1')
+$sjis = [System.Text.Encoding]::GetEncoding('shift_jis')
+$utf16 = [System.Text.Encoding]::Unicode  # UTF-16LE with BOM via GetPreamble()
 
 # Minimal MPEG-1 Layer III frames: 128kbps, 44.1kHz, no padding -> 417 bytes each.
 # The leading comma keeps PowerShell from unrolling the byte array into Object[].
@@ -18,12 +22,17 @@ function Get-MpegFrames {
 function New-TaggedMp3 {
     param(
         [string]$Path,
-        [System.Collections.Specialized.OrderedDictionary]$Tags
+        [System.Collections.Specialized.OrderedDictionary]$Tags,
+        # Encoding of the text bytes. When it differs from the declared
+        # encoding byte (e.g. Shift_JIS bytes declared 0), the tag is garbled.
+        [System.Text.Encoding]$TextEncoding = $enc,
+        # Declared encoding byte: 0 = ISO-8859-1, 1 = UTF-16 with BOM.
+        [byte]$EncodingByte = 0
     )
 
     $frames = [System.Collections.Generic.List[byte]]::new()
     foreach ($key in $Tags.Keys) {
-        $text = $enc.GetBytes($Tags[$key])
+        $text = [byte[]]($TextEncoding.GetPreamble() + $TextEncoding.GetBytes($Tags[$key]))
         $size = $text.Length + 1  # +1 for the encoding byte
         $frames.AddRange($enc.GetBytes($key))
         $frames.AddRange([byte[]]@(
@@ -32,7 +41,7 @@ function New-TaggedMp3 {
             (($size -shr 8) -band 0xFF),
             ($size -band 0xFF)))
         $frames.AddRange([byte[]]@(0, 0))  # frame flags
-        $frames.Add([byte]0)               # encoding: ISO-8859-1
+        $frames.Add($EncodingByte)
         $frames.AddRange($text)
     }
 
@@ -82,6 +91,24 @@ New-TaggedMp3 -Path (Join-Path $dir 'tagged2.mp3') -Tags ([ordered]@{
     TPE2 = 'Another Album Artist'
     TRCK = '7'
     TYER = '1999'
+})
+
+New-TaggedMp3 -Path (Join-Path $dir 'garbled-sjis.mp3') -TextEncoding $sjis -Tags ([ordered]@{
+    TIT2 = 'アンテナスイッチ'
+    TPE1 = '高野健一'
+    TALB = '三陸産のウニに涙したい'
+    TPE2 = '高野健一'
+    TRCK = '2'
+    TYER = '2006'
+})
+
+New-TaggedMp3 -Path (Join-Path $dir 'utf16-japanese.mp3') -TextEncoding $utf16 -EncodingByte 1 -Tags ([ordered]@{
+    TIT2 = '冬の歌'
+    TPE1 = '冬のアーティスト'
+    TALB = '冬のアルバム'
+    TPE2 = '冬のアルバムアーティスト'
+    TRCK = '4'
+    TYER = '2010'
 })
 
 New-UntaggedMp3 -Path (Join-Path $dir 'untagged.mp3')

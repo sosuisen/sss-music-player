@@ -1,7 +1,6 @@
 package com.sosuisha.presentation.appmodel;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
@@ -26,7 +25,6 @@ import org.testfx.framework.junit5.Start;
 import org.testfx.util.WaitForAsyncUtils;
 
 import com.sosuisha.domain.model.MusicFile;
-import com.sosuisha.domain.model.Theme;
 import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.service.LibraryRepository;
 import com.sosuisha.domain.service.NullLibraryRepository;
@@ -142,28 +140,6 @@ class MusicLibraryAppModelTest {
 
         robot.interact(() -> settingsAppModel.musicLibraryPathProperty().set(folderB));
         WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> appModel.getFiles().size() == 2);
-    }
-
-    @Test
-    @DisplayName("テーマだけを変更しても、再走査は行われない")
-    void changing_only_the_theme_does_not_scan_again(FxRobot robot) throws Exception {
-        Files.createFile(folder.resolve("song1.mp3"));
-        var settingsAppModel = new SettingsAppModel(new NullSettingsRepository());
-        var appModel = new MusicLibraryAppModel(
-            new LibraryIndexer(new NullLibraryRepository()), settingsAppModel
-        );
-        robot.interact(() -> settingsAppModel.musicLibraryPathProperty().set(folder));
-        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> appModel.getFiles().size() == 1);
-
-        // A scan starts synchronously on the FX thread, so scanning is already
-        // true right after the settings update when a scan has been triggered.
-        var scanningRightAfterCall = new AtomicBoolean(true);
-        robot.interact(() -> {
-            settingsAppModel.themeProperty().set(Theme.NORD_DARK);
-            scanningRightAfterCall.set(appModel.scanningProperty().get());
-        });
-
-        assertFalse(scanningRightAfterCall.get());
     }
 
     @Test

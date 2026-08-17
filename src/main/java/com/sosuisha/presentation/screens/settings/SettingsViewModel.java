@@ -86,6 +86,8 @@ public class SettingsViewModel {
      */
     public void selectMusicLibraryFolder(Window ownerWindow) {
         directoryChooser.apply(ownerWindow)
-            .ifPresent(path -> appModel.saveSettings(new Settings(path)));
+            .ifPresent(
+                path -> appModel.saveSettings(new Settings(path, appModel.themeProperty().get()))
+            );
     }
 }

@@ -51,6 +51,19 @@ class SettingsViewModelTest {
     }
 
     @Test
+    @DisplayName("フォルダを選択しても、現在のテーマは維持される")
+    void selecting_a_folder_keeps_the_current_theme() {
+        var appModel = new SettingsAppModel(new SettingsRepositoryImpl());
+        appModel.setSettings(new Settings(Path.of("music")));
+        var viewModel = new SettingsViewModel(appModel, _ -> Optional.of(Path.of("newMusic")));
+        appModel.themeProperty().set(Theme.NORD_DARK);
+
+        viewModel.selectMusicLibraryFolder(null);
+
+        assertEquals(Theme.NORD_DARK, appModel.getSettings().theme());
+    }
+
+    @Test
     @DisplayName("フォルダの選択をキャンセルすると、設定は変わらず、ファイルにも保存されない")
     void canceling_the_folder_selection_keeps_the_settings_unchanged_and_saves_nothing() {
         var appModel = new SettingsAppModel(new SettingsRepositoryImpl());

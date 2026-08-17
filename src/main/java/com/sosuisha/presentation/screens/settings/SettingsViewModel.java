@@ -5,7 +5,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
-import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.model.Theme;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 
@@ -35,13 +34,7 @@ public class SettingsViewModel {
         this.appModel = Objects.requireNonNull(appModel, "appModel must not be null");
         this.directoryChooser =
             Objects.requireNonNull(directoryChooser, "directoryChooser must not be null");
-        appModel.themeProperty().subscribe((_, newTheme) -> saveTheme(newTheme));
-    }
-
-    private void saveTheme(Theme theme) {
-        var settings = appModel.getSettings();
-        if (settings == null) { return; }
-        appModel.saveSettings(new Settings(settings.musicLibraryPath(), theme));
+        appModel.themeProperty().subscribe((_, _) -> appModel.save());
     }
 
     /**
@@ -51,8 +44,7 @@ public class SettingsViewModel {
      * @return observable string of the music library path
      */
     public ObservableValue<String> musicLibraryPathProperty() {
-        return appModel.settingsProperty()
-            .map(settings -> settings.musicLibraryPath().toString());
+        return appModel.musicLibraryPathProperty().map(Path::toString);
     }
 
     /**
@@ -86,8 +78,9 @@ public class SettingsViewModel {
      */
     public void selectMusicLibraryFolder(Window ownerWindow) {
         directoryChooser.apply(ownerWindow)
-            .ifPresent(
-                path -> appModel.saveSettings(new Settings(path, appModel.themeProperty().get()))
-            );
+            .ifPresent(path -> {
+                appModel.musicLibraryPathProperty().set(path);
+                appModel.save();
+            });
     }
 }

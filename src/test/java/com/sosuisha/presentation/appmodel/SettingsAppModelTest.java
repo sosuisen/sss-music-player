@@ -15,30 +15,29 @@ import com.sosuisha.domain.service.NullSettingsRepository;
 
 class SettingsAppModelTest {
     @Test
-    @DisplayName("設定をセットすると、同じ設定が取得できる")
-    void returns_the_settings_that_were_set() {
+    @DisplayName("音楽ライブラリのパスをセットすると、同じパスが取得できる")
+    void returns_the_music_library_path_that_was_set() {
         var appModel = new SettingsAppModel(new NullSettingsRepository());
-        var settings = new Settings(Path.of("music"));
 
-        appModel.setSettings(settings);
+        appModel.musicLibraryPathProperty().set(Path.of("music"));
 
-        assertEquals(settings, appModel.getSettings());
+        assertEquals(Path.of("music"), appModel.musicLibraryPathProperty().get());
     }
 
     @Test
-    @DisplayName("設定を変更すると、リスナーに新しい設定が通知される")
-    void notifies_the_listener_of_the_new_settings_when_the_settings_are_changed() {
+    @DisplayName("音楽ライブラリのパスを変更すると、リスナーに新しいパスが通知される")
+    void notifies_the_listener_of_the_new_path_when_the_music_library_path_is_changed() {
         var appModel = new SettingsAppModel(new NullSettingsRepository());
         // AtomicReference is a mutable box to capture the value from the lambda,
         // which cannot assign to local variables.
-        var notified = new AtomicReference<Settings>();
-        appModel.settingsProperty().addListener((_, _, newValue) -> notified.set(newValue));
+        var notified = new AtomicReference<Path>();
+        appModel.musicLibraryPathProperty().addListener((_, _, newValue) -> notified.set(newValue));
 
         // JavaFX change listeners run synchronously inside the setter,
         // so the assertion below is deterministic.
-        appModel.setSettings(new Settings(Path.of("music")));
+        appModel.musicLibraryPathProperty().set(Path.of("music"));
 
-        assertEquals(new Settings(Path.of("music")), notified.get());
+        assertEquals(Path.of("music"), notified.get());
     }
 
     @Test
@@ -51,8 +50,9 @@ class SettingsAppModelTest {
                 throw error;
             }
         });
+        appModel.musicLibraryPathProperty().set(Path.of("music"));
 
-        appModel.saveSettings(new Settings(Path.of("music")));
+        appModel.save();
 
         assertEquals(error, appModel.errorProperty().get());
     }
@@ -64,9 +64,10 @@ class SettingsAppModelTest {
             @Override
             public void save(Settings settings) {}
         });
+        appModel.musicLibraryPathProperty().set(Path.of("music"));
         appModel.errorProperty().set(new IOException("read-only-path"));
 
-        appModel.saveSettings(new Settings(Path.of("music")));
+        appModel.save();
 
         assertNull(appModel.errorProperty().get());
     }

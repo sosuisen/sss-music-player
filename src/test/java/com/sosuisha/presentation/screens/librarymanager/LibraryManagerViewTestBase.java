@@ -9,7 +9,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.testfx.framework.junit5.ApplicationExtension;
 
-import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.domain.service.NullLibraryRepository;
 import com.sosuisha.domain.service.NullMusicPlayer;
@@ -119,7 +118,7 @@ abstract class LibraryManagerViewTestBase {
             )
         );
         var settingsAppModel = new SettingsAppModel(new NullSettingsRepository());
-        settingsAppModel.setSettings(new Settings(Path.of("music")));
+        settingsAppModel.musicLibraryPathProperty().set(Path.of("music"));
         windowManager.registerView(
             new SettingsView(new SettingsViewModel(settingsAppModel, _ -> Optional.empty()))
         );

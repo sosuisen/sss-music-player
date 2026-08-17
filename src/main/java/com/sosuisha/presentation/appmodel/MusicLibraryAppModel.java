@@ -6,7 +6,6 @@ import java.util.Objects;
 
 import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
-import com.sosuisha.domain.model.Settings;
 import com.sosuisha.service.LibraryIndexer;
 
 import javafx.beans.property.BooleanProperty;
@@ -35,10 +34,9 @@ public class MusicLibraryAppModel {
 
     /**
      * Creates the app model. It follows the music library path of the given
-     * settings app model: whenever the settings hold a music library path (at
-     * creation and on every path change), that folder is scanned and the list
-     * of audio files is updated. A settings change that keeps the same path
-     * (such as a theme change) does not trigger a scan.
+     * settings app model: whenever it holds a path (at creation and on every
+     * path change), that folder is scanned and the list of audio files is
+     * updated.
      *
      * @param scanner scanner that lists the audio files in a library folder
      * @param settingsAppModel application-wide state of the settings
@@ -47,13 +45,11 @@ public class MusicLibraryAppModel {
     public MusicLibraryAppModel(LibraryIndexer scanner, SettingsAppModel settingsAppModel) {
         this.scanner = Objects.requireNonNull(scanner, "scanner must not be null");
         Objects.requireNonNull(settingsAppModel, "settingsAppModel must not be null");
-        settingsAppModel.settingsProperty()
-            .map(Settings::musicLibraryPath)
-            .subscribe(path -> {
-                if (path != null) {
-                    scanFolder(path);
-                }
-            });
+        settingsAppModel.musicLibraryPathProperty().subscribe(path -> {
+            if (path != null) {
+                scanFolder(path);
+            }
+        });
     }
 
     /**

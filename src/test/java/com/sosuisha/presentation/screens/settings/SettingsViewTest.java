@@ -43,7 +43,7 @@ class SettingsViewTest {
             folder.resolve("settings.properties").toString()
         );
         appModel = new SettingsAppModel(new SettingsRepositoryImpl());
-        appModel.setSettings(new Settings(Path.of("music")));
+        appModel.musicLibraryPathProperty().set(Path.of("music"));
         var view = new SettingsView(
             new SettingsViewModel(appModel, _ -> Optional.of(Path.of("selected")))
         );
@@ -93,9 +93,10 @@ class SettingsViewTest {
     }
 
     @Test
-    @DisplayName("設定を変更すると、表示中の音楽ライブラリのパスも更新される")
-    void the_shown_music_library_path_is_updated_when_the_settings_are_changed(FxRobot robot) {
-        robot.interact(() -> appModel.setSettings(new Settings(Path.of("changed"))));
+    @DisplayName("設定のパスを変更すると、表示中の音楽ライブラリのパスも更新される")
+    void the_shown_music_library_path_is_updated_when_the_path_in_the_settings_is_changed(
+        FxRobot robot) {
+        robot.interact(() -> appModel.musicLibraryPathProperty().set(Path.of("changed")));
 
         verifyThat("#musicLibraryPath", LabeledMatchers.hasText("changed"));
     }

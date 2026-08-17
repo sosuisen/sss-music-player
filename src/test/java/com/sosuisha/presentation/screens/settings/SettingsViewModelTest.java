@@ -16,7 +16,6 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.model.Theme;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.repository.SettingsRepositoryImpl;
@@ -39,40 +38,40 @@ class SettingsViewModelTest {
     }
 
     @Test
-    @DisplayName("フォルダを選択すると、選択したパスがAppModelの設定に反映される")
-    void selecting_a_folder_updates_the_settings_of_the_app_model_with_the_selected_path() {
+    @DisplayName("フォルダを選択すると、選択したパスがAppModelの音楽ライブラリパスに反映される")
+    void selecting_a_folder_updates_the_music_library_path_of_the_app_model() {
         var appModel = new SettingsAppModel(new SettingsRepositoryImpl());
-        appModel.setSettings(new Settings(Path.of("music")));
+        appModel.musicLibraryPathProperty().set(Path.of("music"));
         var viewModel = new SettingsViewModel(appModel, _ -> Optional.of(Path.of("newMusic")));
 
         viewModel.selectMusicLibraryFolder(null);
 
-        assertEquals(new Settings(Path.of("newMusic")), appModel.getSettings());
+        assertEquals(Path.of("newMusic"), appModel.musicLibraryPathProperty().get());
     }
 
     @Test
     @DisplayName("フォルダを選択しても、現在のテーマは維持される")
-    void selecting_a_folder_keeps_the_current_theme() {
+    void selecting_a_folder_keeps_the_current_theme() throws Exception {
         var appModel = new SettingsAppModel(new SettingsRepositoryImpl());
-        appModel.setSettings(new Settings(Path.of("music")));
+        appModel.musicLibraryPathProperty().set(Path.of("music"));
         var viewModel = new SettingsViewModel(appModel, _ -> Optional.of(Path.of("newMusic")));
         appModel.themeProperty().set(Theme.NORD_DARK);
 
         viewModel.selectMusicLibraryFolder(null);
 
-        assertEquals(Theme.NORD_DARK, appModel.getSettings().theme());
+        assertEquals(Theme.NORD_DARK, new SettingsRepositoryImpl().load().theme());
     }
 
     @Test
     @DisplayName("フォルダの選択をキャンセルすると、設定は変わらず、ファイルにも保存されない")
     void canceling_the_folder_selection_keeps_the_settings_unchanged_and_saves_nothing() {
         var appModel = new SettingsAppModel(new SettingsRepositoryImpl());
-        appModel.setSettings(new Settings(Path.of("music")));
+        appModel.musicLibraryPathProperty().set(Path.of("music"));
         var viewModel = new SettingsViewModel(appModel, _ -> Optional.empty());
 
         viewModel.selectMusicLibraryFolder(null);
 
-        assertEquals(new Settings(Path.of("music")), appModel.getSettings());
+        assertEquals(Path.of("music"), appModel.musicLibraryPathProperty().get());
         assertFalse(Files.exists(folder.resolve("settings.properties")));
     }
 

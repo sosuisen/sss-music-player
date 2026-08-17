@@ -3,6 +3,7 @@ package com.sosuisha.presentation.appmodel;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -14,10 +15,12 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 
 /**
- * Application-wide state of the settings shared by multiple screens.
+ * Application-wide state of the settings shared by multiple screens. The
+ * {@link Settings} record is only assembled and taken apart at the
+ * persistence boundary; the screens observe the individual properties.
  */
 public class SettingsAppModel {
-    private final ObjectProperty<Settings> settings = new SimpleObjectProperty<>();
+    private final ObjectProperty<Path> musicLibraryPath = new SimpleObjectProperty<>();
     private final ObjectProperty<Theme> theme = new SimpleObjectProperty<>(Theme.PRIMER_LIGHT);
     private final ObjectProperty<Throwable> error = new SimpleObjectProperty<>();
     private final SettingsRepository repository;
@@ -33,70 +36,13 @@ public class SettingsAppModel {
     }
 
     /**
-     * Returns the settings property.
+     * Returns the music library path property. It holds the path of the music
+     * library folder, or null when no folder has been chosen yet.
      *
-     * @return object property of the settings
+     * @return object property of the music library path
      */
-    public ObjectProperty<Settings> settingsProperty() {
-        return settings;
-    }
-
-    /**
-     * Sets the settings.
-     *
-     * @param settings settings to set
-     * @throws NullPointerException if settings is null
-     */
-    public void setSettings(Settings settings) {
-        this.settings.set(Objects.requireNonNull(settings, "settings must not be null"));
-    }
-
-    /**
-     * Returns the settings.
-     *
-     * @return the settings
-     */
-    public Settings getSettings() {
-        return settings.get();
-    }
-
-    /**
-     * Loads the settings from the settings file and applies them to this app
-     * model. The theme property is also updated to the loaded theme.
-     *
-     * @return loaded settings, or an empty optional when the settings file
-     *         does not exist
-     * @throws UncheckedIOException if the settings file exists but cannot be read
-     */
-    public Optional<Settings> loadSettings() {
-        try {
-            var loaded = repository.load();
-            setSettings(loaded);
-            theme.set(loaded.theme());
-            return Optional.of(loaded);
-        } catch (NoSuchFileException e) {
-            return Optional.empty();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    /**
-     * Sets the given settings and saves them to the settings file. When the
-     * settings file cannot be written, the error is set to the error property;
-     * when it is saved, the error property is cleared.
-     *
-     * @param settings settings to save
-     * @throws NullPointerException if settings is null
-     */
-    public void saveSettings(Settings settings) {
-        setSettings(settings);
-        try {
-            repository.save(settings);
-            error.set(null);
-        } catch (IOException e) {
-            error.set(e);
-        }
+    public ObjectProperty<Path> musicLibraryPathProperty() {
+        return musicLibraryPath;
     }
 
     /**
@@ -107,6 +53,44 @@ public class SettingsAppModel {
      */
     public ObjectProperty<Theme> themeProperty() {
         return theme;
+    }
+
+    /**
+     * Loads the settings from the settings file and applies them to this app
+     * model: the music library path and the theme follow the loaded settings.
+     *
+     * @return loaded settings, or an empty optional when the settings file
+     *         does not exist
+     * @throws UncheckedIOException if the settings file exists but cannot be read
+     */
+    public Optional<Settings> loadSettings() {
+        try {
+            var loaded = repository.load();
+            musicLibraryPath.set(loaded.musicLibraryPath());
+            theme.set(loaded.theme());
+            return Optional.of(loaded);
+        } catch (NoSuchFileException e) {
+            return Optional.empty();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    /**
+     * Saves the current settings (the music library path and the theme) to the
+     * settings file. Does nothing when the music library path is not set. When
+     * the settings file cannot be written, the error is set to the error
+     * property; when it is saved, the error property is cleared.
+     */
+    public void save() {
+        var path = musicLibraryPath.get();
+        if (path == null) { return; }
+        try {
+            repository.save(new Settings(path, theme.get()));
+            error.set(null);
+        } catch (IOException e) {
+            error.set(e);
+        }
     }
 
     /**

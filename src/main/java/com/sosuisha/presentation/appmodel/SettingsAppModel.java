@@ -62,7 +62,7 @@ public class SettingsAppModel {
 
     /**
      * Loads the settings from the settings file and applies them to this app
-     * model.
+     * model. The theme property is also updated to the loaded theme.
      *
      * @return loaded settings, or an empty optional when the settings file
      *         does not exist
@@ -72,6 +72,7 @@ public class SettingsAppModel {
         try {
             var loaded = repository.load();
             setSettings(loaded);
+            theme.set(loaded.theme());
             return Optional.of(loaded);
         } catch (NoSuchFileException e) {
             return Optional.empty();

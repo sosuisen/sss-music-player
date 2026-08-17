@@ -2,6 +2,7 @@ package com.sosuisha.presentation.screens.librarymanager;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -22,6 +23,8 @@ import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.ReadOnlyStringProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.stage.Modality;
@@ -40,6 +43,7 @@ public class LibraryManagerViewModel {
         new SimpleObjectProperty<>(PlayerState.STOPPED);
     private final ObjectProperty<MusicFile> selectedTrack = new SimpleObjectProperty<>();
     private final ObjectProperty<SortKey> sortKey = new SimpleObjectProperty<>(SortKey.ALBUM);
+    private final StringProperty albumFilter = new SimpleStringProperty("");
 
     /**
      * Creates the view model.
@@ -63,6 +67,7 @@ public class LibraryManagerViewModel {
         // subscribe(Consumer) also fires with the current value, which
         // computes the initial album list here.
         sortKey.subscribe(_ -> updateAlbums());
+        albumFilter.subscribe(_ -> updateAlbums());
     }
 
     private void playNextWhenTrackFinishes() {
@@ -74,9 +79,30 @@ public class LibraryManagerViewModel {
     private void updateAlbums() {
         albums.setAll(
             new AlbumDetector(appModel.getFiles()).detect().stream()
+                .filter(this::matchesFilter)
                 .sorted(albumComparator())
                 .toList()
         );
+    }
+
+    /**
+     * Returns the filter text of the album list. The albums are narrowed to
+     * the ones whose name or artist contains the text, ignoring case,
+     * whenever the text changes.
+     *
+     * @return string property of the filter text
+     */
+    public StringProperty albumFilterProperty() {
+        return albumFilter;
+    }
+
+    private boolean matchesFilter(Album album) {
+        return containsIgnoringCase(album.name(), albumFilter.get())
+            || containsIgnoringCase(album.artist(), albumFilter.get());
+    }
+
+    private static boolean containsIgnoringCase(String text, String query) {
+        return text.toLowerCase(Locale.ROOT).contains(query.toLowerCase(Locale.ROOT));
     }
 
     private Comparator<Album> albumComparator() {

@@ -61,6 +61,78 @@ class LibraryManagerViewModelTest {
     }
 
     @Test
+    @DisplayName("絞り込みテキストを設定すると、アルバム一覧はアルバム名にそのテキストを含むアルバムだけになる")
+    void setting_the_filter_text_narrows_the_album_list_to_albums_whose_name_contains_the_text() {
+        var viewModel =
+            new LibraryManagerViewModel(
+                new WindowManager(), new MusicLibraryAppModel(
+                    new LibraryIndexer(new NullLibraryRepository()),
+                    new SettingsAppModel(new NullSettingsRepository())
+                ), new NullMusicPlayer(), _ -> {
+                }
+            );
+        var apple = new MusicFile(
+            Path.of("a/one.mp3"), 100, new TrackMetadata("", "", "Apple", "X", "", "")
+        );
+        var banana = new MusicFile(
+            Path.of("b/two.mp3"), 200, new TrackMetadata("", "", "Banana", "X", "", "")
+        );
+        viewModel.setFiles(List.of(apple, banana));
+
+        viewModel.albumFilterProperty().set("App");
+
+        assertEquals(List.of(new Album("Apple", "X", List.of(apple))), viewModel.getAlbums());
+    }
+
+    @Test
+    @DisplayName("絞り込みは大文字小文字を無視して一致する")
+    void the_filter_matches_ignoring_case() {
+        var viewModel =
+            new LibraryManagerViewModel(
+                new WindowManager(), new MusicLibraryAppModel(
+                    new LibraryIndexer(new NullLibraryRepository()),
+                    new SettingsAppModel(new NullSettingsRepository())
+                ), new NullMusicPlayer(), _ -> {
+                }
+            );
+        var apple = new MusicFile(
+            Path.of("a/one.mp3"), 100, new TrackMetadata("", "", "Apple", "X", "", "")
+        );
+        var banana = new MusicFile(
+            Path.of("b/two.mp3"), 200, new TrackMetadata("", "", "Banana", "X", "", "")
+        );
+        viewModel.setFiles(List.of(apple, banana));
+
+        viewModel.albumFilterProperty().set("aPP");
+
+        assertEquals(List.of(new Album("Apple", "X", List.of(apple))), viewModel.getAlbums());
+    }
+
+    @Test
+    @DisplayName("絞り込みテキストは、アルバムアーティスト名の部分一致でも絞り込む")
+    void the_filter_text_also_narrows_by_partial_match_of_the_album_artist_name() {
+        var viewModel =
+            new LibraryManagerViewModel(
+                new WindowManager(), new MusicLibraryAppModel(
+                    new LibraryIndexer(new NullLibraryRepository()),
+                    new SettingsAppModel(new NullSettingsRepository())
+                ), new NullMusicPlayer(), _ -> {
+                }
+            );
+        var apple = new MusicFile(
+            Path.of("a/one.mp3"), 100, new TrackMetadata("", "", "Apple", "Xylo", "", "")
+        );
+        var banana = new MusicFile(
+            Path.of("b/two.mp3"), 200, new TrackMetadata("", "", "Banana", "Zebra", "", "")
+        );
+        viewModel.setFiles(List.of(apple, banana));
+
+        viewModel.albumFilterProperty().set("zeb");
+
+        assertEquals(List.of(new Album("Banana", "Zebra", List.of(banana))), viewModel.getAlbums());
+    }
+
+    @Test
     @DisplayName("ソートキーがArtistのとき、アルバム行のテキストは「アーティスト名 - アルバム名」である")
     void the_album_row_text_is_artist_name_and_album_name_when_the_sort_key_is_artist() {
         var viewModel =

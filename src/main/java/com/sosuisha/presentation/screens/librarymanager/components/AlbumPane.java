@@ -50,6 +50,9 @@ public class AlbumPane {
                     .build(),
                 TextFieldBuilder.create()
                     .id("albumFilter")
+                    .textPropertyApply(
+                        prop -> prop.bindBidirectional(viewModel.albumFilterProperty())
+                    )
                     .build()
             )
             .build();

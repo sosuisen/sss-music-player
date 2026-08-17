@@ -215,6 +215,19 @@ class LibraryManagerListTest extends LibraryManagerViewTestBase {
     }
 
     @Test
+    @DisplayName("絞り込みフィールドに入力すると、アルバムリストが絞り込まれる")
+    void typing_in_the_album_filter_field_narrows_the_album_list(FxRobot robot) {
+        var apple = new MusicFile(Path.of("a/one.mp3"), 100, albumTag("Apple", "X"));
+        var banana = new MusicFile(Path.of("b/two.mp3"), 200, albumTag("Banana", "X"));
+        robot.interact(() -> viewModel.setFiles(List.of(apple, banana)));
+
+        robot.clickOn("#albumFilter").write("app");
+
+        var albumList = robot.lookup("#albumList").queryListView();
+        assertEquals(List.of(new Album("Apple", "X", List.of(apple))), albumList.getItems());
+    }
+
+    @Test
     @DisplayName("アルバム未選択のとき、Editボタンは無効である")
     void the_edit_button_is_disabled_when_no_album_is_selected(FxRobot robot) {
         robot.interact(() -> viewModel.selectAlbum(null));

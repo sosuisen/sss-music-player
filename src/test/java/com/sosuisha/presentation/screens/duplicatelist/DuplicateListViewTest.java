@@ -27,12 +27,11 @@ import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.domain.service.NullLibraryRepository;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
-import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.presentation.screens.duplicatelist.components.DetailedPanel;
 import com.sosuisha.service.DuplicateFileMover;
 import com.sosuisha.service.LibraryIndexer;
-import com.sosuisha.domain.service.NullSettingsRepository;
 
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
@@ -50,7 +49,7 @@ class DuplicateListViewTest {
     void setup(Stage stage) {
         appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         );
         playedPath = new AtomicReference<>();
         stopped = new AtomicBoolean(false);

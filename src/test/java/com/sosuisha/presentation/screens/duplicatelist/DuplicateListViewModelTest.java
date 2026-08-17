@@ -19,11 +19,10 @@ import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.service.NullLibraryRepository;
 import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
-import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.service.DuplicateFileMover;
 import com.sosuisha.service.LibraryIndexer;
-import com.sosuisha.domain.service.NullSettingsRepository;
 
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 
 class DuplicateListViewModelTest {
@@ -42,7 +41,7 @@ class DuplicateListViewModelTest {
         var viewModel = new DuplicateListViewModel(
             new MusicLibraryAppModel(
                 new LibraryIndexer(new NullLibraryRepository()),
-                new SettingsAppModel(new NullSettingsRepository())
+                new SimpleObjectProperty<>()
             ),
             new NullMusicPlayer(),
             new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")),
@@ -69,7 +68,7 @@ class DuplicateListViewModelTest {
         var viewModel = new DuplicateListViewModel(
             new MusicLibraryAppModel(
                 new LibraryIndexer(new NullLibraryRepository()),
-                new SettingsAppModel(new NullSettingsRepository())
+                new SimpleObjectProperty<>()
             ),
             new NullMusicPlayer(),
             new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")),
@@ -113,7 +112,7 @@ class DuplicateListViewModelTest {
         var viewModel = new DuplicateListViewModel(
             new MusicLibraryAppModel(
                 new LibraryIndexer(new NullLibraryRepository()),
-                new SettingsAppModel(new NullSettingsRepository())
+                new SimpleObjectProperty<>()
             ),
             new NullMusicPlayer(),
             mover,
@@ -133,7 +132,7 @@ class DuplicateListViewModelTest {
     void detect_by_metadata_stores_duplicates_detected_by_title_and_artist() {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         );
         var viewModel = new DuplicateListViewModel(
             appModel,
@@ -164,7 +163,7 @@ class DuplicateListViewModelTest {
     void the_candidate_list_is_updated_with_the_last_detector_when_the_library_files_change() {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         );
         var viewModel = new DuplicateListViewModel(
             appModel,
@@ -192,7 +191,7 @@ class DuplicateListViewModelTest {
         var rescanned = new AtomicBoolean(false);
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         ) {
             @Override
             public void rescan() {

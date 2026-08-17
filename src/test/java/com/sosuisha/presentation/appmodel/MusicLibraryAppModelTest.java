@@ -29,8 +29,8 @@ import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.service.LibraryRepository;
 import com.sosuisha.domain.service.NullLibraryRepository;
 import com.sosuisha.service.LibraryIndexer;
-import com.sosuisha.domain.service.NullSettingsRepository;
 
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.stage.Stage;
 
 @ExtendWith(ApplicationExtension.class)
@@ -52,7 +52,7 @@ class MusicLibraryAppModelTest {
         Files.createFile(folder.resolve("song2.m4a"));
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         );
 
         // AtomicInteger is a mutable box to carry the size measured on the FX
@@ -74,7 +74,7 @@ class MusicLibraryAppModelTest {
         Files.createFile(folder.resolve("song1.mp3"));
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         );
 
         var scanningRightAfterCall = new AtomicBoolean(false);
@@ -92,7 +92,7 @@ class MusicLibraryAppModelTest {
     void scanning_returns_to_false_when_the_scan_fails(FxRobot robot) throws Exception {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         );
 
         robot.interact(() -> appModel.scanFolder(folder.resolve("missing")));
@@ -107,7 +107,7 @@ class MusicLibraryAppModelTest {
         var file = Files.createFile(folder.resolve("song1.mp3"));
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         );
 
         robot.interact(() -> appModel.scanFolder(folder));
@@ -122,23 +122,22 @@ class MusicLibraryAppModelTest {
     }
 
     @Test
-    @DisplayName("設定のライブラリフォルダが変更されると、新しいフォルダが走査され一覧が更新される")
-    void changing_the_music_library_folder_in_the_settings_scans_the_new_folder(FxRobot robot)
-        throws Exception {
+    @DisplayName("音楽ライブラリのパスが変更されると、新しいフォルダが走査され一覧が更新される")
+    void changing_the_music_library_path_scans_the_new_folder(FxRobot robot) throws Exception {
         var folderA = Files.createDirectories(folder.resolve("a"));
         var folderB = Files.createDirectories(folder.resolve("b"));
         Files.createFile(folderA.resolve("song1.mp3"));
         Files.createFile(folderB.resolve("song2.mp3"));
         Files.createFile(folderB.resolve("song3.m4a"));
-        var settingsAppModel = new SettingsAppModel(new NullSettingsRepository());
+        var musicLibraryPath = new SimpleObjectProperty<Path>();
         var appModel = new MusicLibraryAppModel(
-            new LibraryIndexer(new NullLibraryRepository()), settingsAppModel
+            new LibraryIndexer(new NullLibraryRepository()), musicLibraryPath
         );
 
-        robot.interact(() -> settingsAppModel.musicLibraryPathProperty().set(folderA));
+        robot.interact(() -> musicLibraryPath.set(folderA));
         WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> appModel.getFiles().size() == 1);
 
-        robot.interact(() -> settingsAppModel.musicLibraryPathProperty().set(folderB));
+        robot.interact(() -> musicLibraryPath.set(folderB));
         WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> appModel.getFiles().size() == 2);
     }
 
@@ -148,7 +147,7 @@ class MusicLibraryAppModelTest {
         Files.createFile(folder.resolve("song1.mp3"));
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         );
         robot.interact(() -> appModel.scanFolder(folder));
         WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> appModel.getFiles().size() == 1);
@@ -168,7 +167,7 @@ class MusicLibraryAppModelTest {
         var database = new InMemoryLibraryRepository();
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(database),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         );
         robot.interact(() -> appModel.scanFolder(folder));
         WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> appModel.getFiles().size() == 2);
@@ -191,7 +190,7 @@ class MusicLibraryAppModelTest {
         database.save(new MusicFile(file, 42, cachedTag), Files.getLastModifiedTime(file));
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(database),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         );
         robot.interact(() -> appModel.scanFolder(folder));
         WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> appModel.getFiles().size() == 1);
@@ -246,7 +245,7 @@ class MusicLibraryAppModelTest {
         Files.write(file, new byte[42]);
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         );
 
         robot.interact(() -> appModel.scanFolder(folder));

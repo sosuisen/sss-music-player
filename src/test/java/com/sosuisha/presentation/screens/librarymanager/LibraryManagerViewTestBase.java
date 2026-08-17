@@ -14,7 +14,6 @@ import com.sosuisha.domain.service.NullLibraryRepository;
 import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
-import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.presentation.screens.albumedit.AlbumEditView;
 import com.sosuisha.presentation.screens.albumedit.AlbumEditViewModel;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
@@ -25,6 +24,7 @@ import com.sosuisha.service.DuplicateFileMover;
 import com.sosuisha.service.LibraryIndexer;
 import com.sosuisha.domain.service.NullSettingsRepository;
 
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.stage.Stage;
 
 /**
@@ -57,7 +57,7 @@ abstract class LibraryManagerViewTestBase {
         rescanned = new AtomicBoolean(false);
         appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         ) {
             @Override
             public void rescan() {
@@ -117,11 +117,10 @@ abstract class LibraryManagerViewTestBase {
                 )
             )
         );
-        var settingsAppModel = new SettingsAppModel(new NullSettingsRepository());
-        settingsAppModel.musicLibraryPathProperty().set(Path.of("music"));
-        windowManager.registerView(
-            new SettingsView(new SettingsViewModel(settingsAppModel, _ -> Optional.empty()))
-        );
+        var settingsViewModel =
+            new SettingsViewModel(new NullSettingsRepository(), _ -> Optional.empty());
+        settingsViewModel.musicLibraryPathProperty().set(Path.of("music"));
+        windowManager.registerView(new SettingsView(settingsViewModel));
         windowManager.registerView(
             new AlbumEditView(new AlbumEditViewModel(appModel, (_, _, _) -> {
             }))

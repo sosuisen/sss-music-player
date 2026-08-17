@@ -25,10 +25,9 @@ import com.sosuisha.domain.service.NullLibraryRepository;
 import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
-import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.service.LibraryIndexer;
-import com.sosuisha.domain.service.NullSettingsRepository;
 
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Label;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -130,7 +129,7 @@ class LibraryManagerWindowTest extends LibraryManagerViewTestBase {
             }
         };
         var blockingAppModel = new MusicLibraryAppModel(
-            blockingScanner, new SettingsAppModel(new NullSettingsRepository())
+            blockingScanner, new SimpleObjectProperty<>()
         );
         var blockingViewModel =
             new LibraryManagerViewModel(

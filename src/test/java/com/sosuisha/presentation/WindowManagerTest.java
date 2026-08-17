@@ -14,13 +14,12 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import com.sosuisha.domain.service.NullLibraryRepository;
 import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
-import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListViewModel;
 import com.sosuisha.service.DuplicateFileMover;
 import com.sosuisha.service.LibraryIndexer;
-import com.sosuisha.domain.service.NullSettingsRepository;
 
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.stage.Stage;
 
 @ExtendWith(ApplicationExtension.class)
@@ -33,7 +32,7 @@ class WindowManagerTest {
             new DuplicateListViewModel(
                 new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
-                    new SettingsAppModel(new NullSettingsRepository())
+                    new SimpleObjectProperty<>()
                 ),
                 new NullMusicPlayer(),
                 new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")),
@@ -55,7 +54,7 @@ class WindowManagerTest {
             new DuplicateListViewModel(
                 new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
-                    new SettingsAppModel(new NullSettingsRepository())
+                    new SimpleObjectProperty<>()
                 ),
                 new NullMusicPlayer(),
                 new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")),

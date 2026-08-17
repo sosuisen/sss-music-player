@@ -20,7 +20,7 @@ import org.testfx.matcher.control.LabeledMatchers;
 
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.model.Theme;
-import com.sosuisha.presentation.appmodel.SettingsAppModel;
+import com.sosuisha.domain.service.NullSettingsRepository;
 import com.sosuisha.repository.SettingsRepositoryImpl;
 
 import javafx.scene.control.Button;
@@ -32,7 +32,7 @@ class SettingsViewTest {
     @TempDir
     Path folder;
 
-    private SettingsAppModel appModel;
+    private SettingsViewModel viewModel;
     private Stage stage;
 
     @Start
@@ -42,11 +42,11 @@ class SettingsViewTest {
             "sss.settings.file",
             folder.resolve("settings.properties").toString()
         );
-        appModel = new SettingsAppModel(new SettingsRepositoryImpl());
-        appModel.musicLibraryPathProperty().set(Path.of("music"));
-        var view = new SettingsView(
-            new SettingsViewModel(appModel, _ -> Optional.of(Path.of("selected")))
+        viewModel = new SettingsViewModel(
+            new SettingsRepositoryImpl(), _ -> Optional.of(Path.of("selected"))
         );
+        viewModel.musicLibraryPathProperty().set(Path.of("music"));
+        var view = new SettingsView(viewModel);
         stage.setScene(view.getScene());
         stage.setTitle(view.getTitle());
         stage.show();
@@ -81,10 +81,8 @@ class SettingsViewTest {
     @DisplayName("テーマのプルダウンの初期値は、現在のテーマである")
     void the_initial_value_of_the_theme_pulldown_is_the_current_theme(FxRobot robot) {
         robot.interact(() -> {
-            appModel.themeProperty().set(Theme.NORD_DARK);
-            var view = new SettingsView(
-                new SettingsViewModel(appModel, _ -> Optional.empty())
-            );
+            viewModel.themeProperty().set(Theme.NORD_DARK);
+            var view = new SettingsView(viewModel);
             stage.setScene(view.getScene());
         });
 
@@ -96,15 +94,25 @@ class SettingsViewTest {
     @DisplayName("設定のパスを変更すると、表示中の音楽ライブラリのパスも更新される")
     void the_shown_music_library_path_is_updated_when_the_path_in_the_settings_is_changed(
         FxRobot robot) {
-        robot.interact(() -> appModel.musicLibraryPathProperty().set(Path.of("changed")));
+        robot.interact(() -> viewModel.musicLibraryPathProperty().set(Path.of("changed")));
 
         verifyThat("#musicLibraryPath", LabeledMatchers.hasText("changed"));
     }
 
     @Test
-    @DisplayName("エラーが発生すると、設定ウィンドウにエラーメッセージが表示される")
-    void the_error_message_is_shown_in_the_settings_window_when_an_error_occurs(FxRobot robot) {
-        robot.interact(() -> appModel.errorProperty().set(new IOException("read-only-path")));
+    @DisplayName("保存に失敗すると、設定ウィンドウにエラーメッセージが表示される")
+    void the_error_message_is_shown_in_the_settings_window_when_saving_fails(FxRobot robot) {
+        robot.interact(() -> {
+            var failing = new SettingsViewModel(new NullSettingsRepository() {
+                @Override
+                public void save(Settings settings) throws IOException {
+                    throw new IOException("read-only-path");
+                }
+            }, _ -> Optional.of(Path.of("selected")));
+            failing.musicLibraryPathProperty().set(Path.of("music"));
+            stage.setScene(new SettingsView(failing).getScene());
+            failing.selectMusicLibraryFolder(null);
+        });
 
         verifyThat(
             "#errorMessage",

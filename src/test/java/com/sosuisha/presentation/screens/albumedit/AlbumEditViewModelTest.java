@@ -22,10 +22,9 @@ import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.service.NullLibraryRepository;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
-import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.service.JaudiotaggerTagWriter;
 import com.sosuisha.service.LibraryIndexer;
-import com.sosuisha.domain.service.NullSettingsRepository;
+import javafx.beans.property.SimpleObjectProperty;
 
 class AlbumEditViewModelTest {
     @Test
@@ -33,7 +32,7 @@ class AlbumEditViewModelTest {
     void the_editable_album_name_and_album_artist_hold_the_values_of_the_selected_album() {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         );
         var viewModel = new AlbumEditViewModel(appModel, (_, _, _) -> {
         });
@@ -49,7 +48,7 @@ class AlbumEditViewModelTest {
     void the_editable_album_artist_is_auto_filled_with_the_artist_of_the_first_track() {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         );
         var viewModel = new AlbumEditViewModel(appModel, (_, _, _) -> {
         });
@@ -68,7 +67,7 @@ class AlbumEditViewModelTest {
     void album_name_changed_is_true_when_the_editable_album_name_differs_from_the_album() {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         );
         var viewModel = new AlbumEditViewModel(appModel, (_, _, _) -> {
         });
@@ -84,7 +83,7 @@ class AlbumEditViewModelTest {
     void album_artist_changed_is_true_when_the_album_artist_is_auto_filled() {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         );
         var viewModel = new AlbumEditViewModel(appModel, (_, _, _) -> {
         });
@@ -109,7 +108,7 @@ class AlbumEditViewModelTest {
         Files.copy(Path.of("src/test/resources/id3/tagged2.mp3"), fileB);
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         );
         var viewModel = new AlbumEditViewModel(appModel, new JaudiotaggerTagWriter());
         var trackA = new MusicFile(fileA, Files.size(fileA));
@@ -135,7 +134,7 @@ class AlbumEditViewModelTest {
     void saving_sets_the_library_changed_flag() {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         );
         var viewModel = new AlbumEditViewModel(appModel, (_, _, _) -> {
         });
@@ -152,7 +151,7 @@ class AlbumEditViewModelTest {
     void saving_clears_all_changed_properties() {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         );
         var viewModel = new AlbumEditViewModel(appModel, (_, _, _) -> {
         });
@@ -171,7 +170,7 @@ class AlbumEditViewModelTest {
     void opening_the_window_clears_the_library_changed_flag() {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         );
         var viewModel = new AlbumEditViewModel(appModel, (_, _, _) -> {
         });
@@ -189,7 +188,7 @@ class AlbumEditViewModelTest {
         var rescanned = new AtomicBoolean(false);
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         ) {
             @Override
             public void rescan() {

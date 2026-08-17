@@ -66,7 +66,7 @@ public class SettingsView implements View {
                             .build(),
                         LabelBuilder.create()
                             .textPropertyApply(
-                                text -> text.bind(viewModel.musicLibraryPathProperty())
+                                text -> text.bind(viewModel.musicLibraryPathTextProperty())
                             )
                             .id("musicLibraryPath")
                             .build(),

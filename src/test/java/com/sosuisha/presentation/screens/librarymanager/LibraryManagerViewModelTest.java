@@ -17,10 +17,9 @@ import com.sosuisha.domain.service.NullLibraryRepository;
 import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
-import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.service.LibraryIndexer;
-import com.sosuisha.domain.service.NullSettingsRepository;
 
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 
 class LibraryManagerViewModelTest {
@@ -31,7 +30,7 @@ class LibraryManagerViewModelTest {
             new LibraryManagerViewModel(
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
-                    new SettingsAppModel(new NullSettingsRepository())
+                    new SimpleObjectProperty<>()
                 ), new NullMusicPlayer(), _ -> {
                 }
             );
@@ -51,7 +50,7 @@ class LibraryManagerViewModelTest {
     void returns_the_file_list_of_the_app_model() {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()),
-            new SettingsAppModel(new NullSettingsRepository())
+            new SimpleObjectProperty<>()
         );
         var viewModel =
             new LibraryManagerViewModel(new WindowManager(), appModel, new NullMusicPlayer(), _ -> {
@@ -67,7 +66,7 @@ class LibraryManagerViewModelTest {
             new LibraryManagerViewModel(
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
-                    new SettingsAppModel(new NullSettingsRepository())
+                    new SimpleObjectProperty<>()
                 ), new NullMusicPlayer(), _ -> {
                 }
             );
@@ -91,7 +90,7 @@ class LibraryManagerViewModelTest {
             new LibraryManagerViewModel(
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
-                    new SettingsAppModel(new NullSettingsRepository())
+                    new SimpleObjectProperty<>()
                 ), new NullMusicPlayer(), _ -> {
                 }
             );
@@ -115,7 +114,7 @@ class LibraryManagerViewModelTest {
             new LibraryManagerViewModel(
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
-                    new SettingsAppModel(new NullSettingsRepository())
+                    new SimpleObjectProperty<>()
                 ), new NullMusicPlayer(), _ -> {
                 }
             );
@@ -139,7 +138,7 @@ class LibraryManagerViewModelTest {
             new LibraryManagerViewModel(
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
-                    new SettingsAppModel(new NullSettingsRepository())
+                    new SimpleObjectProperty<>()
                 ), new NullMusicPlayer(), _ -> {
                 }
             );
@@ -157,7 +156,7 @@ class LibraryManagerViewModelTest {
             new LibraryManagerViewModel(
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
-                    new SettingsAppModel(new NullSettingsRepository())
+                    new SimpleObjectProperty<>()
                 ), new NullMusicPlayer(), _ -> {
                 }
             );
@@ -176,7 +175,7 @@ class LibraryManagerViewModelTest {
             new LibraryManagerViewModel(
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
-                    new SettingsAppModel(new NullSettingsRepository())
+                    new SimpleObjectProperty<>()
                 ), new NullMusicPlayer(), _ -> {
                 }
             );
@@ -196,7 +195,7 @@ class LibraryManagerViewModelTest {
             new LibraryManagerViewModel(
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
-                    new SettingsAppModel(new NullSettingsRepository())
+                    new SimpleObjectProperty<>()
                 ), new NullMusicPlayer(), _ -> {
                 }
             );

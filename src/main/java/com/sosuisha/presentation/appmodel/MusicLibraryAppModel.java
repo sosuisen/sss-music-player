@@ -17,6 +17,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
@@ -33,19 +34,19 @@ public class MusicLibraryAppModel {
     private Path lastScannedFolder;
 
     /**
-     * Creates the app model. It follows the music library path of the given
-     * settings app model: whenever it holds a path (at creation and on every
-     * path change), that folder is scanned and the list of audio files is
-     * updated.
+     * Creates the app model. It follows the given music library path: whenever
+     * it holds a path (at creation and on every path change), that folder is
+     * scanned and the list of audio files is updated.
      *
      * @param scanner scanner that lists the audio files in a library folder
-     * @param settingsAppModel application-wide state of the settings
-     * @throws NullPointerException if scanner or settingsAppModel is null
+     * @param musicLibraryPath observable path of the music library folder,
+     *            holding null while no folder has been chosen
+     * @throws NullPointerException if scanner or musicLibraryPath is null
      */
-    public MusicLibraryAppModel(LibraryIndexer scanner, SettingsAppModel settingsAppModel) {
+    public MusicLibraryAppModel(LibraryIndexer scanner, ObservableValue<Path> musicLibraryPath) {
         this.scanner = Objects.requireNonNull(scanner, "scanner must not be null");
-        Objects.requireNonNull(settingsAppModel, "settingsAppModel must not be null");
-        settingsAppModel.musicLibraryPathProperty().subscribe(path -> {
+        Objects.requireNonNull(musicLibraryPath, "musicLibraryPath must not be null");
+        musicLibraryPath.subscribe(path -> {
             if (path != null) {
                 scanFolder(path);
             }

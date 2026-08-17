@@ -26,6 +26,8 @@ import com.sosuisha.service.MediaMusicPlayer;
 import com.sosuisha.repository.SettingsRepositoryImpl;
 import com.sosuisha.repository.SqliteLibraryRepository;
 
+import atlantafx.base.theme.PrimerLight;
+
 import javafx.application.Application;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
@@ -39,9 +41,10 @@ public class App extends Application {
     static final Class<? extends View> FIRST_VIEW = LibraryManagerView.class;
 
     /**
-     * Called when the application is started. Shows the library manager window
-     * as the first window. When the settings file does not exist, the modal
-     * settings window is opened over the first window.
+     * Called when the application is started. Applies the AtlantaFX Primer
+     * Light theme, then shows the library manager window as the first window.
+     * When the settings file does not exist, the modal settings window is
+     * opened over the first window.
      *
      * @param stage the primary stage for this application
      * @throws NullPointerException if stage is null
@@ -50,6 +53,7 @@ public class App extends Application {
     @Override
     public void start(Stage stage) {
         Objects.requireNonNull(stage, "stage must not be null");
+        setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
         var settingsAppModel = new SettingsAppModel(new SettingsRepositoryImpl());
         var musicLibAppModel = new MusicLibraryAppModel(
             new LibraryIndexer(new SqliteLibraryRepository()), settingsAppModel

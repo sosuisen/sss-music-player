@@ -2,6 +2,7 @@ package com.sosuisha.main;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testfx.api.FxAssert.verifyThat;
 
@@ -21,6 +22,7 @@ import org.testfx.matcher.control.LabeledMatchers;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
 import com.sosuisha.presentation.screens.librarymanager.LibraryManagerView;
 
+import javafx.application.Application;
 import javafx.stage.Stage;
 
 @ExtendWith(ApplicationExtension.class)
@@ -56,6 +58,15 @@ class AppTest {
 
         assertTrue(stage.isShowing());
         assertEquals(expectedTitles.get(App.FIRST_VIEW), stage.getTitle());
+    }
+
+    @Test
+    @DisplayName("起動時にAtlantaFXのPrimer Lightテーマが適用されている")
+    void the_atlantafx_primer_light_theme_is_applied_at_startup() {
+        var stylesheet = Application.getUserAgentStylesheet();
+
+        assertNotNull(stylesheet);
+        assertTrue(stylesheet.endsWith("primer-light.css"));
     }
 
     @Test

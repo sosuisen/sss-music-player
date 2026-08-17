@@ -15,6 +15,7 @@
     <maven.compiler.release>25</maven.compiler.release>
     <main.class>com.sosuisha.main.Launcher</main.class>
     <jooq.version>3.21.7</jooq.version>
+    <atlantafx.version>2.0.1</atlantafx.version>
     <sqlite.jdbc.version>3.53.2.1</sqlite.jdbc.version>
   </properties>
 
@@ -38,6 +39,11 @@
       <groupId>io.github.sosuisen</groupId>
       <artifactId>javafx-builder-graphics</artifactId>
       <version>${javafx.builder.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.github.mkpaz</groupId>
+      <artifactId>atlantafx-base</artifactId>
+      <version>${atlantafx.version}</version>
     </dependency>
     <dependency>
       <groupId>net.jthink</groupId>

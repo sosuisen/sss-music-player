@@ -21,7 +21,8 @@ public class SettingsViewModel {
     private final Function<Window, Optional<Path>> directoryChooser;
 
     /**
-     * Creates the view model.
+     * Creates the view model. When the theme changes, the settings are saved
+     * with the new theme.
      *
      * @param appModel application-wide state of the settings
      * @param directoryChooser function that lets the user choose a folder. It
@@ -34,6 +35,13 @@ public class SettingsViewModel {
         this.appModel = Objects.requireNonNull(appModel, "appModel must not be null");
         this.directoryChooser =
             Objects.requireNonNull(directoryChooser, "directoryChooser must not be null");
+        appModel.themeProperty().subscribe((_, newTheme) -> saveTheme(newTheme));
+    }
+
+    private void saveTheme(Theme theme) {
+        var settings = appModel.getSettings();
+        if (settings == null) { return; }
+        appModel.saveSettings(new Settings(settings.musicLibraryPath(), theme));
     }
 
     /**

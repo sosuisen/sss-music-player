@@ -2,11 +2,13 @@ package com.sosuisha.presentation.screens.settings;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import com.sosuisha.domain.model.Settings;
+import com.sosuisha.domain.model.Theme;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.repository.SettingsRepositoryImpl;
 
@@ -57,6 +60,28 @@ class SettingsViewModelTest {
         viewModel.selectMusicLibraryFolder(null);
 
         assertEquals(new Settings(Path.of("music")), appModel.getSettings());
+        assertFalse(Files.exists(folder.resolve("settings.properties")));
+    }
+
+    @Test
+    @DisplayName("ライブラリパスが未設定のままテーマを変更しても、例外にならず、ファイルにも保存されない")
+    void changing_the_theme_throws_nothing_and_saves_nothing_when_the_music_library_path_is_not_set() {
+        // A JavaFX property sends a listener exception to the uncaught
+        // exception handler instead of the set() caller, so the handler is
+        // replaced to catch it.
+        var thrown = new AtomicReference<Throwable>();
+        var originalHandler = Thread.currentThread().getUncaughtExceptionHandler();
+        Thread.currentThread().setUncaughtExceptionHandler((_, e) -> thrown.set(e));
+        try {
+            var appModel = new SettingsAppModel(new SettingsRepositoryImpl());
+            new SettingsViewModel(appModel, _ -> Optional.empty());
+
+            appModel.themeProperty().set(Theme.NORD_DARK);
+        } finally {
+            Thread.currentThread().setUncaughtExceptionHandler(originalHandler);
+        }
+
+        assertNull(thrown.get());
         assertFalse(Files.exists(folder.resolve("settings.properties")));
     }
 

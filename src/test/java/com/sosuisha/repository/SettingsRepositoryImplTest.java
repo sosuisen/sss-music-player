@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import com.sosuisha.domain.model.Settings;
+import com.sosuisha.domain.model.Theme;
 
 class SettingsRepositoryImplTest {
     @TempDir
@@ -96,6 +97,20 @@ class SettingsRepositoryImplTest {
     }
 
     @Test
+    @DisplayName("設定を保存すると、propertiesファイルにテーマがenum名で書き込まれる")
+    void saving_settings_writes_the_theme_name_to_the_properties_file() throws Exception {
+        var repository = new SettingsRepositoryImpl();
+
+        repository.save(new Settings(Path.of("music"), Theme.NORD_DARK));
+
+        var properties = new Properties();
+        try (var reader = Files.newBufferedReader(file)) {
+            properties.load(reader);
+        }
+        assertEquals("NORD_DARK", properties.getProperty("theme"));
+    }
+
+    @Test
     @DisplayName("propertiesファイルから設定をロードすると、音楽ライブラリのパスが復元される")
     void loading_settings_reads_the_music_library_path_from_the_properties_file() throws Exception {
         Files.writeString(file, "musicLibraryPath=music");
@@ -104,5 +119,27 @@ class SettingsRepositoryImplTest {
         var settings = repository.load();
 
         assertEquals(new Settings(Path.of("music")), settings);
+    }
+
+    @Test
+    @DisplayName("propertiesファイルにテーマが無い場合、テーマはPrimer Lightになる")
+    void the_theme_is_primer_light_when_the_properties_file_has_no_theme() throws Exception {
+        Files.writeString(file, "musicLibraryPath=music");
+        var repository = new SettingsRepositoryImpl();
+
+        var settings = repository.load();
+
+        assertEquals(Theme.PRIMER_LIGHT, settings.theme());
+    }
+
+    @Test
+    @DisplayName("propertiesファイルから設定をロードすると、テーマが復元される")
+    void loading_settings_reads_the_theme_from_the_properties_file() throws Exception {
+        Files.writeString(file, "musicLibraryPath=music\ntheme=NORD_DARK");
+        var repository = new SettingsRepositoryImpl();
+
+        var settings = repository.load();
+
+        assertEquals(Theme.NORD_DARK, settings.theme());
     }
 }

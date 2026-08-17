@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Properties;
 
 import com.sosuisha.domain.model.Settings;
+import com.sosuisha.domain.model.Theme;
 import com.sosuisha.domain.service.SettingsRepository;
 
 /**
@@ -18,6 +19,7 @@ public class SettingsRepositoryImpl implements SettingsRepository {
         Path.of(System.getProperty("user.home"), ".sss-music-player", "settings.properties");
 
     private static final String MUSIC_LIBRARY_PATH_KEY = "musicLibraryPath";
+    private static final String THEME_KEY = "theme";
     private static final String FILE_PROPERTY = "sss.settings.file";
 
     private final Path file;
@@ -58,6 +60,7 @@ public class SettingsRepositoryImpl implements SettingsRepository {
         }
         var properties = new Properties();
         properties.setProperty(MUSIC_LIBRARY_PATH_KEY, settings.musicLibraryPath().toString());
+        properties.setProperty(THEME_KEY, settings.theme().name());
         try (var writer = Files.newBufferedWriter(file)) {
             properties.store(writer, null);
         }
@@ -74,6 +77,9 @@ public class SettingsRepositoryImpl implements SettingsRepository {
         try (var reader = Files.newBufferedReader(file)) {
             properties.load(reader);
         }
-        return new Settings(Path.of(properties.getProperty(MUSIC_LIBRARY_PATH_KEY)));
+        var musicLibraryPath = Path.of(properties.getProperty(MUSIC_LIBRARY_PATH_KEY));
+        var themeName = properties.getProperty(THEME_KEY);
+        if (themeName == null) { return new Settings(musicLibraryPath); }
+        return new Settings(musicLibraryPath, Theme.valueOf(themeName));
     }
 }

@@ -124,6 +124,15 @@ class SettingsViewTest {
     }
 
     @Test
+    @DisplayName("テーマを選ぶと、選んだテーマが設定ファイルに保存される")
+    void selecting_a_theme_saves_the_selected_theme_to_the_settings_file(FxRobot robot)
+        throws Exception {
+        robot.clickOn("#theme").clickOn("Nord Dark");
+
+        assertEquals(Theme.NORD_DARK, new SettingsRepositoryImpl().load().theme());
+    }
+
+    @Test
     @DisplayName("フォルダを選択するボタンを押すと、選択したフォルダのパスが設定ファイルに保存される")
     void clicking_the_select_folder_button_saves_the_selected_folder_path_to_the_settings_file(
         FxRobot robot) throws Exception {

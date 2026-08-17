@@ -96,6 +96,14 @@ public class LibraryManagerViewModel {
         return albumFilter;
     }
 
+    /**
+     * Clears the filter text of the album list, which restores the full album
+     * list.
+     */
+    public void clearAlbumFilter() {
+        albumFilter.set("");
+    }
+
     private boolean matchesFilter(Album album) {
         return containsIgnoringCase(album.name(), albumFilter.get())
             || containsIgnoringCase(album.artist(), albumFilter.get());

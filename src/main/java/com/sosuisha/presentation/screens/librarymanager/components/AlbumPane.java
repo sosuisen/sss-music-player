@@ -6,11 +6,14 @@ import com.sosuisha.domain.model.Album;
 import com.sosuisha.presentation.screens.librarymanager.LibraryManagerViewModel;
 import com.sosuisha.presentation.screens.librarymanager.SortKey;
 
+import io.github.sosuisen.jfxbuilder.controls.ButtonBuilder;
 import io.github.sosuisen.jfxbuilder.controls.ComboBoxBuilder;
 import io.github.sosuisen.jfxbuilder.controls.ListViewBuilder;
 import io.github.sosuisen.jfxbuilder.controls.TextFieldBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.HBoxBuilder;
+import io.github.sosuisen.jfxbuilder.graphics.StackPaneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
+import javafx.geometry.Pos;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
@@ -48,10 +51,23 @@ public class AlbumPane {
                     .apply(comboBox -> comboBox.getItems().addAll(SortKey.ALBUM, SortKey.ARTIST))
                     .valuePropertyApply(prop -> prop.bindBidirectional(viewModel.sortKeyProperty()))
                     .build(),
-                TextFieldBuilder.create()
-                    .id("albumFilter")
-                    .textPropertyApply(
-                        prop -> prop.bindBidirectional(viewModel.albumFilterProperty())
+                StackPaneBuilder
+                    .withChildren(
+                        TextFieldBuilder.create()
+                            .id("albumFilter")
+                            .textPropertyApply(
+                                prop -> prop.bindBidirectional(viewModel.albumFilterProperty())
+                            )
+                            .build(),
+                        ButtonBuilder.create()
+                            .text("x")
+                            .id("clearAlbumFilter")
+                            .style("""
+                                   -fx-background-color: transparent;
+                                   """)
+                            .alignmentInStackPane(Pos.CENTER_RIGHT)
+                            .onAction(_ -> viewModel.clearAlbumFilter())
+                            .build()
                     )
                     .build()
             )

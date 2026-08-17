@@ -228,6 +228,29 @@ class LibraryManagerListTest extends LibraryManagerViewTestBase {
     }
 
     @Test
+    @DisplayName("xボタンを押すと、絞り込みフィールドがクリアされ、アルバムリストが全件に戻る")
+    void clicking_the_clear_button_clears_the_filter_field_and_restores_the_album_list(
+        FxRobot robot) {
+        var apple = new MusicFile(Path.of("a/one.mp3"), 100, albumTag("Apple", "X"));
+        var banana = new MusicFile(Path.of("b/two.mp3"), 200, albumTag("Banana", "X"));
+        robot.interact(() -> viewModel.setFiles(List.of(apple, banana)));
+        robot.clickOn("#albumFilter").write("app");
+
+        robot.clickOn("#clearAlbumFilter");
+
+        var filterField = robot.lookup("#albumFilter").queryAs(TextField.class);
+        assertEquals("", filterField.getText());
+        var albumList = robot.lookup("#albumList").queryListView();
+        assertEquals(
+            List.of(
+                new Album("Apple", "X", List.of(apple)),
+                new Album("Banana", "X", List.of(banana))
+            ),
+            albumList.getItems()
+        );
+    }
+
+    @Test
     @DisplayName("アルバム未選択のとき、Editボタンは無効である")
     void the_edit_button_is_disabled_when_no_album_is_selected(FxRobot robot) {
         robot.interact(() -> viewModel.selectAlbum(null));

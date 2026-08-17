@@ -18,6 +18,7 @@ import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
 
+import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
 class LibraryManagerListTest extends LibraryManagerViewTestBase {
@@ -192,6 +193,25 @@ class LibraryManagerListTest extends LibraryManagerViewTestBase {
         robot.clickOn("Album A - Artist X");
 
         verifyThat("#albumInfoYear", LabeledMatchers.hasText("2001"));
+    }
+
+    @Test
+    @DisplayName("ソートキーのComboBoxの右側に、アルバム絞り込みフィールドが表示される")
+    void the_album_filter_field_is_shown_to_the_right_of_the_sort_key_combo_box(FxRobot robot) {
+        var sortKey = robot.lookup("#sortKey").queryComboBox();
+        var filterField = robot.lookup("#albumFilter").queryAs(TextField.class);
+
+        // The nodes stay at (0, 0) until a layout pass runs.
+        robot.interact(() -> stage.getScene().getRoot().layout());
+
+        // Pixel snapping can shift edges by a fraction, so the centers are
+        // compared instead of the edges.
+        var sortKeyCenterX = sortKey.localToScene(sortKey.getBoundsInLocal()).getCenterX();
+        var filterCenterX = filterField.localToScene(filterField.getBoundsInLocal()).getCenterX();
+        assertTrue(
+            sortKeyCenterX < filterCenterX,
+            () -> "sortKeyCenterX=" + sortKeyCenterX + ", filterCenterX=" + filterCenterX
+        );
     }
 
     @Test

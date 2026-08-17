@@ -14,6 +14,7 @@ import io.github.sosuisen.jfxbuilder.controls.MenuBarBuilder;
 import io.github.sosuisen.jfxbuilder.controls.MenuBuilder;
 import io.github.sosuisen.jfxbuilder.controls.MenuItemBuilder;
 import io.github.sosuisen.jfxbuilder.controls.SplitPaneBuilder;
+import io.github.sosuisen.jfxbuilder.controls.TextFieldBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.HBoxBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.RegionBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.SceneBuilder;
@@ -104,13 +105,21 @@ public class LibraryManagerView implements View {
         var albumList = buildAlbumList();
         VBox.setVgrow(albumList, Priority.ALWAYS);
         return VBoxBuilder
+            .withChildren(buildAlbumListToolbar(), albumList)
+            .build();
+    }
+
+    private HBox buildAlbumListToolbar() {
+        return HBoxBuilder
             .withChildren(
                 ComboBoxBuilder.<SortKey>create()
                     .id("sortKey")
                     .apply(comboBox -> comboBox.getItems().addAll(SortKey.ALBUM, SortKey.ARTIST))
                     .valuePropertyApply(prop -> prop.bindBidirectional(viewModel.sortKeyProperty()))
                     .build(),
-                albumList
+                TextFieldBuilder.create()
+                    .id("albumFilter")
+                    .build()
             )
             .build();
     }

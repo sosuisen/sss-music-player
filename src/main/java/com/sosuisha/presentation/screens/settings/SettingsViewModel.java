@@ -6,8 +6,10 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import com.sosuisha.domain.model.Settings;
+import com.sosuisha.domain.model.Theme;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.stage.Window;
 
@@ -43,6 +45,16 @@ public class SettingsViewModel {
     public ObservableValue<String> musicLibraryPathProperty() {
         return appModel.settingsProperty()
             .map(settings -> settings.musicLibraryPath().toString());
+    }
+
+    /**
+     * Returns the theme property of the app model. It holds the current theme
+     * of the application.
+     *
+     * @return object property of the current theme
+     */
+    public ObjectProperty<Theme> themeProperty() {
+        return appModel.themeProperty();
     }
 
     /**

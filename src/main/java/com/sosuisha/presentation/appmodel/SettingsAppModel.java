@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.sosuisha.domain.model.Settings;
+import com.sosuisha.domain.model.Theme;
 import com.sosuisha.domain.service.SettingsRepository;
 
 import javafx.beans.property.ObjectProperty;
@@ -17,6 +18,7 @@ import javafx.beans.property.SimpleObjectProperty;
  */
 public class SettingsAppModel {
     private final ObjectProperty<Settings> settings = new SimpleObjectProperty<>();
+    private final ObjectProperty<Theme> theme = new SimpleObjectProperty<>(Theme.PRIMER_LIGHT);
     private final ObjectProperty<Throwable> error = new SimpleObjectProperty<>();
     private final SettingsRepository repository;
 
@@ -94,6 +96,16 @@ public class SettingsAppModel {
         } catch (IOException e) {
             error.set(e);
         }
+    }
+
+    /**
+     * Returns the theme property. It holds the current theme of the
+     * application. The initial value is {@link Theme#PRIMER_LIGHT}.
+     *
+     * @return object property of the current theme
+     */
+    public ObjectProperty<Theme> themeProperty() {
+        return theme;
     }
 
     /**

@@ -2,9 +2,11 @@ package com.sosuisha.presentation.screens.settings;
 
 import java.util.Objects;
 
+import com.sosuisha.domain.model.Theme;
 import com.sosuisha.presentation.View;
 
 import io.github.sosuisen.jfxbuilder.controls.ButtonBuilder;
+import io.github.sosuisen.jfxbuilder.controls.ComboBoxBuilder;
 import io.github.sosuisen.jfxbuilder.controls.LabelBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.ColumnConstraintsBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.GridPaneBuilder;
@@ -76,6 +78,19 @@ public class SettingsView implements View {
                     )
                     .addRow(
                         1,
+                        LabelBuilder.create()
+                            .text("Theme:")
+                            .build(),
+                        ComboBoxBuilder.<Theme>create()
+                            .id("theme")
+                            .apply(comboBox -> comboBox.getItems().addAll(Theme.values()))
+                            .valuePropertyApply(
+                                prop -> prop.bindBidirectional(viewModel.themeProperty())
+                            )
+                            .build()
+                    )
+                    .addRow(
+                        2,
                         LabelBuilder.create()
                             .textPropertyApply(
                                 text -> text.bind(viewModel.errorMessageProperty())

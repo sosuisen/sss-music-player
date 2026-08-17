@@ -76,6 +76,16 @@ class AppTest {
     }
 
     @Test
+    @DisplayName("設定ウィンドウでテーマを選ぶと、選んだテーマが即時反映される")
+    void selecting_a_theme_in_the_settings_window_applies_the_selected_theme_immediately(
+        FxRobot robot) {
+        robot.clickOn("File").clickOn("Settings...");
+        robot.clickOn("#theme").clickOn("Nord Dark");
+
+        assertTrue(Application.getUserAgentStylesheet().endsWith("nord-dark.css"));
+    }
+
+    @Test
     @DisplayName("起動時に設定ファイルからロードされた設定が、設定ウィンドウに表示される")
     void settings_loaded_from_the_settings_file_at_startup_are_shown_in_the_settings_window(
         FxRobot robot) {

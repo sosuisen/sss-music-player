@@ -5,6 +5,7 @@ import static org.testfx.api.FxAssert.verifyThat;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.AfterEach;
@@ -18,10 +19,12 @@ import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.LabeledMatchers;
 
 import com.sosuisha.domain.model.Settings;
+import com.sosuisha.domain.model.Theme;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.repository.SettingsRepositoryImpl;
 
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.stage.Stage;
 
 @ExtendWith(ApplicationExtension.class)
@@ -58,6 +61,35 @@ class SettingsViewTest {
     @DisplayName("設定ウィンドウに音楽ライブラリのパスが表示される")
     void window_shows_the_music_library_path() {
         verifyThat("#musicLibraryPath", LabeledMatchers.hasText("music"));
+    }
+
+    @Test
+    @DisplayName("設定ウィンドウのテーマのプルダウンに、選択肢として全テーマが表示される")
+    void the_theme_pulldown_in_the_settings_window_shows_all_themes_as_choices(FxRobot robot) {
+        var themePulldown = robot.lookup("#theme").queryAs(ComboBox.class);
+
+        assertEquals(
+            List.of(
+                "Primer Light", "Primer Dark", "Nord Light", "Nord Dark",
+                "Cupertino Light", "Cupertino Dark", "Dracula"
+            ),
+            themePulldown.getItems().stream().map(Object::toString).toList()
+        );
+    }
+
+    @Test
+    @DisplayName("テーマのプルダウンの初期値は、現在のテーマである")
+    void the_initial_value_of_the_theme_pulldown_is_the_current_theme(FxRobot robot) {
+        robot.interact(() -> {
+            appModel.themeProperty().set(Theme.NORD_DARK);
+            var view = new SettingsView(
+                new SettingsViewModel(appModel, _ -> Optional.empty())
+            );
+            stage.setScene(view.getScene());
+        });
+
+        var themePulldown = robot.lookup("#theme").queryAs(ComboBox.class);
+        assertEquals(Theme.NORD_DARK, themePulldown.getValue());
     }
 
     @Test

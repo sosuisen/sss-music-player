@@ -6,17 +6,14 @@ import com.sosuisha.presentation.View;
 import com.sosuisha.presentation.screens.librarymanager.components.AlbumPane;
 import com.sosuisha.presentation.screens.librarymanager.components.LibraryMenuBar;
 import com.sosuisha.presentation.screens.librarymanager.components.PlayerPanel;
+import com.sosuisha.presentation.screens.librarymanager.components.ScanningDialog;
 import com.sosuisha.presentation.screens.librarymanager.components.TrackPane;
 
-import io.github.sosuisen.jfxbuilder.controls.LabelBuilder;
 import io.github.sosuisen.jfxbuilder.controls.SplitPaneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.SceneBuilder;
-import io.github.sosuisen.jfxbuilder.graphics.StageBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
-import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.layout.Priority;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 /**
@@ -24,8 +21,6 @@ import javafx.stage.Stage;
  */
 public class LibraryManagerView implements View {
     private static final String TITLE = "Library Manager";
-    private static final double SCANNING_DIALOG_WIDTH = 600;
-    private static final double SCANNING_DIALOG_PADDING = 20;
 
     private final LibraryManagerViewModel viewModel;
     private final Scene scene;
@@ -46,47 +41,12 @@ public class LibraryManagerView implements View {
     private void updateScanningDialog(boolean scanning) {
         if (scanning) {
             if (scanningDialog == null) {
-                scanningDialog = buildScanningDialog();
+                scanningDialog = ScanningDialog.getStage(viewModel, scene);
             }
             scanningDialog.show();
         } else if (scanningDialog != null) {
             scanningDialog.close();
         }
-    }
-
-    private Stage buildScanningDialog() {
-        return StageBuilder.create()
-            .title("Scanning")
-            .width(SCANNING_DIALOG_WIDTH)
-            .scene(
-                SceneBuilder
-                    .withRoot(
-                        VBoxBuilder
-                            .withChildren(
-                                LabelBuilder.create()
-                                    .text("Scanning the music library...")
-                                    .build(),
-                                LabelBuilder.create()
-                                    .id("scanningFile")
-                                    .wrapText(true)
-                                    .textPropertyApply(
-                                        prop -> prop.bind(viewModel.scanningFileProperty())
-                                    )
-                                    .build()
-                            )
-                            .padding(new Insets(SCANNING_DIALOG_PADDING))
-                            .build()
-                    )
-                    .build()
-            )
-            .apply(stage -> {
-                stage.initModality(Modality.APPLICATION_MODAL);
-                if (scene.getWindow() != null) {
-                    // The owner keeps the dialog in front of the main window.
-                    stage.initOwner(scene.getWindow());
-                }
-            })
-            .build();
     }
 
     @Override

@@ -2,32 +2,20 @@ package com.sosuisha.presentation.screens.librarymanager;
 
 import java.util.Objects;
 
-import com.sosuisha.domain.model.Album;
-import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.presentation.View;
+import com.sosuisha.presentation.screens.librarymanager.components.AlbumPane;
+import com.sosuisha.presentation.screens.librarymanager.components.LibraryMenuBar;
+import com.sosuisha.presentation.screens.librarymanager.components.PlayerPanel;
+import com.sosuisha.presentation.screens.librarymanager.components.TrackPane;
 
-import io.github.sosuisen.jfxbuilder.controls.ButtonBuilder;
-import io.github.sosuisen.jfxbuilder.controls.ComboBoxBuilder;
 import io.github.sosuisen.jfxbuilder.controls.LabelBuilder;
-import io.github.sosuisen.jfxbuilder.controls.ListViewBuilder;
-import io.github.sosuisen.jfxbuilder.controls.MenuBarBuilder;
-import io.github.sosuisen.jfxbuilder.controls.MenuBuilder;
-import io.github.sosuisen.jfxbuilder.controls.MenuItemBuilder;
 import io.github.sosuisen.jfxbuilder.controls.SplitPaneBuilder;
-import io.github.sosuisen.jfxbuilder.controls.TextFieldBuilder;
-import io.github.sosuisen.jfxbuilder.graphics.HBoxBuilder;
-import io.github.sosuisen.jfxbuilder.graphics.RegionBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.SceneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.StageBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -101,194 +89,6 @@ public class LibraryManagerView implements View {
             .build();
     }
 
-    private VBox buildAlbumPane() {
-        var albumList = buildAlbumList();
-        VBox.setVgrow(albumList, Priority.ALWAYS);
-        return VBoxBuilder
-            .withChildren(buildAlbumListToolbar(), albumList)
-            .build();
-    }
-
-    private HBox buildAlbumListToolbar() {
-        return HBoxBuilder
-            .withChildren(
-                ComboBoxBuilder.<SortKey>create()
-                    .id("sortKey")
-                    .apply(comboBox -> comboBox.getItems().addAll(SortKey.ALBUM, SortKey.ARTIST))
-                    .valuePropertyApply(prop -> prop.bindBidirectional(viewModel.sortKeyProperty()))
-                    .build(),
-                TextFieldBuilder.create()
-                    .id("albumFilter")
-                    .build()
-            )
-            .build();
-    }
-
-    private ListView<Album> buildAlbumList() {
-        return ListViewBuilder.create(viewModel.getAlbums())
-            .id("albumList")
-            .cellFactory(_ -> new ListCell<>() {
-                @Override
-                protected void updateItem(Album item, boolean empty) {
-                    super.updateItem(item, empty);
-                    setText(empty || item == null ? null : viewModel.albumRowText(item));
-                }
-            })
-            .apply(
-                listView -> listView.getSelectionModel().selectedItemProperty()
-                    .subscribe(viewModel::selectAlbum)
-            )
-            .build();
-    }
-
-    private VBox buildTrackPane() {
-        var trackList = buildTrackList();
-        VBox.setVgrow(trackList, Priority.ALWAYS);
-        return VBoxBuilder
-            .withChildren(buildAlbumInfoPanel(), trackList)
-            .build();
-    }
-
-    private HBox buildAlbumInfoPanel() {
-        return HBoxBuilder
-            .withChildren(
-                LabelBuilder.create()
-                    .id("albumInfoName")
-                    .textPropertyApply(
-                        prop -> prop.bind(viewModel.selectedAlbumProperty().map(Album::name))
-                    )
-                    .build(),
-                LabelBuilder.create()
-                    .id("albumInfoArtist")
-                    .textPropertyApply(
-                        prop -> prop.bind(viewModel.selectedAlbumProperty().map(Album::artist))
-                    )
-                    .build(),
-                LabelBuilder.create()
-                    .id("albumInfoYear")
-                    .textPropertyApply(
-                        prop -> prop.bind(viewModel.selectedAlbumProperty().map(Album::year))
-                    )
-                    .build(),
-                ButtonBuilder.create()
-                    .text("Edit")
-                    .id("editAlbumButton")
-                    .disablePropertyApply(
-                        prop -> prop.bind(viewModel.selectedAlbumProperty().isNull())
-                    )
-                    .onAction(_ -> viewModel.openAlbumEditWindow())
-                    .build()
-            )
-            .spacing(10)
-            .padding(new Insets(5))
-            .alignment(Pos.CENTER_LEFT)
-            .build();
-    }
-
-    private ListView<MusicFile> buildTrackList() {
-        return ListViewBuilder.create(viewModel.getSelectedTracks())
-            .id("trackList")
-            .cellFactory(_ -> new ListCell<>() {
-                {
-                    setOnMouseClicked(event -> {
-                        if (event.getClickCount() == 2 && getItem() != null) {
-                            viewModel.playTrack(getItem());
-                        }
-                    });
-                }
-
-                @Override
-                protected void updateItem(MusicFile item, boolean empty) {
-                    super.updateItem(item, empty);
-                    setText(empty || item == null ? null : viewModel.trackRowText(item));
-                }
-            })
-            .apply(listView -> {
-                listView.getSelectionModel().selectedItemProperty()
-                    .subscribe(viewModel::selectTrack);
-                // Follows selection changes made by the view model (next/prev).
-                viewModel.selectedTrackProperty()
-                    .subscribe(track -> listView.getSelectionModel().select(track));
-            })
-            .build();
-    }
-
-    private VBox buildPlayerPanel() {
-        return VBoxBuilder
-            .withChildren(buildPlayerButtonRow(), buildNowPlayingRow())
-            .id("playerPanel")
-            .spacing(5)
-            .padding(new Insets(10))
-            .build();
-    }
-
-    private HBox buildPlayerButtonRow() {
-        return HBoxBuilder
-            .withChildren(
-                ButtonBuilder.create()
-                    .text("◀◀")
-                    .id("prevButton")
-                    .onAction(_ -> viewModel.previousTrack())
-                    .build(),
-                ButtonBuilder.create()
-                    .id("playButton")
-                    .textPropertyApply(
-                        prop -> prop.bind(
-                            viewModel.playerStateProperty()
-                                .map(state -> state == PlayerState.PLAYING ? "❘❘" : "▶")
-                        )
-                    )
-                    .onAction(_ -> viewModel.togglePlay())
-                    .build(),
-                ButtonBuilder.create()
-                    .text("▶▶")
-                    .id("nextButton")
-                    .onAction(_ -> viewModel.nextTrack())
-                    .build(),
-                ButtonBuilder.create()
-                    .text("■")
-                    .id("stopButton")
-                    .onAction(_ -> viewModel.stopPlayback())
-                    .build(),
-                RegionBuilder.create()
-                    .hGrowInHBox(Priority.ALWAYS)
-                    .build(),
-                ButtonBuilder.create()
-                    .text("Open folder")
-                    .id("openFolderButton")
-                    .onAction(_ -> viewModel.openTrackFolder())
-                    .build()
-            )
-            .spacing(10)
-            .alignment(Pos.CENTER_LEFT)
-            .build();
-    }
-
-    private HBox buildNowPlayingRow() {
-        return HBoxBuilder
-            .withChildren(
-                LabelBuilder.create()
-                    .id("playerTitle")
-                    .textPropertyApply(
-                        prop -> prop.bind(
-                            viewModel.selectedTrackProperty().map(track -> track.tag().title())
-                        )
-                    )
-                    .build(),
-                LabelBuilder.create()
-                    .id("playerArtist")
-                    .textPropertyApply(
-                        prop -> prop.bind(
-                            viewModel.selectedTrackProperty().map(track -> track.tag().artist())
-                        )
-                    )
-                    .build()
-            )
-            .spacing(10)
-            .alignment(Pos.CENTER_LEFT)
-            .build();
-    }
-
     @Override
     public Scene getScene() {
         return scene;
@@ -304,32 +104,12 @@ public class LibraryManagerView implements View {
             .withRoot(
                 VBoxBuilder
                     .withChildren(
-                        MenuBarBuilder
-                            .withMenus(
-                                MenuBuilder
-                                    .withItems(
-                                        MenuItemBuilder.create()
-                                            .text("Rescan")
-                                            .onAction(_ -> viewModel.rescan())
-                                            .build(),
-                                        MenuItemBuilder.create()
-                                            .text("Remove duplicate files...")
-                                            .onAction(_ -> viewModel.openDuplicateListWindow())
-                                            .build(),
-                                        MenuItemBuilder.create()
-                                            .text("Settings...")
-                                            .onAction(_ -> viewModel.openSettingsWindow())
-                                            .build()
-                                    )
-                                    .text("File")
-                                    .build()
-                            )
-                            .build(),
+                        LibraryMenuBar.getRoot(viewModel),
                         SplitPaneBuilder
-                            .withItems(buildAlbumPane(), buildTrackPane())
+                            .withItems(AlbumPane.getRoot(viewModel), TrackPane.getRoot(viewModel))
                             .vGrowInVBox(Priority.ALWAYS)
                             .build(),
-                        buildPlayerPanel()
+                        PlayerPanel.getRoot(viewModel)
                     )
                     .build()
             )

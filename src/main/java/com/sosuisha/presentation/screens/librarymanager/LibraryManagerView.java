@@ -21,6 +21,8 @@ import javafx.stage.Stage;
  */
 public class LibraryManagerView implements View {
     private static final String TITLE = "Library Manager";
+    private static final double WIDTH = 800;
+    private static final double HEIGHT = 600;
 
     private final LibraryManagerViewModel viewModel;
     private final Scene scene;
@@ -61,7 +63,7 @@ public class LibraryManagerView implements View {
 
     private Scene buildSceneGraph() {
         return SceneBuilder
-            .withRoot(
+            .create(
                 VBoxBuilder
                     .withChildren(
                         LibraryMenuBar.getRoot(viewModel),
@@ -71,7 +73,9 @@ public class LibraryManagerView implements View {
                             .build(),
                         PlayerPanel.getRoot(viewModel)
                     )
-                    .build()
+                    .build(),
+                WIDTH,
+                HEIGHT
             )
             .build();
     }

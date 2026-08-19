@@ -132,6 +132,30 @@ class LibraryManagerTrackNavigationTest extends LibraryManagerViewTestBase {
     }
 
     @Test
+    @DisplayName("1曲リピートでは、再生が終わると同じ曲が先頭から再生される")
+    void the_same_track_is_played_again_when_a_track_finishes_in_repeat_one_mode(FxRobot robot) {
+        var trackOne = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("Song One", "", "Album A", "Artist X", "1", "")
+        );
+        var trackTwo = new MusicFile(
+            Path.of("a/two.mp3"), 200,
+            new TrackMetadata("Song Two", "", "Album A", "Artist X", "2", "")
+        );
+        robot.interact(() -> viewModel.setFiles(List.of(trackOne, trackTwo)));
+        robot.clickOn("Album A - Artist X");
+        robot.clickOn("1. Song One");
+        robot.clickOn("#playButton");
+        robot.interact(() -> viewModel.toggleRepeatMode());
+        // 再再生の play() 呼び出しを検出するため、記録をいったん消す。
+        playedPath.set(null);
+
+        robot.interact(() -> trackFinishedCallback.get().run());
+
+        assertEquals(Path.of("a/one.mp3"), playedPath.get());
+    }
+
+    @Test
     @DisplayName("再生中に別の曲をダブルクリックすると、その曲の再生が開始される")
     void double_clicking_another_track_while_playing_starts_playing_that_track(FxRobot robot) {
         var trackOne = new MusicFile(

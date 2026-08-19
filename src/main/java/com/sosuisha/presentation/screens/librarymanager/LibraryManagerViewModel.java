@@ -43,6 +43,8 @@ public class LibraryManagerViewModel {
         new SimpleObjectProperty<>(PlayerState.STOPPED);
     private final ObjectProperty<MusicFile> selectedTrack = new SimpleObjectProperty<>();
     private final ObjectProperty<SortKey> sortKey = new SimpleObjectProperty<>(SortKey.ALBUM);
+    private final ObjectProperty<RepeatMode> repeatMode =
+        new SimpleObjectProperty<>(RepeatMode.ALL);
     private final StringProperty albumFilter = new SimpleStringProperty("");
 
     /**
@@ -62,7 +64,7 @@ public class LibraryManagerViewModel {
         this.appModel = Objects.requireNonNull(appModel, "appModel must not be null");
         this.musicPlayer = Objects.requireNonNull(musicPlayer, "musicPlayer must not be null");
         this.folderOpener = Objects.requireNonNull(folderOpener, "folderOpener must not be null");
-        musicPlayer.setOnFinished(this::playNextWhenTrackFinishes);
+        musicPlayer.setOnFinished(this::continuePlaybackWhenTrackFinishes);
         appModel.getFiles().subscribe(this::updateAlbums);
         // subscribe(Consumer) also fires with the current value, which
         // computes the initial album list here.
@@ -70,8 +72,11 @@ public class LibraryManagerViewModel {
         albumFilter.subscribe(_ -> updateAlbums());
     }
 
-    private void playNextWhenTrackFinishes() {
-        if (playerState.get() == PlayerState.PLAYING) {
+    private void continuePlaybackWhenTrackFinishes() {
+        if (playerState.get() != PlayerState.PLAYING) { return; }
+        if (repeatMode.get() == RepeatMode.ONE) {
+            musicPlayer.play(selectedTrack.get().path());
+        } else {
             nextTrack();
         }
     }
@@ -382,6 +387,23 @@ public class LibraryManagerViewModel {
      */
     public ReadOnlyObjectProperty<PlayerState> playerStateProperty() {
         return playerState;
+    }
+
+    /**
+     * Returns the repeat mode of the playback.
+     *
+     * @return read-only property of the repeat mode
+     */
+    public ReadOnlyObjectProperty<RepeatMode> repeatModeProperty() {
+        return repeatMode;
+    }
+
+    /**
+     * Toggles the repeat mode between {@link RepeatMode#ALL} and
+     * {@link RepeatMode#ONE}.
+     */
+    public void toggleRepeatMode() {
+        repeatMode.set(repeatMode.get() == RepeatMode.ALL ? RepeatMode.ONE : RepeatMode.ALL);
     }
 
     /**

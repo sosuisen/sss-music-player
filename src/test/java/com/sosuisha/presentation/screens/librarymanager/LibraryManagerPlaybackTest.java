@@ -134,6 +134,42 @@ class LibraryManagerPlaybackTest extends LibraryManagerViewTestBase {
     }
 
     @Test
+    @DisplayName("停止ボタンの右側に、リピートモードのトグルボタンが表示され、初期モードは全曲リピート")
+    void the_player_panel_shows_a_repeat_toggle_button_at_the_right_of_the_stop_button_and_the_initial_mode_is_repeat_all(
+        FxRobot robot) {
+        var panel = robot.lookup("#playerPanel").queryAs(Parent.class);
+        var buttonRow = (HBox) panel.getChildrenUnmodifiable().getFirst();
+
+        var repeat = robot.from(buttonRow).lookup("#repeatButton").tryQueryAs(Button.class);
+
+        assertTrue(repeat.isPresent());
+        var children = buttonRow.getChildren();
+        var stopButton = robot.from(buttonRow).lookup("#stopButton").queryAs(Button.class);
+        assertEquals(children.indexOf(stopButton) + 1, children.indexOf(repeat.get()));
+        assertEquals(RepeatMode.ALL, viewModel.repeatModeProperty().get());
+    }
+
+    @Test
+    @DisplayName("リピートボタンを押すたびに、モードが全曲リピートと1曲リピートで切り替わる")
+    void clicking_the_repeat_button_toggles_the_repeat_mode(FxRobot robot) {
+        robot.clickOn("#repeatButton");
+        assertEquals(RepeatMode.ONE, viewModel.repeatModeProperty().get());
+
+        robot.clickOn("#repeatButton");
+        assertEquals(RepeatMode.ALL, viewModel.repeatModeProperty().get());
+    }
+
+    @Test
+    @DisplayName("リピートボタンの表示は、全曲リピートでrepeat all、1曲リピートでrepeat one")
+    void the_repeat_button_shows_repeat_all_in_all_mode_and_repeat_one_in_one_mode(FxRobot robot) {
+        verifyThat("#repeatButton", LabeledMatchers.hasText("repeat all"));
+
+        robot.clickOn("#repeatButton");
+
+        verifyThat("#repeatButton", LabeledMatchers.hasText("repeat one"));
+    }
+
+    @Test
     @DisplayName("プレイヤーパネルの右端に、Open folderボタンが表示される")
     void the_player_panel_shows_an_open_folder_button_at_the_right_end(FxRobot robot) {
         var panel = robot.lookup("#playerPanel").queryAs(Parent.class);

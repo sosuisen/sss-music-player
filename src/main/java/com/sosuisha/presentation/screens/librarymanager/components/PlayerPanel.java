@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import com.sosuisha.presentation.screens.librarymanager.LibraryManagerViewModel;
 import com.sosuisha.presentation.screens.librarymanager.PlayerState;
+import com.sosuisha.presentation.screens.librarymanager.RepeatMode;
 
 import io.github.sosuisen.jfxbuilder.controls.ButtonBuilder;
 import io.github.sosuisen.jfxbuilder.controls.LabelBuilder;
@@ -66,6 +67,18 @@ public class PlayerPanel {
                     .text("■")
                     .id("stopButton")
                     .onAction(_ -> viewModel.stopPlayback())
+                    .build(),
+                ButtonBuilder.create()
+                    .id("repeatButton")
+                    .textPropertyApply(
+                        prop -> prop.bind(
+                            viewModel.repeatModeProperty()
+                                .map(
+                                    mode -> mode == RepeatMode.ONE ? "repeat one" : "repeat all"
+                                )
+                        )
+                    )
+                    .onAction(_ -> viewModel.toggleRepeatMode())
                     .build(),
                 RegionBuilder.create()
                     .hGrowInHBox(Priority.ALWAYS)

@@ -124,6 +124,7 @@
             <version>${jooq.version}</version>
           </dependency>
         </dependencies>
+
         <configuration>
           <generator>
             <database>
@@ -237,6 +238,38 @@
         <!-- If you choose MSI, install WiX and set the path -->
         <jpackage.type>APP_IMAGE</jpackage.type>
       </properties>
+      <build>
+        <plugins>
+          <!-- jpackage generates read-only exe on Windows, which causes maven-clean-plugin to fail.
+               Remove the read-only attribute after jpackage execution so that mvn clean works. -->
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>3.5.0</version>
+            <executions>
+              <execution>
+                <id>remove-readonly</id>
+                <phase>package</phase>
+                <goals>
+                  <goal>exec</goal>
+                </goals>
+                <configuration>
+                  <executable>attrib</executable>
+                  <arguments>
+                    <argument>-R</argument>
+                    <argument>/S</argument>
+                    <argument>${project.build.directory}\jpackage\*.*</argument>
+                  </arguments>
+                  <successCodes>
+                    <successCode>0</successCode>
+                    <successCode>1</successCode>
+                  </successCodes>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
     </profile>
     <profile>
       <id>mac</id>

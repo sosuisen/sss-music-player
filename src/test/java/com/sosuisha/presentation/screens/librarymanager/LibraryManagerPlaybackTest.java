@@ -11,6 +11,9 @@ import java.util.List;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.kordamp.ikonli.Ikon;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.material2.Material2MZ;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.Start;
 import org.testfx.matcher.control.LabeledMatchers;
@@ -48,8 +51,9 @@ class LibraryManagerPlaybackTest extends LibraryManagerViewTestBase {
     }
 
     @Test
-    @DisplayName("再生ボタンを押すと、ボタンの表示が一時停止（❘❘）に切り替わる")
-    void clicking_the_play_button_changes_the_button_to_a_pause_button(FxRobot robot) {
+    @DisplayName("再生ボタンのアイコンは、停止中と一時停止中は再生、再生中は一時停止")
+    void the_play_button_shows_a_play_icon_while_not_playing_and_a_pause_icon_while_playing(
+        FxRobot robot) {
         var track = new MusicFile(
             Path.of("a/one.mp3"), 100,
             new TrackMetadata("Song One", "", "Album A", "Artist X", "1", "")
@@ -57,14 +61,17 @@ class LibraryManagerPlaybackTest extends LibraryManagerViewTestBase {
         robot.interact(() -> viewModel.setFiles(List.of(track)));
         robot.clickOn("Album A - Artist X");
         robot.clickOn("1. Song One");
+        assertEquals(Material2MZ.PLAY_ARROW, buttonIcon(robot, "#playButton"));
 
         robot.clickOn("#playButton");
+        assertEquals(Material2MZ.PAUSE, buttonIcon(robot, "#playButton"));
 
-        verifyThat("#playButton", LabeledMatchers.hasText("❘❘"));
+        robot.clickOn("#playButton");
+        assertEquals(Material2MZ.PLAY_ARROW, buttonIcon(robot, "#playButton"));
     }
 
     @Test
-    @DisplayName("再生中に一時停止ボタン（❘❘）を押すと、プレイヤーに一時停止が要求され、表示は▶に戻る")
+    @DisplayName("再生中に一時停止ボタンを押すと、プレイヤーに一時停止が要求される")
     void clicking_the_pause_button_while_playing_requests_the_player_to_pause(FxRobot robot) {
         var track = new MusicFile(
             Path.of("a/one.mp3"), 100,
@@ -78,11 +85,11 @@ class LibraryManagerPlaybackTest extends LibraryManagerViewTestBase {
         robot.clickOn("#playButton");
 
         assertTrue(playbackPaused.get());
-        verifyThat("#playButton", LabeledMatchers.hasText("▶"));
+        assertEquals(PlayerState.PAUSED, viewModel.playerStateProperty().get());
     }
 
     @Test
-    @DisplayName("一時停止後に再生ボタン（▶）を押すと、続きからの再開がプレイヤーに要求される")
+    @DisplayName("一時停止後に再生ボタンを押すと、続きからの再開がプレイヤーに要求される")
     void clicking_the_play_button_after_pausing_requests_the_player_to_resume(FxRobot robot) {
         var track = new MusicFile(
             Path.of("a/one.mp3"), 100,
@@ -101,7 +108,7 @@ class LibraryManagerPlaybackTest extends LibraryManagerViewTestBase {
     }
 
     @Test
-    @DisplayName("一時停止中に別の曲へ移動して▶を押すと、選択中の曲が冒頭から再生される")
+    @DisplayName("一時停止中に別の曲へ移動して再生ボタンを押すと、選択中の曲が冒頭から再生される")
     void clicking_play_after_moving_to_another_track_while_paused_plays_the_selected_track(
         FxRobot robot) {
         var trackOne = new MusicFile(
@@ -161,13 +168,14 @@ class LibraryManagerPlaybackTest extends LibraryManagerViewTestBase {
     }
 
     @Test
-    @DisplayName("リピートボタンの表示は、全曲リピートでrepeat all、1曲リピートでrepeat one")
-    void the_repeat_button_shows_repeat_all_in_all_mode_and_repeat_one_in_one_mode(FxRobot robot) {
-        verifyThat("#repeatButton", LabeledMatchers.hasText("repeat all"));
+    @DisplayName("リピートボタンのアイコンは、全曲リピートでリピート、1曲リピートで1曲リピート")
+    void the_repeat_button_shows_a_repeat_icon_in_all_mode_and_a_repeat_one_icon_in_one_mode(
+        FxRobot robot) {
+        assertEquals(Material2MZ.REPEAT, buttonIcon(robot, "#repeatButton"));
 
         robot.clickOn("#repeatButton");
 
-        verifyThat("#repeatButton", LabeledMatchers.hasText("repeat one"));
+        assertEquals(Material2MZ.REPEAT_ONE, buttonIcon(robot, "#repeatButton"));
     }
 
     @Test
@@ -232,6 +240,11 @@ class LibraryManagerPlaybackTest extends LibraryManagerViewTestBase {
 
         verifyThat("#playerTitle", LabeledMatchers.hasText("Song One"));
         verifyThat("#playerArtist", LabeledMatchers.hasText("Artist X"));
+    }
+
+    private static Ikon buttonIcon(FxRobot robot, String query) {
+        var button = robot.lookup(query).queryAs(Button.class);
+        return ((FontIcon) button.getGraphic()).getIconCode();
     }
 
 }

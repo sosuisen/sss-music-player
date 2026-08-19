@@ -22,7 +22,7 @@ class LibraryManagerTrackNavigationTest extends LibraryManagerViewTestBase {
     }
 
     @Test
-    @DisplayName("次の曲ボタン（▶▶）を押すと、曲リストの選択が次の曲に移る")
+    @DisplayName("次の曲ボタンを押すと、曲リストの選択が次の曲に移る")
     void clicking_the_next_button_moves_the_selection_to_the_next_track(FxRobot robot) {
         var trackOne = new MusicFile(
             Path.of("a/one.mp3"), 100,
@@ -43,7 +43,7 @@ class LibraryManagerTrackNavigationTest extends LibraryManagerViewTestBase {
     }
 
     @Test
-    @DisplayName("前の曲ボタン（◀◀）を押すと、曲リストの選択が前の曲に移る")
+    @DisplayName("前の曲ボタンを押すと、曲リストの選択が前の曲に移る")
     void clicking_the_previous_button_moves_the_selection_to_the_previous_track(FxRobot robot) {
         var trackOne = new MusicFile(
             Path.of("a/one.mp3"), 100,
@@ -64,7 +64,7 @@ class LibraryManagerTrackNavigationTest extends LibraryManagerViewTestBase {
     }
 
     @Test
-    @DisplayName("末尾の曲で▶▶は先頭へ、先頭の曲で◀◀は末尾へラップする")
+    @DisplayName("末尾の曲で次の曲ボタンは先頭へ、先頭の曲で前の曲ボタンは末尾へラップする")
     void next_wraps_to_the_first_track_and_previous_wraps_to_the_last_track(FxRobot robot) {
         var trackOne = new MusicFile(
             Path.of("a/one.mp3"), 100,
@@ -87,7 +87,7 @@ class LibraryManagerTrackNavigationTest extends LibraryManagerViewTestBase {
     }
 
     @Test
-    @DisplayName("再生中に次の曲ボタン（▶▶）を押すと、移動先の曲が即再生される")
+    @DisplayName("再生中に次の曲ボタンを押すと、移動先の曲が即再生される")
     void clicking_the_next_button_while_playing_plays_the_next_track(FxRobot robot) {
         var trackOne = new MusicFile(
             Path.of("a/one.mp3"), 100,

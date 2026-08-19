@@ -3,6 +3,9 @@ package com.sosuisha.presentation.screens.duplicatelist.components;
 import java.util.Locale;
 import java.util.Objects;
 
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.material2.Material2MZ;
+
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListViewModel;
 
@@ -74,11 +77,16 @@ public class DetailedPanel {
                 HBoxBuilder
                     .withChildren(
                         ButtonBuilder.create()
-                            .textPropertyApply(
-                                text -> text.bind(
+                            .graphicPropertyApply(
+                                prop -> prop.bind(
                                     viewModel.playingFileProperty()
-                                        .map(playing -> item.equals(playing) ? "■" : "▶")
-                                        .orElse("▶")
+                                        .map(
+                                            playing -> item.equals(playing)
+                                                ? Material2MZ.STOP
+                                                : Material2MZ.PLAY_ARROW
+                                        )
+                                        .orElse(Material2MZ.PLAY_ARROW)
+                                        .map(FontIcon::new)
                                 )
                             )
                             .addStyleClass("play-button")

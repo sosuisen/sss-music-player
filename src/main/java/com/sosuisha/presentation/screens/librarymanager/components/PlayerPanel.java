@@ -2,6 +2,9 @@ package com.sosuisha.presentation.screens.librarymanager.components;
 
 import java.util.Objects;
 
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.material2.Material2MZ;
+
 import com.sosuisha.presentation.screens.librarymanager.LibraryManagerViewModel;
 import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.presentation.screens.librarymanager.PlayerState;
@@ -44,38 +47,46 @@ public class PlayerPanel {
         return HBoxBuilder
             .withChildren(
                 ButtonBuilder.create()
-                    .text("◀◀")
+                    .graphic(new FontIcon(Material2MZ.SKIP_PREVIOUS))
                     .id("prevButton")
                     .onAction(_ -> viewModel.previousTrack())
                     .build(),
                 ButtonBuilder.create()
                     .id("playButton")
-                    .textPropertyApply(
+                    .graphicPropertyApply(
                         prop -> prop.bind(
                             viewModel.playerStateProperty()
-                                .map(state -> state == PlayerState.PLAYING ? "❘❘" : "▶")
+                                .map(
+                                    state -> state == PlayerState.PLAYING
+                                        ? Material2MZ.PAUSE
+                                        : Material2MZ.PLAY_ARROW
+                                )
+                                .map(FontIcon::new)
                         )
                     )
                     .onAction(_ -> viewModel.togglePlay())
                     .build(),
                 ButtonBuilder.create()
-                    .text("▶▶")
+                    .graphic(new FontIcon(Material2MZ.SKIP_NEXT))
                     .id("nextButton")
                     .onAction(_ -> viewModel.nextTrack())
                     .build(),
                 ButtonBuilder.create()
-                    .text("■")
+                    .graphic(new FontIcon(Material2MZ.STOP))
                     .id("stopButton")
                     .onAction(_ -> viewModel.stopPlayback())
                     .build(),
                 ButtonBuilder.create()
                     .id("repeatButton")
-                    .textPropertyApply(
+                    .graphicPropertyApply(
                         prop -> prop.bind(
                             viewModel.repeatModeProperty()
                                 .map(
-                                    mode -> mode == RepeatMode.ONE ? "repeat one" : "repeat all"
+                                    mode -> mode == RepeatMode.ONE
+                                        ? Material2MZ.REPEAT_ONE
+                                        : Material2MZ.REPEAT
                                 )
+                                .map(FontIcon::new)
                         )
                     )
                     .onAction(_ -> viewModel.toggleRepeatMode())

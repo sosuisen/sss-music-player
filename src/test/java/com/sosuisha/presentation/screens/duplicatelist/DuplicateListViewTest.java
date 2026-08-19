@@ -2,6 +2,7 @@ package com.sosuisha.presentation.screens.duplicatelist;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testfx.api.FxAssert.verifyThat;
 
@@ -14,6 +15,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.kordamp.ikonli.Ikon;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.material2.Material2MZ;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
@@ -180,23 +184,26 @@ class DuplicateListViewTest {
     }
 
     @Test
-    @DisplayName("再生ボタンを押すと、そのボタンの表示が停止（■）に変わる")
-    void clicking_the_play_button_changes_the_button_to_a_stop_button(FxRobot robot) {
+    @DisplayName("再生ボタンのアイコンは、その行のファイルの再生中は停止、それ以外は再生")
+    void the_play_button_shows_a_stop_icon_while_the_file_of_the_row_is_playing(FxRobot robot) {
         var first = new DuplicatedItems(
             "first.mp3",
             List.of(new MusicFile(Path.of("a/first.mp3"), 100))
         );
         robot.interact(() -> viewModel.detect(() -> List.of(first)));
         robot.clickOn("first.mp3");
+        assertEquals(Material2MZ.PLAY_ARROW, playButtonIcon(robot));
 
         robot.clickOn(".play-button");
+        assertEquals(Material2MZ.STOP, playButtonIcon(robot));
 
-        verifyThat(".play-button", LabeledMatchers.hasText("■"));
+        robot.clickOn(".play-button");
+        assertEquals(Material2MZ.PLAY_ARROW, playButtonIcon(robot));
     }
 
     @Test
-    @DisplayName("停止ボタン（■）を押すと、プレイヤーに停止が要求され、ボタンは▶に戻る")
-    void clicking_the_stop_button_requests_the_player_to_stop_and_the_button_returns_to_play(
+    @DisplayName("再生中に停止ボタンを押すと、プレイヤーに停止が要求され、再生中のファイルがなくなる")
+    void clicking_the_stop_button_requests_the_player_to_stop_and_no_file_is_playing(
         FxRobot robot) {
         var first = new DuplicatedItems(
             "first.mp3",
@@ -209,7 +216,7 @@ class DuplicateListViewTest {
         robot.clickOn(".play-button");
 
         assertTrue(stopped.get());
-        verifyThat(".play-button", LabeledMatchers.hasText("▶"));
+        assertNull(viewModel.playingFileProperty().get());
     }
 
     @Test
@@ -459,5 +466,10 @@ class DuplicateListViewTest {
 
     private static TrackMetadata tag(String title, String artist) {
         return new TrackMetadata(title, artist, "", "", "", "");
+    }
+
+    private static Ikon playButtonIcon(FxRobot robot) {
+        var button = robot.lookup(".play-button").queryAs(Button.class);
+        return ((FontIcon) button.getGraphic()).getIconCode();
     }
 }

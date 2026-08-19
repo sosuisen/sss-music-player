@@ -16,6 +16,7 @@
     <main.class>com.sosuisha.main.Launcher</main.class>
     <jooq.version>3.21.7</jooq.version>
     <atlantafx.version>2.0.1</atlantafx.version>
+    <ikonli.version>12.4.0</ikonli.version>
     <sqlite.jdbc.version>3.53.2.1</sqlite.jdbc.version>
   </properties>
 
@@ -44,6 +45,16 @@
       <groupId>io.github.mkpaz</groupId>
       <artifactId>atlantafx-base</artifactId>
       <version>${atlantafx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.kordamp.ikonli</groupId>
+      <artifactId>ikonli-javafx</artifactId>
+      <version>${ikonli.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.kordamp.ikonli</groupId>
+      <artifactId>ikonli-material2-pack</artifactId>
+      <version>${ikonli.version}</version>
     </dependency>
     <dependency>
       <groupId>net.jthink</groupId>

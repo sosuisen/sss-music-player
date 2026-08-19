@@ -23,6 +23,8 @@ import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.domain.model.TrackMetadata;
 
+import atlantafx.base.theme.Styles;
+
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
@@ -240,6 +242,14 @@ class LibraryManagerPlaybackTest extends LibraryManagerViewTestBase {
 
         verifyThat("#playerTitle", LabeledMatchers.hasText("Song One"));
         verifyThat("#playerArtist", LabeledMatchers.hasText("Artist X"));
+    }
+
+    @Test
+    @DisplayName("再生ボタンには、アクセントスタイルが適用される")
+    void the_play_button_has_the_accent_style(FxRobot robot) {
+        var button = robot.lookup("#playButton").queryAs(Button.class);
+
+        assertTrue(button.getStyleClass().contains(Styles.ACCENT));
     }
 
     private static Ikon buttonIcon(FxRobot robot, String query) {

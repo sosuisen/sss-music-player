@@ -9,6 +9,8 @@ import com.sosuisha.presentation.screens.librarymanager.LibraryManagerViewModel;
 import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.presentation.screens.librarymanager.PlayerState;
 
+import atlantafx.base.theme.Styles;
+
 import io.github.sosuisen.jfxbuilder.controls.ButtonBuilder;
 import io.github.sosuisen.jfxbuilder.controls.LabelBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.HBoxBuilder;
@@ -53,6 +55,7 @@ public class PlayerPanel {
                     .build(),
                 ButtonBuilder.create()
                     .id("playButton")
+                    .addStyleClass(Styles.ACCENT)
                     .graphicPropertyApply(
                         prop -> prop.bind(
                             viewModel.playerStateProperty()

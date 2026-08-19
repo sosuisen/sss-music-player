@@ -1,50 +1,70 @@
 <mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/29.0.3 Chrome/140.0.7339.249 Electron/38.7.0 Safari/537.36" version="29.0.3">
   <diagram id="reactive-deps" name="Reactive Dependencies">
-    <mxGraphModel dx="2617" dy="1532" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="1900" math="0" shadow="0">
+    <mxGraphModel dx="2160" dy="996" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="1900" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="legend" value="A → B: AはBにリアクティブに依存するデータフローを持つ（Bが変わるとAが変わる）&lt;br&gt;緑=View / 青=ViewModel / 橙=AppModel / 灰=App（コンポジションルート）&lt;br&gt;コマンド呼び出し（selectAlbum・playTrack等のメソッド呼び出し）は図に含めない" style="text;html=1;align=left;verticalAlign=top;whiteSpace=wrap;fontSize=12;" parent="1" vertex="1">
-          <mxGeometry x="440" y="20" width="640" height="60" as="geometry" />
+          <mxGeometry x="360" y="16" width="640" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="appStylesheet" value="App&lt;br&gt;userAgentStylesheet" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" vertex="1" parent="1">
-          <mxGeometry x="900" y="135" width="240" height="60" as="geometry" />
+        <mxCell id="appStylesheet" value="App&lt;br&gt;userAgentStylesheet" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;" parent="1" vertex="1">
+          <mxGeometry x="1010" y="20" width="240" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="eApp1" value="subscribe&lt;div&gt;（スタイルシート適用）&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="appStylesheet" target="PVSQw9xbCMABm9AXJzDL-2">
-          <mxGeometry y="-15" relative="1" as="geometry">
-            <Array as="points" />
+        <mxCell id="eApp1" value="subscribe&lt;div&gt;（スタイルシート適用）&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=0.75;exitY=1;exitDx=0;exitDy=0;" parent="1" source="appStylesheet" target="sam2" edge="1">
+          <mxGeometry x="-0.3939" y="20" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1190" y="165" />
+            </Array>
             <mxPoint as="offset" />
+            <mxPoint x="1160" y="140" as="targetPoint" />
           </mxGeometry>
         </mxCell>
+        <mxCell id="cSettingsAppModel" value="SettingsAppModel" style="swimlane;rounded=1;startSize=30;fillColor=#ffe6cc;strokeColor=#d79b00;" vertex="1" parent="1">
+          <mxGeometry x="860" y="98" width="280" height="210" as="geometry" />
+        </mxCell>
+        <mxCell id="sam1" value="musicLibraryPath" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cSettingsAppModel">
+          <mxGeometry x="20" y="102" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="sam2" value="theme" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cSettingsAppModel">
+          <mxGeometry x="20" y="47" width="240" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="sam3" value="repeatMode" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cSettingsAppModel">
+          <mxGeometry x="20" y="155" width="240" height="40" as="geometry" />
+        </mxCell>
         <mxCell id="cSettingsView" value="SettingsView" style="swimlane;rounded=1;startSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
-          <mxGeometry x="40" y="100" width="280" height="230" as="geometry" />
+          <mxGeometry x="40" y="100" width="280" height="175" as="geometry" />
         </mxCell>
         <mxCell id="sv1" value="pathLabel.text" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cSettingsView" vertex="1">
-          <mxGeometry x="20" y="107" width="240" height="40" as="geometry" />
+          <mxGeometry x="20" y="100" width="240" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="sv2" value="errorLabel.text" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cSettingsView" vertex="1">
-          <mxGeometry x="20" y="174" width="240" height="40" as="geometry" />
-        </mxCell>
-        <mxCell id="PVSQw9xbCMABm9AXJzDL-1" value="themeComboBox.value" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cSettingsView">
+        <mxCell id="PVSQw9xbCMABm9AXJzDL-1" value="themeComboBox.value" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cSettingsView" vertex="1">
           <mxGeometry x="20" y="45" width="240" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="PVSQw9xbCMABm9AXJzDL-2" value="themeProperty" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cSettingsView">
-          <mxGeometry x="420" y="45" width="260" height="40" as="geometry" />
-        </mxCell>
-        <mxCell id="PVSQw9xbCMABm9AXJzDL-3" value="bindBidirectional" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;startArrow=classic;startFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="cSettingsView" source="PVSQw9xbCMABm9AXJzDL-1" target="PVSQw9xbCMABm9AXJzDL-2">
+        <mxCell id="PVSQw9xbCMABm9AXJzDL-3" value="bindBidirectional" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;startArrow=classic;startFill=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="cSettingsView" source="PVSQw9xbCMABm9AXJzDL-1" target="PVSQw9xbCMABm9AXJzDL-2" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="cSettingsViewModel" value="SettingsViewModel" style="swimlane;rounded=1;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
-          <mxGeometry x="440" y="100" width="300" height="230" as="geometry" />
+          <mxGeometry x="440" y="100" width="300" height="175" as="geometry" />
         </mxCell>
-        <mxCell id="svm1" value="musicLibraryPathProperty" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cSettingsViewModel" vertex="1">
-          <mxGeometry x="20" y="107" width="260" height="40" as="geometry" />
+        <mxCell id="PVSQw9xbCMABm9AXJzDL-2" value="themeProperty&lt;div&gt;（AppModelへ委譲）&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cSettingsViewModel" vertex="1">
+          <mxGeometry x="20" y="45" width="260" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="svm2" value="errorMessageProperty" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cSettingsViewModel" vertex="1">
-          <mxGeometry x="20" y="174" width="260" height="40" as="geometry" />
+        <mxCell id="svm1" value="musicLibraryPathProperty&lt;div&gt;（AppModelへ委譲）&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cSettingsViewModel" vertex="1">
+          <mxGeometry x="20" y="100" width="260" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="eSet1" value="委譲（同一Property）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="PVSQw9xbCMABm9AXJzDL-2" target="sam2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="850" y="165" />
+              <mxPoint x="850" y="165" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="eSet2" value="委譲（同一Property）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="svm1" target="sam1">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="cLibraryManagerView" value="LibraryManagerView" style="swimlane;rounded=1;startSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
-          <mxGeometry x="40" y="374" width="280" height="595" as="geometry" />
+          <mxGeometry x="40" y="374" width="280" height="660" as="geometry" />
         </mxCell>
         <mxCell id="lmv1" value="albumList.items" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerView" vertex="1">
           <mxGeometry x="20" y="45" width="240" height="40" as="geometry" />
@@ -67,17 +87,20 @@
         <mxCell id="lmv7" value="scanningFileラベル.text" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerView" vertex="1">
           <mxGeometry x="20" y="375" width="240" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="lmv8" value="albumFilterField.text" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cLibraryManagerView">
+        <mxCell id="lmv8" value="albumFilterField.text" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerView" vertex="1">
           <mxGeometry x="20" y="430" width="240" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="lmv9" value="アルバム情報ラベル&lt;div&gt;（アルバム名・アーティスト・年）&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cLibraryManagerView">
+        <mxCell id="lmv9" value="アルバム情報ラベル&lt;div&gt;（アルバム名・アーティスト・年）&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerView" vertex="1">
           <mxGeometry x="20" y="485" width="240" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="lmv10" value="editButton.disable" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cLibraryManagerView">
+        <mxCell id="lmv10" value="editButton.disable" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerView" vertex="1">
           <mxGeometry x="20" y="540" width="240" height="40" as="geometry" />
         </mxCell>
+        <mxCell id="lmv11" value="repeatButton.text" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cLibraryManagerView">
+          <mxGeometry x="20" y="595" width="240" height="40" as="geometry" />
+        </mxCell>
         <mxCell id="cLibraryManagerViewModel" value="LibraryManagerViewModel" style="swimlane;rounded=1;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
-          <mxGeometry x="440" y="374" width="300" height="595" as="geometry" />
+          <mxGeometry x="440" y="374" width="300" height="660" as="geometry" />
         </mxCell>
         <mxCell id="lvm1" value="albums" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerViewModel" vertex="1">
           <mxGeometry x="20" y="45" width="260" height="40" as="geometry" />
@@ -100,16 +123,31 @@
         <mxCell id="lvm7" value="scanningFileProperty（AppModelへ委譲）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerViewModel" vertex="1">
           <mxGeometry x="20" y="375" width="260" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="lvm8" value="albumFilterProperty" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cLibraryManagerViewModel">
+        <mxCell id="lvm8" value="albumFilterProperty" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerViewModel" vertex="1">
           <mxGeometry x="20" y="430" width="260" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="lvm9" value="selectedAlbumProperty（AppModelへ委譲）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cLibraryManagerViewModel">
+        <mxCell id="lvm9" value="selectedAlbumProperty（AppModelへ委譲）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cLibraryManagerViewModel" vertex="1">
           <mxGeometry x="20" y="485" width="260" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="el13" value="bindBidirectional" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;startArrow=classic;startFill=1;" edge="1" parent="1" source="lmv8" target="lvm8">
+        <mxCell id="lvm10" value="repeatModeProperty&lt;div&gt;（SettingsAppModelへ委譲）&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cLibraryManagerViewModel">
+          <mxGeometry x="20" y="595" width="260" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="el18" value="bind + map&lt;div&gt;（repeat all／repeat one）&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" parent="1" source="lmv11" target="lvm10">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="el14" value="subscribe&lt;br&gt;（絞り込み変更で&lt;div&gt;再フィルタ）&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="lvm1" target="lvm8">
+        <mxCell id="el19" value="委譲（同一Property）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="lvm10" target="sam3">
+          <mxGeometry x="-0.6484" y="15" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="825" y="989" />
+              <mxPoint x="825" y="273" />
+            </Array>
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="el13" value="bindBidirectional" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;startArrow=classic;startFill=1;" parent="1" source="lmv8" target="lvm8" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="el14" value="subscribe&lt;br&gt;（絞り込み変更で&lt;div&gt;再フィルタ）&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="lvm1" target="lvm8" edge="1">
           <mxGeometry x="0.1046" y="-10" relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="800" y="439" />
@@ -130,11 +168,11 @@
         <mxCell id="am3" value="scanningFile（走査Taskのmessageにbind）" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cMusicLibraryAppModel" vertex="1">
           <mxGeometry x="20" y="155" width="240" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="am4" value="selectedAlbum" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cMusicLibraryAppModel">
+        <mxCell id="am4" value="selectedAlbum" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cMusicLibraryAppModel" vertex="1">
           <mxGeometry x="20" y="210" width="240" height="40" as="geometry" />
         </mxCell>
         <mxCell id="cDuplicateListView" value="DuplicateListView（CandidateList / DetailedPanel）" style="swimlane;rounded=1;startSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
-          <mxGeometry x="40" y="1000" width="290" height="340" as="geometry" />
+          <mxGeometry x="40" y="1070" width="290" height="340" as="geometry" />
         </mxCell>
         <mxCell id="dlv1" value="candidateList.items" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cDuplicateListView" vertex="1">
           <mxGeometry x="20" y="45" width="240" height="40" as="geometry" />
@@ -161,7 +199,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="cDuplicateListViewModel" value="DuplicateListViewModel" style="swimlane;rounded=1;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
-          <mxGeometry x="440" y="1000" width="300" height="340" as="geometry" />
+          <mxGeometry x="440" y="1070" width="300" height="340" as="geometry" />
         </mxCell>
         <mxCell id="dvm1" value="duplicatedItems" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cDuplicateListViewModel" vertex="1">
           <mxGeometry x="20" y="45" width="260" height="40" as="geometry" />
@@ -179,9 +217,6 @@
           <mxGeometry x="20" y="210" width="260" height="40" as="geometry" />
         </mxCell>
         <mxCell id="es1" value="bind + map（Path→String）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="sv1" target="svm1" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="es2" value="bind" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="sv2" target="svm2" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="el1" value="items" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="lmv1" target="lvm1" edge="1">
@@ -234,24 +269,23 @@
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="el12" value="subscribe（再走査・非同期）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="am1" target="svm1" edge="1">
-          <mxGeometry x="-0.3065" relative="1" as="geometry">
+        <mxCell id="el12" value="subscribe（再走査・非同期）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="am1" target="sam1" edge="1">
+          <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="900" y="227" />
+              <mxPoint x="1190" y="439" />
+              <mxPoint x="1190" y="220" />
             </Array>
-            <mxPoint x="1120" y="165" as="targetPoint" />
-            <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="el15" value="bind + map&lt;div&gt;（name／artist／year）&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" parent="1" source="lmv9" target="lvm9">
+        <mxCell id="el15" value="bind + map&lt;div&gt;（name／artist／year）&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="lmv9" target="lvm9" edge="1">
           <mxGeometry x="-0.125" y="-1" relative="1" as="geometry">
             <mxPoint x="-1" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="el16" value="bind（isNull）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" parent="1" source="lmv10" target="lvm9">
+        <mxCell id="el16" value="bind（isNull）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="lmv10" target="lvm9" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="el17" value="委譲（同一Property）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;" edge="1" parent="1" source="lvm9" target="am4">
+        <mxCell id="el17" value="委譲（同一Property）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;" parent="1" source="lvm9" target="am4" edge="1">
           <mxGeometry x="-0.2321" y="9" relative="1" as="geometry">
             <Array as="points">
               <mxPoint x="1020" y="879" />
@@ -270,7 +304,7 @@
         <mxCell id="ed6" value="subscribe&lt;br&gt;（直近の判定関数で&lt;br&gt;重複を自動再判定）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="dvm1" target="am1" edge="1">
           <mxGeometry x="-0.4993" y="-10" relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="840" y="1065" />
+              <mxPoint x="840" y="1135" />
               <mxPoint x="840" y="454" />
             </Array>
             <mxPoint as="offset" />
@@ -279,127 +313,124 @@
         <mxCell id="ed8" value="subscribe" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="dvm4" target="dvm2" edge="1">
           <mxGeometry relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="800" y="1174" />
-              <mxPoint x="800" y="1120" />
+              <mxPoint x="800" y="1244" />
+              <mxPoint x="800" y="1190" />
             </Array>
           </mxGeometry>
         </mxCell>
-        <mxCell id="cAlbumEditView" value="AlbumEditView" style="swimlane;rounded=1;startSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" vertex="1" parent="1">
-          <mxGeometry x="40" y="1382" width="280" height="375" as="geometry" />
+        <mxCell id="cAlbumEditView" value="AlbumEditView" style="swimlane;rounded=1;startSize=30;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="40" y="1452" width="280" height="375" as="geometry" />
         </mxCell>
-        <mxCell id="aev2" value="albumNameField.text" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cAlbumEditView">
+        <mxCell id="aev2" value="albumNameField.text" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cAlbumEditView" vertex="1">
           <mxGeometry x="20" y="45" width="240" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="aev3" value="albumArtistField.text" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cAlbumEditView">
+        <mxCell id="aev3" value="albumArtistField.text" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cAlbumEditView" vertex="1">
           <mxGeometry x="20" y="100" width="240" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="aev4" value="albumNameField.styleClass&lt;div&gt;（黄色ハイライト）&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cAlbumEditView">
+        <mxCell id="aev4" value="albumNameField.styleClass&lt;div&gt;（黄色ハイライト）&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cAlbumEditView" vertex="1">
           <mxGeometry x="20" y="155" width="240" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="aev5" value="albumArtistField.styleClass&lt;div&gt;（黄色ハイライト）&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cAlbumEditView">
+        <mxCell id="aev5" value="albumArtistField.styleClass&lt;div&gt;（黄色ハイライト）&lt;/div&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cAlbumEditView" vertex="1">
           <mxGeometry x="20" y="210" width="240" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="aev6" value="saveButton.disable" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cAlbumEditView">
+        <mxCell id="aev6" value="saveButton.disable" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cAlbumEditView" vertex="1">
           <mxGeometry x="20" y="265" width="240" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="aev7" value="reloadNotice.visible" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cAlbumEditView">
+        <mxCell id="aev7" value="reloadNotice.visible" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cAlbumEditView" vertex="1">
           <mxGeometry x="20" y="320" width="240" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="cAlbumEditViewModel" value="AlbumEditViewModel" style="swimlane;rounded=1;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" vertex="1" parent="1">
-          <mxGeometry x="440" y="1382" width="300" height="375" as="geometry" />
+        <mxCell id="cAlbumEditViewModel" value="AlbumEditViewModel" style="swimlane;rounded=1;startSize=30;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="440" y="1452" width="300" height="375" as="geometry" />
         </mxCell>
-        <mxCell id="avm1" value="albumNameProperty" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cAlbumEditViewModel">
+        <mxCell id="avm1" value="albumNameProperty" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cAlbumEditViewModel" vertex="1">
           <mxGeometry x="20" y="45" width="260" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="avm2" value="albumArtistProperty" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cAlbumEditViewModel">
+        <mxCell id="avm2" value="albumArtistProperty" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cAlbumEditViewModel" vertex="1">
           <mxGeometry x="20" y="100" width="260" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="avm3" value="albumNameChangedProperty" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cAlbumEditViewModel">
+        <mxCell id="avm3" value="albumNameChangedProperty" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cAlbumEditViewModel" vertex="1">
           <mxGeometry x="20" y="155" width="260" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="avm4" value="albumArtistChangedProperty" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cAlbumEditViewModel">
+        <mxCell id="avm4" value="albumArtistChangedProperty" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cAlbumEditViewModel" vertex="1">
           <mxGeometry x="20" y="210" width="260" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="avm5" value="libraryChangedProperty" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" vertex="1" parent="cAlbumEditViewModel">
+        <mxCell id="avm5" value="libraryChangedProperty" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffffff;" parent="cAlbumEditViewModel" vertex="1">
           <mxGeometry x="20" y="320" width="260" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="ea2" value="bindBidirectional" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;startArrow=classic;startFill=1;" edge="1" parent="1" source="aev2" target="avm1">
+        <mxCell id="ea2" value="bindBidirectional" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;startArrow=classic;startFill=1;" parent="1" source="aev2" target="avm1" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="ea3" value="bindBidirectional" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;startArrow=classic;startFill=1;" edge="1" parent="1" source="aev3" target="avm2">
+        <mxCell id="ea3" value="bindBidirectional" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;startArrow=classic;startFill=1;" parent="1" source="aev3" target="avm2" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="ea4" value="subscribe&lt;div&gt;（styleClass切替）&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" parent="1" source="aev4" target="avm3">
+        <mxCell id="ea4" value="subscribe&lt;div&gt;（styleClass切替）&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="aev4" target="avm3" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="ea5" value="subscribe&lt;div&gt;（styleClass切替）&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" parent="1" source="aev5" target="avm4">
+        <mxCell id="ea5" value="subscribe&lt;div&gt;（styleClass切替）&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="aev5" target="avm4" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="ea6" value="bind（or＋not）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;entryX=0.149;entryY=0.989;entryDx=0;entryDy=0;entryPerimeter=0;" edge="1" parent="1" source="aev6" target="avm3">
+        <mxCell id="ea6" value="bind（or＋not）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;entryX=0.149;entryY=0.989;entryDx=0;entryDy=0;entryPerimeter=0;" parent="1" source="aev6" target="avm3" edge="1">
           <mxGeometry x="-0.309" y="15" relative="1" as="geometry">
-            <mxPoint x="500" y="1582" as="targetPoint" />
+            <mxPoint x="500" y="1652" as="targetPoint" />
             <Array as="points">
-              <mxPoint x="499" y="1667" />
-              <mxPoint x="499" y="1582" />
-              <mxPoint x="499" y="1582" />
+              <mxPoint x="499" y="1737" />
+              <mxPoint x="499" y="1652" />
+              <mxPoint x="499" y="1652" />
             </Array>
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="ea7" value="bind（or＋not）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" parent="1" source="aev6" target="avm4">
+        <mxCell id="ea7" value="bind（or＋not）" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="aev6" target="avm4" edge="1">
           <mxGeometry x="-0.2453" y="-15" relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="580" y="1667" />
+              <mxPoint x="580" y="1737" />
             </Array>
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="ea8" value="bind" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" edge="1" parent="1" source="aev7" target="avm5">
+        <mxCell id="ea8" value="bind" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;" parent="1" source="aev7" target="avm5" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="ea9" value="isNotEqualTo&lt;div&gt;（基準値と比較）&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="avm3">
+        <mxCell id="ea9" value="isNotEqualTo&lt;div&gt;（基準値と比較）&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="avm3" edge="1">
           <mxGeometry x="-0.6002" relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="830" y="1557" />
-              <mxPoint x="830" y="1452" />
+              <mxPoint x="830" y="1627" />
+              <mxPoint x="830" y="1522" />
             </Array>
-            <mxPoint x="720" y="1452" as="targetPoint" />
+            <mxPoint x="720" y="1522" as="targetPoint" />
             <mxPoint x="-1" as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="ea10" value="isNotEqualTo&lt;div&gt;（基準値と比較）&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="avm4">
+        <mxCell id="ea10" value="isNotEqualTo&lt;div&gt;（基準値と比較）&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="avm4" edge="1">
           <mxGeometry x="-0.6131" relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="860" y="1612" />
-              <mxPoint x="860" y="1512" />
-              <mxPoint x="720" y="1512" />
+              <mxPoint x="860" y="1682" />
+              <mxPoint x="860" y="1582" />
+              <mxPoint x="720" y="1582" />
             </Array>
-            <mxPoint x="720" y="1512" as="targetPoint" />
+            <mxPoint x="720" y="1582" as="targetPoint" />
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="ea11" value="subscribe&lt;div&gt;（選択アルバムに追従）&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="avm1" target="am4">
+        <mxCell id="ea11" value="subscribe&lt;div&gt;（選択アルバムに追従）&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;" parent="1" source="avm1" target="am4" edge="1">
           <mxGeometry x="-0.6397" y="25" relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="720" y="1440" />
-              <mxPoint x="1060" y="1440" />
+              <mxPoint x="720" y="1510" />
+              <mxPoint x="1060" y="1510" />
             </Array>
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="ea12" value="subscribe&lt;div&gt;（選択に追従・&lt;/div&gt;&lt;div&gt;空なら先頭曲のアーティスト）&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.9;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="avm2" target="am4">
+        <mxCell id="ea12" value="subscribe&lt;div&gt;（選択に追従・&lt;/div&gt;&lt;div&gt;空なら先頭曲のアーティスト）&lt;/div&gt;" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.9;entryY=1;entryDx=0;entryDy=0;" parent="1" source="avm2" target="am4" edge="1">
           <mxGeometry x="-0.6189" relative="1" as="geometry">
             <Array as="points">
-              <mxPoint x="720" y="1500" />
-              <mxPoint x="1096" y="1500" />
+              <mxPoint x="720" y="1570" />
+              <mxPoint x="1096" y="1570" />
             </Array>
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="PVSQw9xbCMABm9AXJzDL-10" value="Text" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
-          <mxGeometry x="610" y="540" width="60" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="PVSQw9xbCMABm9AXJzDL-11" value="&lt;b&gt;公開プロパティを中心とする&lt;/b&gt;&lt;div&gt;&lt;b&gt;リアクティブなデータフロー&lt;/b&gt;&lt;/div&gt;" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=20;" vertex="1" parent="1">
+        <mxCell id="PVSQw9xbCMABm9AXJzDL-11" value="&lt;b&gt;公開プロパティを中心とする&lt;/b&gt;&lt;div&gt;&lt;b&gt;リアクティブなデータフロー&lt;/b&gt;&lt;/div&gt;" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;fontSize=20;" parent="1" vertex="1">
           <mxGeometry x="15" y="20" width="340" height="50" as="geometry" />
         </mxCell>
       </root>

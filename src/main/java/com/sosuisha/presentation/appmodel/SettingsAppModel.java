@@ -76,7 +76,7 @@ public class SettingsAppModel {
      * loaded settings.
      *
      * @return loaded settings, or an empty optional when the settings file
-     *         does not exist
+     *         does not exist or has no music library path
      * @throws SettingsException if the settings file exists but cannot be read
      */
     public Optional<Settings> loadSettings() {

@@ -1,9 +1,11 @@
 package com.sosuisha.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Properties;
 
@@ -119,6 +121,16 @@ class SettingsRepositoryImplTest {
         var settings = repository.load();
 
         assertEquals(new Settings(Path.of("music")), settings);
+    }
+
+    @Test
+    @DisplayName("propertiesファイルに音楽ライブラリのパスが無い場合、設定なしとみなしてNoSuchFileExceptionが投げられる")
+    void loading_throws_NoSuchFileException_when_the_properties_file_has_no_music_library_path()
+        throws Exception {
+        Files.writeString(file, "theme=NORD_DARK");
+        var repository = new SettingsRepositoryImpl();
+
+        assertThrows(NoSuchFileException.class, repository::load);
     }
 
     @Test

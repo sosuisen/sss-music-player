@@ -2,6 +2,7 @@ package com.sosuisha.repository;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Properties;
@@ -72,6 +73,8 @@ public class SettingsRepositoryImpl implements SettingsRepository {
     /**
      * {@inheritDoc}
      *
+     * @throws NoSuchFileException if the file does not exist or has no music
+     *             library path, meaning there are no settings to load
      * @throws IOException if the file cannot be read
      */
     @Override
@@ -80,7 +83,13 @@ public class SettingsRepositoryImpl implements SettingsRepository {
         try (var reader = Files.newBufferedReader(file)) {
             properties.load(reader);
         }
-        var musicLibraryPath = Path.of(properties.getProperty(MUSIC_LIBRARY_PATH_KEY));
+        var musicLibraryPathText = properties.getProperty(MUSIC_LIBRARY_PATH_KEY);
+        if (musicLibraryPathText == null) {
+            throw new NoSuchFileException(
+                file.toString(), null, "the settings file has no music library path"
+            );
+        }
+        var musicLibraryPath = Path.of(musicLibraryPathText);
         var themeName = properties.getProperty(THEME_KEY);
         var theme = themeName == null ? Theme.PRIMER_LIGHT : Theme.valueOf(themeName);
         var repeatModeName = properties.getProperty(REPEAT_MODE_KEY);

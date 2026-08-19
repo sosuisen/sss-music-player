@@ -53,8 +53,9 @@ public class App extends Application {
     /**
      * Called when the application is started. Applies the current theme and
      * re-applies it whenever the theme changes, then shows the library manager
-     * window as the first window. When the settings file does not exist, the
-     * modal settings window is opened over the first window. When the settings
+     * window as the first window. When the settings file does not exist or has
+     * no music library path, the modal settings window is opened over the
+     * first window. When the settings
      * file exists but cannot be read, an error dialog is shown and the
      * application starts with the default settings as if the file did not
      * exist.

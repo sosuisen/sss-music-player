@@ -2,18 +2,20 @@ package com.sosuisha.presentation.screens.librarymanager.components;
 
 import java.util.Objects;
 
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.material2.Material2AL;
+import org.kordamp.ikonli.material2.Material2MZ;
+
 import com.sosuisha.domain.model.Album;
 import com.sosuisha.presentation.screens.librarymanager.LibraryManagerViewModel;
 import com.sosuisha.presentation.screens.librarymanager.SortKey;
 
-import io.github.sosuisen.jfxbuilder.controls.ButtonBuilder;
+import atlantafx.base.controls.CustomTextField;
 import io.github.sosuisen.jfxbuilder.controls.ComboBoxBuilder;
 import io.github.sosuisen.jfxbuilder.controls.ListViewBuilder;
-import io.github.sosuisen.jfxbuilder.controls.TextFieldBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.HBoxBuilder;
-import io.github.sosuisen.jfxbuilder.graphics.StackPaneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
-import javafx.geometry.Pos;
+import javafx.scene.Cursor;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
@@ -51,27 +53,23 @@ public class AlbumPane {
                     .apply(comboBox -> comboBox.getItems().addAll(SortKey.ALBUM, SortKey.ARTIST))
                     .valuePropertyApply(prop -> prop.bindBidirectional(viewModel.sortKeyProperty()))
                     .build(),
-                StackPaneBuilder
-                    .withChildren(
-                        TextFieldBuilder.create()
-                            .id("albumFilter")
-                            .textPropertyApply(
-                                prop -> prop.bindBidirectional(viewModel.albumFilterProperty())
-                            )
-                            .build(),
-                        ButtonBuilder.create()
-                            .text("x")
-                            .id("clearAlbumFilter")
-                            .style("""
-                                   -fx-background-color: transparent;
-                                   """)
-                            .alignmentInStackPane(Pos.CENTER_RIGHT)
-                            .onAction(_ -> viewModel.clearAlbumFilter())
-                            .build()
-                    )
-                    .build()
+                buildFilterField(viewModel)
             )
             .build();
+    }
+
+    private static CustomTextField buildFilterField(LibraryManagerViewModel viewModel) {
+        var field = new CustomTextField();
+        field.setId("albumFilter");
+        field.setPromptText("Search");
+        field.textProperty().bindBidirectional(viewModel.albumFilterProperty());
+        field.setLeft(new FontIcon(Material2MZ.SEARCH));
+        var clearIcon = new FontIcon(Material2AL.CLEAR);
+        clearIcon.setId("clearAlbumFilter");
+        clearIcon.setCursor(Cursor.HAND);
+        clearIcon.setOnMouseClicked(_ -> viewModel.clearAlbumFilter());
+        field.setRight(clearIcon);
+        return field;
     }
 
     private static ListView<Album> buildAlbumList(LibraryManagerViewModel viewModel) {

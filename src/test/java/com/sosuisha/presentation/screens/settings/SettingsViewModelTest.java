@@ -19,6 +19,7 @@ import org.junit.jupiter.api.io.TempDir;
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.model.Theme;
 import com.sosuisha.domain.service.NullSettingsRepository;
+import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.repository.SettingsRepositoryImpl;
 
 class SettingsViewModelTest {
@@ -42,7 +43,8 @@ class SettingsViewModelTest {
     @DisplayName("フォルダを選択すると、選択したパスが音楽ライブラリパスに反映される")
     void selecting_a_folder_updates_the_music_library_path() {
         var viewModel = new SettingsViewModel(
-            new SettingsRepositoryImpl(), _ -> Optional.of(Path.of("newMusic"))
+            new SettingsAppModel(new SettingsRepositoryImpl()),
+            _ -> Optional.of(Path.of("newMusic"))
         );
         viewModel.musicLibraryPathProperty().set(Path.of("music"));
 
@@ -55,7 +57,8 @@ class SettingsViewModelTest {
     @DisplayName("フォルダを選択しても、現在のテーマは維持される")
     void selecting_a_folder_keeps_the_current_theme() throws Exception {
         var viewModel = new SettingsViewModel(
-            new SettingsRepositoryImpl(), _ -> Optional.of(Path.of("newMusic"))
+            new SettingsAppModel(new SettingsRepositoryImpl()),
+            _ -> Optional.of(Path.of("newMusic"))
         );
         viewModel.musicLibraryPathProperty().set(Path.of("music"));
         viewModel.themeProperty().set(Theme.NORD_DARK);
@@ -69,7 +72,7 @@ class SettingsViewModelTest {
     @DisplayName("フォルダの選択をキャンセルすると、設定は変わらず、ファイルにも保存されない")
     void canceling_the_folder_selection_keeps_the_settings_unchanged_and_saves_nothing() {
         var viewModel = new SettingsViewModel(
-            new SettingsRepositoryImpl(), _ -> Optional.empty()
+            new SettingsAppModel(new SettingsRepositoryImpl()), _ -> Optional.empty()
         );
         viewModel.musicLibraryPathProperty().set(Path.of("music"));
 
@@ -90,7 +93,7 @@ class SettingsViewModelTest {
         Thread.currentThread().setUncaughtExceptionHandler((_, e) -> thrown.set(e));
         try {
             var viewModel = new SettingsViewModel(
-                new SettingsRepositoryImpl(), _ -> Optional.empty()
+                new SettingsAppModel(new SettingsRepositoryImpl()), _ -> Optional.empty()
             );
 
             viewModel.themeProperty().set(Theme.NORD_DARK);
@@ -105,12 +108,12 @@ class SettingsViewModelTest {
     @Test
     @DisplayName("設定の保存に失敗すると、エラーメッセージは保存失敗の説明に例外のメッセージを続けたものである")
     void the_error_message_is_the_failed_to_save_text_followed_by_the_exception_message_when_saving_fails() {
-        var viewModel = new SettingsViewModel(new NullSettingsRepository() {
+        var viewModel = new SettingsViewModel(new SettingsAppModel(new NullSettingsRepository() {
             @Override
             public void save(Settings settings) throws IOException {
                 throw new IOException("C:\\somewhere\\settings.properties");
             }
-        }, _ -> Optional.of(Path.of("music")));
+        }), _ -> Optional.of(Path.of("music")));
 
         viewModel.selectMusicLibraryFolder(null);
 
@@ -134,7 +137,9 @@ class SettingsViewModelTest {
                 }
             }
         };
-        var viewModel = new SettingsViewModel(repository, _ -> Optional.of(Path.of("music")));
+        var viewModel = new SettingsViewModel(
+            new SettingsAppModel(repository), _ -> Optional.of(Path.of("music"))
+        );
         viewModel.selectMusicLibraryFolder(null);
 
         viewModel.selectMusicLibraryFolder(null);

@@ -14,6 +14,7 @@ import com.sosuisha.domain.service.NullLibraryRepository;
 import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
+import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.presentation.screens.albumedit.AlbumEditView;
 import com.sosuisha.presentation.screens.albumedit.AlbumEditViewModel;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
@@ -117,8 +118,9 @@ abstract class LibraryManagerViewTestBase {
                 )
             )
         );
-        var settingsViewModel =
-            new SettingsViewModel(new NullSettingsRepository(), _ -> Optional.empty());
+        var settingsViewModel = new SettingsViewModel(
+            new SettingsAppModel(new NullSettingsRepository()), _ -> Optional.empty()
+        );
         settingsViewModel.musicLibraryPathProperty().set(Path.of("music"));
         windowManager.registerView(new SettingsView(settingsViewModel));
         windowManager.registerView(

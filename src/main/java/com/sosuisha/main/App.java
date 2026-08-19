@@ -9,6 +9,7 @@ import java.util.Optional;
 import com.sosuisha.presentation.View;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
+import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.presentation.screens.albumedit.AlbumEditView;
 import com.sosuisha.presentation.screens.albumedit.AlbumEditViewModel;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
@@ -60,13 +61,13 @@ public class App extends Application {
     @Override
     public void start(Stage stage) {
         Objects.requireNonNull(stage, "stage must not be null");
-        var settingsViewModel =
-            new SettingsViewModel(new SettingsRepositoryImpl(), App::chooseDirectory);
-        settingsViewModel.themeProperty()
+        var settingsAppModel = new SettingsAppModel(new SettingsRepositoryImpl());
+        var settingsViewModel = new SettingsViewModel(settingsAppModel, App::chooseDirectory);
+        settingsAppModel.themeProperty()
             .subscribe(theme -> setUserAgentStylesheet(toStylesheet(theme)));
         var musicLibAppModel = new MusicLibraryAppModel(
             new LibraryIndexer(new SqliteLibraryRepository()),
-            settingsViewModel.musicLibraryPathProperty()
+            settingsAppModel.musicLibraryPathProperty()
         );
 
         var windowManager = new WindowManager();
@@ -97,7 +98,7 @@ public class App extends Application {
         windowManager.showWindow(FIRST_VIEW, stage);
         // Loading the settings triggers the startup scan, so it runs after the
         // main window is shown and the scanning dialog can be owned by it.
-        var loadedSettings = settingsViewModel.loadSettings();
+        var loadedSettings = settingsAppModel.loadSettings();
         if (loadedSettings.isEmpty()) {
             libraryManagerViewModel.openSettingsWindow();
         }

@@ -13,6 +13,7 @@ import io.github.sosuisen.jfxbuilder.controls.SplitPaneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.SceneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
 import javafx.scene.Scene;
+import javafx.scene.layout.HeaderBar;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 
@@ -66,6 +67,7 @@ public class LibraryManagerView implements View {
             .create(
                 VBoxBuilder
                     .withChildren(
+                        buildHeaderBar(),
                         LibraryMenuBar.getRoot(viewModel),
                         SplitPaneBuilder
                             .withItems(AlbumPane.getRoot(viewModel), TrackPane.getRoot(viewModel))
@@ -78,5 +80,12 @@ public class LibraryManagerView implements View {
                 HEIGHT
             )
             .build();
+    }
+
+    // HeaderBar is a preview feature of JavaFX 26 and has no builder API.
+    private static HeaderBar buildHeaderBar() {
+        var headerBar = new HeaderBar();
+        headerBar.setId("headerBar");
+        return headerBar;
     }
 }

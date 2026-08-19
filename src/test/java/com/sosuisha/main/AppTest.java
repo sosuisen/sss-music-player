@@ -38,8 +38,10 @@ class AppTest {
         System.setProperty("sss.settings.file", file.toString());
         dbFile = folder.resolve("library.db");
         System.setProperty("sss.library.db", dbFile.toString());
-        this.stage = stage;
-        new App().start(stage);
+        // The injected primary stage is reused across tests and rejects
+        // initStyle, so App gets a fresh stage.
+        this.stage = new Stage();
+        new App().start(this.stage);
     }
 
     @AfterEach

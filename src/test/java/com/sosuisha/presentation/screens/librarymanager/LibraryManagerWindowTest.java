@@ -49,6 +49,12 @@ class LibraryManagerWindowTest extends LibraryManagerViewTestBase {
     }
 
     @Test
+    @DisplayName("ライブラリ管理ウィンドウに、HeaderBarが表示される")
+    void the_library_manager_window_shows_a_header_bar(FxRobot robot) {
+        assertTrue(robot.lookup("#headerBar").tryQuery().isPresent());
+    }
+
+    @Test
     @DisplayName("FileメニューのRescanを選ぶと、ライブラリが再スキャンされる")
     void selecting_rescan_menu_rescans_the_library(FxRobot robot) {
         robot.clickOn("File").clickOn("Rescan");

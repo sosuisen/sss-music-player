@@ -25,8 +25,10 @@ class AppWithBrokenSettingsFileTest {
         Files.createDirectory(folder.resolve("settings.properties"));
         System.setProperty("sss.settings.file", folder.resolve("settings.properties").toString());
         System.setProperty("sss.library.db", folder.resolve("library.db").toString());
-        this.stage = stage;
-        new App().start(stage);
+        // The injected primary stage is reused across tests and rejects
+        // initStyle, so App gets a fresh stage.
+        this.stage = new Stage();
+        new App().start(this.stage);
     }
 
     @AfterEach

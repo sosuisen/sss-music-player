@@ -23,7 +23,9 @@ class AppWithSavedThemeTest {
         Files.writeString(file, "musicLibraryPath=loaded-music\ntheme=NORD_DARK");
         System.setProperty("sss.settings.file", file.toString());
         System.setProperty("sss.library.db", folder.resolve("library.db").toString());
-        new App().start(stage);
+        // The injected primary stage is reused across tests and rejects
+        // initStyle, so App gets a fresh stage.
+        new App().start(new Stage());
     }
 
     @AfterEach

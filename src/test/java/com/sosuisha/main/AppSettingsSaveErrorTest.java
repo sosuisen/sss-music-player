@@ -24,13 +24,15 @@ class AppSettingsSaveErrorTest {
 
     @Start
     void setup(Stage stage) throws Exception {
-        this.stage = stage;
+        // The injected primary stage is reused across tests and rejects
+        // initStyle, so App gets a fresh stage.
+        this.stage = new Stage();
         var folder = Files.createTempDirectory("sss-music-player-test");
         file = folder.resolve("settings.properties");
         Files.writeString(file, "musicLibraryPath=loaded-music");
         System.setProperty("sss.settings.file", file.toString());
         System.setProperty("sss.library.db", folder.resolve("library.db").toString());
-        new App().start(stage);
+        new App().start(this.stage);
     }
 
     @AfterEach

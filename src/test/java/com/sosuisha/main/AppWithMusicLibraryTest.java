@@ -27,7 +27,9 @@ class AppWithMusicLibraryTest {
 
     @Start
     void setup(Stage stage) throws Exception {
-        this.stage = stage;
+        // The injected primary stage is reused across tests and rejects
+        // initStyle, so App gets a fresh stage.
+        this.stage = new Stage();
         var folder = Files.createTempDirectory("sss-music-player-test");
         var musicFolder = folder.resolve("music");
         Files.createDirectories(musicFolder.resolve("sub"));
@@ -41,7 +43,7 @@ class AppWithMusicLibraryTest {
         }
         System.setProperty("sss.settings.file", file.toString());
         System.setProperty("sss.library.db", folder.resolve("library.db").toString());
-        new App().start(stage);
+        new App().start(this.stage);
         // This method runs on the FX thread, so the startup scan cannot finish
         // yet and the scanning dialog is still open here.
         scanningWindowOwner = Window.getWindows().stream()

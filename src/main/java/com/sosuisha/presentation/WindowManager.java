@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 /**
  * Manages views and shows them in windows.
@@ -42,7 +43,9 @@ public class WindowManager {
     }
 
     /**
-     * Shows the registered view of the given class in the given stage.
+     * Shows the registered view of the given class in the given stage. The
+     * stage is shown with {@link StageStyle#EXTENDED}, so the client area
+     * extends into the header bar area of the window.
      *
      * @param viewClass class of the view to show
      * @param stage stage to show the view in
@@ -52,6 +55,7 @@ public class WindowManager {
     public void showWindow(Class<? extends View> viewClass, Stage stage) {
         Objects.requireNonNull(stage, "stage must not be null");
         var view = getView(viewClass);
+        stage.initStyle(StageStyle.EXTENDED);
         stage.setScene(view.getScene());
         stage.setTitle(view.getTitle());
         stage.show();

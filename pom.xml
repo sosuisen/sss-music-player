@@ -112,6 +112,8 @@
           <reuseForks>true</reuseForks>
           <systemPropertyVariables>
             <glass.platform>Headless</glass.platform>
+            <!-- StageStyle.EXTENDED is a preview feature in JavaFX 26. -->
+            <javafx.enablePreview>true</javafx.enablePreview>
           </systemPropertyVariables>
         </configuration>
       </plugin>
@@ -191,6 +193,10 @@
         <version>${javafx.plugin.version}</version>
         <configuration>
           <mainClass>${main.class}</mainClass>
+          <options>
+            <!-- StageStyle.EXTENDED is a preview feature in JavaFX 26. -->
+            <option>-Djavafx.enablePreview=true</option>
+          </options>
         </configuration>
       </plugin>
       <plugin>
@@ -229,6 +235,8 @@
           <destination>${project.build.directory}/jpackage</destination>
           <javaOptions>
             <option>-Dfile.encoding=UTF-8</option>
+            <!-- StageStyle.EXTENDED is a preview feature in JavaFX 26. -->
+            <option>-Djavafx.enablePreview=true</option>
           </javaOptions>
           <type>${jpackage.type}</type>
         </configuration>

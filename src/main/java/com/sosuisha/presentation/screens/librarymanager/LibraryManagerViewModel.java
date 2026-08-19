@@ -13,6 +13,7 @@ import com.sosuisha.domain.service.FolderOpener;
 import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
+import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.presentation.screens.albumedit.AlbumEditView;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
 import com.sosuisha.presentation.screens.settings.SettingsView;
@@ -36,6 +37,7 @@ import javafx.stage.Modality;
 public class LibraryManagerViewModel {
     private final WindowManager windowManager;
     private final MusicLibraryAppModel appModel;
+    private final SettingsAppModel settingsAppModel;
     private final MusicPlayer musicPlayer;
     private final FolderOpener folderOpener;
     private final ObservableList<Album> albums = FXCollections.observableArrayList();
@@ -44,8 +46,6 @@ public class LibraryManagerViewModel {
         new SimpleObjectProperty<>(PlayerState.STOPPED);
     private final ObjectProperty<MusicFile> selectedTrack = new SimpleObjectProperty<>();
     private final ObjectProperty<SortKey> sortKey = new SimpleObjectProperty<>(SortKey.ALBUM);
-    private final ObjectProperty<RepeatMode> repeatMode =
-        new SimpleObjectProperty<>(RepeatMode.ALL);
     private final StringProperty albumFilter = new SimpleStringProperty("");
 
     /**
@@ -53,16 +53,19 @@ public class LibraryManagerViewModel {
      *
      * @param windowManager window manager used to open other windows
      * @param appModel application-wide state of the music library
+     * @param settingsAppModel application-wide state of the settings
      * @param musicPlayer player used to play audio files
      * @param folderOpener opener that shows a folder in the file manager
-     * @throws NullPointerException if windowManager, appModel, musicPlayer, or
-     *             folderOpener is null
+     * @throws NullPointerException if windowManager, appModel, settingsAppModel,
+     *             musicPlayer, or folderOpener is null
      */
     public LibraryManagerViewModel(WindowManager windowManager, MusicLibraryAppModel appModel,
-        MusicPlayer musicPlayer, FolderOpener folderOpener) {
+        SettingsAppModel settingsAppModel, MusicPlayer musicPlayer, FolderOpener folderOpener) {
         this.windowManager =
             Objects.requireNonNull(windowManager, "windowManager must not be null");
         this.appModel = Objects.requireNonNull(appModel, "appModel must not be null");
+        this.settingsAppModel =
+            Objects.requireNonNull(settingsAppModel, "settingsAppModel must not be null");
         this.musicPlayer = Objects.requireNonNull(musicPlayer, "musicPlayer must not be null");
         this.folderOpener = Objects.requireNonNull(folderOpener, "folderOpener must not be null");
         musicPlayer.setOnFinished(this::continuePlaybackWhenTrackFinishes);
@@ -75,7 +78,7 @@ public class LibraryManagerViewModel {
 
     private void continuePlaybackWhenTrackFinishes() {
         if (playerState.get() != PlayerState.PLAYING) { return; }
-        if (repeatMode.get() == RepeatMode.ONE) {
+        if (settingsAppModel.repeatModeProperty().get() == RepeatMode.ONE) {
             musicPlayer.play(selectedTrack.get().path());
         } else {
             nextTrack();
@@ -391,19 +394,21 @@ public class LibraryManagerViewModel {
     }
 
     /**
-     * Returns the repeat mode of the playback.
+     * Returns the repeat mode of the playback shared through the settings app
+     * model.
      *
      * @return read-only property of the repeat mode
      */
     public ReadOnlyObjectProperty<RepeatMode> repeatModeProperty() {
-        return repeatMode;
+        return settingsAppModel.repeatModeProperty();
     }
 
     /**
-     * Toggles the repeat mode between {@link RepeatMode#ALL} and
-     * {@link RepeatMode#ONE}.
+     * Toggles the repeat mode of the settings app model between
+     * {@link RepeatMode#ALL} and {@link RepeatMode#ONE}.
      */
     public void toggleRepeatMode() {
+        var repeatMode = settingsAppModel.repeatModeProperty();
         repeatMode.set(repeatMode.get() == RepeatMode.ALL ? RepeatMode.ONE : RepeatMode.ALL);
     }
 

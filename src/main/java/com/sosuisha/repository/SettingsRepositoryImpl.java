@@ -6,6 +6,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Properties;
 
+import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.model.Theme;
 import com.sosuisha.domain.service.SettingsRepository;
@@ -20,6 +21,7 @@ public class SettingsRepositoryImpl implements SettingsRepository {
 
     private static final String MUSIC_LIBRARY_PATH_KEY = "musicLibraryPath";
     private static final String THEME_KEY = "theme";
+    private static final String REPEAT_MODE_KEY = "repeatMode";
     private static final String FILE_PROPERTY = "sss.settings.file";
 
     private final Path file;
@@ -61,6 +63,7 @@ public class SettingsRepositoryImpl implements SettingsRepository {
         var properties = new Properties();
         properties.setProperty(MUSIC_LIBRARY_PATH_KEY, settings.musicLibraryPath().toString());
         properties.setProperty(THEME_KEY, settings.theme().name());
+        properties.setProperty(REPEAT_MODE_KEY, settings.repeatMode().name());
         try (var writer = Files.newBufferedWriter(file)) {
             properties.store(writer, null);
         }
@@ -79,7 +82,10 @@ public class SettingsRepositoryImpl implements SettingsRepository {
         }
         var musicLibraryPath = Path.of(properties.getProperty(MUSIC_LIBRARY_PATH_KEY));
         var themeName = properties.getProperty(THEME_KEY);
-        if (themeName == null) { return new Settings(musicLibraryPath); }
-        return new Settings(musicLibraryPath, Theme.valueOf(themeName));
+        var theme = themeName == null ? Theme.PRIMER_LIGHT : Theme.valueOf(themeName);
+        var repeatModeName = properties.getProperty(REPEAT_MODE_KEY);
+        var repeatMode =
+            repeatModeName == null ? RepeatMode.ALL : RepeatMode.valueOf(repeatModeName);
+        return new Settings(musicLibraryPath, theme, repeatMode);
     }
 }

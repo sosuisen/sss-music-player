@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.model.Theme;
 import com.sosuisha.domain.service.SettingsRepository;
@@ -22,12 +23,14 @@ import javafx.beans.property.SimpleObjectProperty;
 public class SettingsAppModel {
     private final ObjectProperty<Path> musicLibraryPath = new SimpleObjectProperty<>();
     private final ObjectProperty<Theme> theme = new SimpleObjectProperty<>(Theme.PRIMER_LIGHT);
+    private final ObjectProperty<RepeatMode> repeatMode =
+        new SimpleObjectProperty<>(RepeatMode.ALL);
     private final ObjectProperty<Throwable> error = new SimpleObjectProperty<>();
     private final SettingsRepository repository;
 
     /**
-     * Creates the app model. When the theme changes, the settings are saved
-     * with the new theme.
+     * Creates the app model. When the theme or the repeat mode changes, the
+     * settings are saved with the new value.
      *
      * @param repository repository that persists the settings
      * @throws NullPointerException if repository is null
@@ -35,6 +38,7 @@ public class SettingsAppModel {
     public SettingsAppModel(SettingsRepository repository) {
         this.repository = Objects.requireNonNull(repository, "repository must not be null");
         theme.subscribe((_, _) -> save());
+        repeatMode.subscribe((_, _) -> save());
     }
 
     /**
@@ -58,8 +62,19 @@ public class SettingsAppModel {
     }
 
     /**
+     * Returns the repeat mode property. It holds the repeat mode of the
+     * playback. The initial value is {@link RepeatMode#ALL}.
+     *
+     * @return object property of the repeat mode
+     */
+    public ObjectProperty<RepeatMode> repeatModeProperty() {
+        return repeatMode;
+    }
+
+    /**
      * Loads the settings from the settings file and applies them to this app
-     * model: the music library path and the theme follow the loaded settings.
+     * model: the music library path, the theme, and the repeat mode follow the
+     * loaded settings.
      *
      * @return loaded settings, or an empty optional when the settings file
      *         does not exist
@@ -70,6 +85,7 @@ public class SettingsAppModel {
             var loaded = repository.load();
             musicLibraryPath.set(loaded.musicLibraryPath());
             theme.set(loaded.theme());
+            repeatMode.set(loaded.repeatMode());
             return Optional.of(loaded);
         } catch (NoSuchFileException e) {
             return Optional.empty();
@@ -79,16 +95,17 @@ public class SettingsAppModel {
     }
 
     /**
-     * Saves the current settings (the music library path and the theme) to the
-     * settings file. Does nothing when the music library path is not set. When
-     * the settings file cannot be written, the error is set to the error
-     * property; when it is saved, the error property is cleared.
+     * Saves the current settings (the music library path, the theme, and the
+     * repeat mode) to the settings file. Does nothing when the music library
+     * path is not set. When the settings file cannot be written, the error is
+     * set to the error property; when it is saved, the error property is
+     * cleared.
      */
     public void save() {
         var path = musicLibraryPath.get();
         if (path == null) { return; }
         try {
-            repository.save(new Settings(path, theme.get()));
+            repository.save(new Settings(path, theme.get(), repeatMode.get()));
             error.set(null);
         } catch (IOException e) {
             error.set(e);

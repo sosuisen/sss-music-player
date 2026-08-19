@@ -74,7 +74,8 @@ public class App extends Application {
         var folderOpener = new ShellFolderOpener();
         var libraryManagerViewModel =
             new LibraryManagerViewModel(
-                windowManager, musicLibAppModel, new MediaMusicPlayer(), folderOpener
+                windowManager, musicLibAppModel, settingsAppModel, new MediaMusicPlayer(),
+                folderOpener
             );
         windowManager.registerView(new LibraryManagerView(libraryManagerViewModel));
         var settingsFolder = Path.of(System.getProperty("user.home"), ".sss-music-player");

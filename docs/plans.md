@@ -10,7 +10,11 @@ TDDの作業用todoリスト（使い捨て）。
     - [x] 1曲リピートの場合、再生終了後その曲の先頭から再再生。
     - [x] トグルボタンを押すたびにモードがトグル。
     - [x] リピートボタンの表示がモードで変わる：repeat one, repeat all。
-    - [ ] リピートモードを保存、起動時に再現。
+    - [x] リピートモードを保存、起動時に再現。
+      - [x] SettingsAppModelのrepeatModeを変えると設定ファイルに保存される。
+      - [x] 設定ファイルのrepeatModeはloadで復元される（キーがない場合はALL）。
+      - [x] LibraryManagerViewModelのトグルがSettingsAppModelのrepeatModeを更新する。
+      - [x] 起動時、設定ファイルのrepeatModeがボタン表示に再現される。
 - 見た目
   - [ ] きれいなアイコンを利用。
   - [ ] AtlantaFXでボタンを修飾。

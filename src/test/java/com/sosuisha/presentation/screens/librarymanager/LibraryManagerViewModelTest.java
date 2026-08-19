@@ -12,17 +12,41 @@ import org.junit.jupiter.api.Test;
 
 import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
+import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.service.NullLibraryRepository;
 import com.sosuisha.domain.service.NullMusicPlayer;
+import com.sosuisha.domain.service.NullSettingsRepository;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
+import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.service.LibraryIndexer;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 
 class LibraryManagerViewModelTest {
+    @Test
+    @DisplayName("リピートモードをトグルすると、SettingsAppModelのリピートモードが更新される")
+    void toggling_the_repeat_mode_updates_the_repeat_mode_of_the_settings_app_model() {
+        var settingsAppModel = new SettingsAppModel(new NullSettingsRepository());
+        var viewModel = new LibraryManagerViewModel(
+            new WindowManager(),
+            new MusicLibraryAppModel(
+                new LibraryIndexer(new NullLibraryRepository()),
+                new SimpleObjectProperty<>()
+            ),
+            settingsAppModel,
+            new NullMusicPlayer(),
+            _ -> {
+            }
+        );
+
+        viewModel.toggleRepeatMode();
+
+        assertEquals(RepeatMode.ONE, settingsAppModel.repeatModeProperty().get());
+    }
+
     @Test
     @DisplayName("受け取った初期リストをObservableListに格納する")
     void stores_received_initial_list_in_observable_list() {
@@ -31,7 +55,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new NullMusicPlayer(), _ -> {
+                ), new SettingsAppModel(new NullSettingsRepository()), new NullMusicPlayer(),
+                _ -> {
                 }
             );
         var files = List.of(
@@ -53,8 +78,11 @@ class LibraryManagerViewModelTest {
             new SimpleObjectProperty<>()
         );
         var viewModel =
-            new LibraryManagerViewModel(new WindowManager(), appModel, new NullMusicPlayer(), _ -> {
-            });
+            new LibraryManagerViewModel(
+                new WindowManager(), appModel, new SettingsAppModel(new NullSettingsRepository()),
+                new NullMusicPlayer(), _ -> {
+                }
+            );
 
         assertSame(appModel.getFiles(), viewModel.getFiles());
     }
@@ -67,7 +95,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new NullMusicPlayer(), _ -> {
+                ), new SettingsAppModel(new NullSettingsRepository()), new NullMusicPlayer(),
+                _ -> {
                 }
             );
         var apple = new MusicFile(
@@ -91,7 +120,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new NullMusicPlayer(), _ -> {
+                ), new SettingsAppModel(new NullSettingsRepository()), new NullMusicPlayer(),
+                _ -> {
                 }
             );
         var apple = new MusicFile(
@@ -115,7 +145,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new NullMusicPlayer(), _ -> {
+                ), new SettingsAppModel(new NullSettingsRepository()), new NullMusicPlayer(),
+                _ -> {
                 }
             );
         var apple = new MusicFile(
@@ -139,7 +170,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new NullMusicPlayer(), _ -> {
+                ), new SettingsAppModel(new NullSettingsRepository()), new NullMusicPlayer(),
+                _ -> {
                 }
             );
         viewModel.sortKeyProperty().set(SortKey.ARTIST);
@@ -157,7 +189,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new NullMusicPlayer(), _ -> {
+                ), new SettingsAppModel(new NullSettingsRepository()), new NullMusicPlayer(),
+                _ -> {
                 }
             );
         var track = new MusicFile(
@@ -176,7 +209,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new NullMusicPlayer(), _ -> {
+                ), new SettingsAppModel(new NullSettingsRepository()), new NullMusicPlayer(),
+                _ -> {
                 }
             );
         var track = new MusicFile(
@@ -196,7 +230,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new NullMusicPlayer(), _ -> {
+                ), new SettingsAppModel(new NullSettingsRepository()), new NullMusicPlayer(),
+                _ -> {
                 }
             );
         var playing = new MusicFile(Path.of("p/playing.mp3"), 100);

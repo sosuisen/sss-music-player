@@ -40,6 +40,7 @@ abstract class LibraryManagerViewTestBase {
     Stage stage;
     LibraryManagerViewModel viewModel;
     MusicLibraryAppModel appModel;
+    SettingsAppModel settingsAppModel;
     AtomicBoolean rescanned;
     AtomicReference<Path> playedPath;
     AtomicBoolean playbackStopped;
@@ -72,39 +73,43 @@ abstract class LibraryManagerViewTestBase {
         trackFinishedCallback = new AtomicReference<>();
         loadedPath = new AtomicReference<>();
         openedFolder = new AtomicReference<>();
-        viewModel = new LibraryManagerViewModel(windowManager, appModel, new MusicPlayer() {
-            @Override
-            public void play(Path path) {
-                playedPath.set(path);
-                loadedPath.set(path);
-            }
+        settingsAppModel = new SettingsAppModel(new NullSettingsRepository());
+        viewModel = new LibraryManagerViewModel(
+            windowManager, appModel, settingsAppModel,
+            new MusicPlayer() {
+                @Override
+                public void play(Path path) {
+                    playedPath.set(path);
+                    loadedPath.set(path);
+                }
 
-            @Override
-            public void stop() {
-                playbackStopped.set(true);
-                loadedPath.set(null);
-            }
+                @Override
+                public void stop() {
+                    playbackStopped.set(true);
+                    loadedPath.set(null);
+                }
 
-            @Override
-            public void pause() {
-                playbackPaused.set(true);
-            }
+                @Override
+                public void pause() {
+                    playbackPaused.set(true);
+                }
 
-            @Override
-            public void resume() {
-                playbackResumed.set(true);
-            }
+                @Override
+                public void resume() {
+                    playbackResumed.set(true);
+                }
 
-            @Override
-            public void setOnFinished(Runnable onFinished) {
-                trackFinishedCallback.set(onFinished);
-            }
+                @Override
+                public void setOnFinished(Runnable onFinished) {
+                    trackFinishedCallback.set(onFinished);
+                }
 
-            @Override
-            public Optional<Path> playingPath() {
-                return Optional.ofNullable(loadedPath.get());
-            }
-        }, openedFolder::set);
+                @Override
+                public Optional<Path> playingPath() {
+                    return Optional.ofNullable(loadedPath.get());
+                }
+            }, openedFolder::set
+        );
         var view = new LibraryManagerView(viewModel);
         windowManager.registerView(view);
         windowManager.registerView(
@@ -118,9 +123,7 @@ abstract class LibraryManagerViewTestBase {
                 )
             )
         );
-        var settingsViewModel = new SettingsViewModel(
-            new SettingsAppModel(new NullSettingsRepository()), _ -> Optional.empty()
-        );
+        var settingsViewModel = new SettingsViewModel(settingsAppModel, _ -> Optional.empty());
         settingsViewModel.musicLibraryPathProperty().set(Path.of("music"));
         windowManager.registerView(new SettingsView(settingsViewModel));
         windowManager.registerView(

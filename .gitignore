@@ -3,3 +3,4 @@ target/
 CLAUDE.md
 .vscode/
 .$*.bkp
+*.log

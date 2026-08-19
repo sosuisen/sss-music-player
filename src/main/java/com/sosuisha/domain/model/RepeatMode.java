@@ -1,7 +1,7 @@
-package com.sosuisha.presentation.screens.librarymanager;
+package com.sosuisha.domain.model;
 
 /**
- * Repeat mode of the playback controlled by the player panel.
+ * Repeat mode of the playback.
  */
 public enum RepeatMode {
     /** Repeats all tracks of the selected album. */

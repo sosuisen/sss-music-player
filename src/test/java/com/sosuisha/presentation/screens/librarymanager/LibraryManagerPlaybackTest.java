@@ -17,6 +17,7 @@ import org.testfx.matcher.control.LabeledMatchers;
 import org.testfx.util.WaitForAsyncUtils;
 
 import com.sosuisha.domain.model.MusicFile;
+import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.domain.model.TrackMetadata;
 
 import javafx.scene.Parent;

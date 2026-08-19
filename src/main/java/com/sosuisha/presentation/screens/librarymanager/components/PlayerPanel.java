@@ -3,8 +3,8 @@ package com.sosuisha.presentation.screens.librarymanager.components;
 import java.util.Objects;
 
 import com.sosuisha.presentation.screens.librarymanager.LibraryManagerViewModel;
+import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.presentation.screens.librarymanager.PlayerState;
-import com.sosuisha.presentation.screens.librarymanager.RepeatMode;
 
 import io.github.sosuisen.jfxbuilder.controls.ButtonBuilder;
 import io.github.sosuisen.jfxbuilder.controls.LabelBuilder;

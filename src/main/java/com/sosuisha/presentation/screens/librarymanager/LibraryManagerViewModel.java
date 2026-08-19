@@ -8,6 +8,7 @@ import java.util.Optional;
 
 import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
+import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.domain.service.FolderOpener;
 import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.presentation.WindowManager;

@@ -1,12 +1,12 @@
 package com.sosuisha.presentation.appmodel;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.sosuisha.domain.exception.SettingsException;
 import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.model.Theme;
@@ -25,7 +25,6 @@ public class SettingsAppModel {
     private final ObjectProperty<Theme> theme = new SimpleObjectProperty<>(Theme.PRIMER_LIGHT);
     private final ObjectProperty<RepeatMode> repeatMode =
         new SimpleObjectProperty<>(RepeatMode.ALL);
-    private final ObjectProperty<Throwable> error = new SimpleObjectProperty<>();
     private final SettingsRepository repository;
 
     /**
@@ -78,7 +77,7 @@ public class SettingsAppModel {
      *
      * @return loaded settings, or an empty optional when the settings file
      *         does not exist
-     * @throws UncheckedIOException if the settings file exists but cannot be read
+     * @throws SettingsException if the settings file exists but cannot be read
      */
     public Optional<Settings> loadSettings() {
         try {
@@ -90,35 +89,28 @@ public class SettingsAppModel {
         } catch (NoSuchFileException e) {
             return Optional.empty();
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            throw new SettingsException("Failed to load the settings file", e);
         }
     }
 
     /**
      * Saves the current settings (the music library path, the theme, and the
      * repeat mode) to the settings file. Does nothing when the music library
-     * path is not set. When the settings file cannot be written, the error is
-     * set to the error property; when it is saved, the error property is
-     * cleared.
+     * path is not set.
+     *
+     * @throws SettingsException if the settings file cannot be written. Since
+     *             save() is also triggered by property listeners, the exception
+     *             is not caught by the callers; App catches it with the
+     *             uncaught exception handler of the FX thread and shows an
+     *             error dialog
      */
     public void save() {
         var path = musicLibraryPath.get();
         if (path == null) { return; }
         try {
             repository.save(new Settings(path, theme.get(), repeatMode.get()));
-            error.set(null);
         } catch (IOException e) {
-            error.set(e);
+            throw new SettingsException("Failed to save the settings file", e);
         }
-    }
-
-    /**
-     * Returns the error property. It holds the latest error of a settings
-     * service call, or null when no error has occurred.
-     *
-     * @return object property of the error
-     */
-    public ObjectProperty<Throwable> errorProperty() {
-        return error;
     }
 }

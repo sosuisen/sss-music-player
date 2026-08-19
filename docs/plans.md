@@ -28,3 +28,12 @@ TDDの作業用todoリスト（使い捨て）。
 ## その他
 
 - [ ] アプリ起動時のエラー処理。
+- [x] 設定の保存・読込エラーの扱いを変更: SettingsAppModelは独自の非チェック例外を投げ、Appでキャッチしてエラーダイアログを表示。errorPropertyと設定ウィンドウ内のエラー表示は廃止。
+  - テストリスト
+    - [x] 設定の保存に失敗すると、SettingsAppModelはSettingsException（domain.exception、causeは元のIOException）を投げる。
+    - [x] 設定ファイルが存在するが読めない場合、loadSettingsはSettingsExceptionを投げる。
+    - [x] 保存に失敗すると、Appはエラーダイアログを表示し、アプリは続行する。
+    - [x] 読込に失敗した状態で起動すると、Appは初期設定で起動する旨のダイアログを表示し、続行して設定ウィンドウを開く。
+    - [x] 廃止: SettingsAppModelのerrorProperty（テスト2件削除）。
+    - [x] 廃止: SettingsViewModelのerrorMessageProperty（テスト2件削除）。
+    - [x] 廃止: 設定ウィンドウの#errorMessage表示（テスト1件削除、Viewからラベル削除）。

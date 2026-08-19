@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -16,9 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
-import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.model.Theme;
-import com.sosuisha.domain.service.NullSettingsRepository;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.repository.SettingsRepositoryImpl;
 
@@ -105,45 +102,4 @@ class SettingsViewModelTest {
         assertFalse(Files.exists(folder.resolve("settings.properties")));
     }
 
-    @Test
-    @DisplayName("設定の保存に失敗すると、エラーメッセージは保存失敗の説明に例外のメッセージを続けたものである")
-    void the_error_message_is_the_failed_to_save_text_followed_by_the_exception_message_when_saving_fails() {
-        var viewModel = new SettingsViewModel(new SettingsAppModel(new NullSettingsRepository() {
-            @Override
-            public void save(Settings settings) throws IOException {
-                throw new IOException("C:\\somewhere\\settings.properties");
-            }
-        }), _ -> Optional.of(Path.of("music")));
-
-        viewModel.selectMusicLibraryFolder(null);
-
-        assertEquals(
-            "Failed to save the settings file: C:\\somewhere\\settings.properties",
-            viewModel.errorMessageProperty().getValue()
-        );
-    }
-
-    @Test
-    @DisplayName("設定の保存に成功すると、エラーメッセージはクリアされる")
-    void the_error_message_is_cleared_when_saving_the_settings_succeeds() {
-        var repository = new NullSettingsRepository() {
-            private boolean failed = false;
-
-            @Override
-            public void save(Settings settings) throws IOException {
-                if (!failed) {
-                    failed = true;
-                    throw new IOException("read-only-path");
-                }
-            }
-        };
-        var viewModel = new SettingsViewModel(
-            new SettingsAppModel(repository), _ -> Optional.of(Path.of("music"))
-        );
-        viewModel.selectMusicLibraryFolder(null);
-
-        viewModel.selectMusicLibraryFolder(null);
-
-        assertEquals("", viewModel.errorMessageProperty().getValue());
-    }
 }

@@ -13,7 +13,6 @@ import io.github.sosuisen.jfxbuilder.graphics.GridPaneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.SceneBuilder;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 
 /**
@@ -87,16 +86,6 @@ public class SettingsView implements View {
                             .valuePropertyApply(
                                 prop -> prop.bindBidirectional(viewModel.themeProperty())
                             )
-                            .build()
-                    )
-                    .addRow(
-                        2,
-                        LabelBuilder.create()
-                            .textPropertyApply(
-                                text -> text.bind(viewModel.errorMessageProperty())
-                            )
-                            .id("errorMessage")
-                            .columnSpanInGridPane(GridPane.REMAINING)
                             .build()
                     )
                     .build(),

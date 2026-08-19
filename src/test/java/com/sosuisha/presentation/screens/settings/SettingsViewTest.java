@@ -3,7 +3,6 @@ package com.sosuisha.presentation.screens.settings;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.testfx.api.FxAssert.verifyThat;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
@@ -20,7 +19,6 @@ import org.testfx.matcher.control.LabeledMatchers;
 
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.model.Theme;
-import com.sosuisha.domain.service.NullSettingsRepository;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.repository.SettingsRepositoryImpl;
 
@@ -99,27 +97,6 @@ class SettingsViewTest {
         robot.interact(() -> viewModel.musicLibraryPathProperty().set(Path.of("changed")));
 
         verifyThat("#musicLibraryPath", LabeledMatchers.hasText("changed"));
-    }
-
-    @Test
-    @DisplayName("保存に失敗すると、設定ウィンドウにエラーメッセージが表示される")
-    void the_error_message_is_shown_in_the_settings_window_when_saving_fails(FxRobot robot) {
-        robot.interact(() -> {
-            var failing = new SettingsViewModel(new SettingsAppModel(new NullSettingsRepository() {
-                @Override
-                public void save(Settings settings) throws IOException {
-                    throw new IOException("read-only-path");
-                }
-            }), _ -> Optional.of(Path.of("selected")));
-            failing.musicLibraryPathProperty().set(Path.of("music"));
-            stage.setScene(new SettingsView(failing).getScene());
-            failing.selectMusicLibraryFolder(null);
-        });
-
-        verifyThat(
-            "#errorMessage",
-            LabeledMatchers.hasText("Failed to save the settings file: read-only-path")
-        );
     }
 
     @Test

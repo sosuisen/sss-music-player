@@ -1,7 +1,8 @@
 package com.sosuisha.presentation.appmodel;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import com.sosuisha.domain.exception.SettingsException;
 import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.service.NullSettingsRepository;
@@ -88,34 +90,36 @@ class SettingsAppModelTest {
     }
 
     @Test
-    @DisplayName("設定の保存に失敗すると、エラープロパティにその例外がセットされる")
-    void the_exception_is_set_to_the_error_property_when_saving_the_settings_fails() {
-        var error = new IOException("read-only-path");
+    @DisplayName("設定の読み込みに失敗すると、SettingsExceptionが投げられる（causeは元のIOException）")
+    void a_settings_exception_is_thrown_when_loading_the_settings_fails() {
+        var cause = new IOException("broken-file");
+        var appModel = new SettingsAppModel(new NullSettingsRepository() {
+            @Override
+            public Settings load() throws IOException {
+                throw cause;
+            }
+        });
+
+        var thrown = assertThrows(SettingsException.class, appModel::loadSettings);
+
+        assertSame(cause, thrown.getCause());
+    }
+
+    @Test
+    @DisplayName("設定の保存に失敗すると、SettingsExceptionが投げられる（causeは元のIOException）")
+    void a_settings_exception_is_thrown_when_saving_the_settings_fails() {
+        var cause = new IOException("read-only-path");
         var appModel = new SettingsAppModel(new NullSettingsRepository() {
             @Override
             public void save(Settings settings) throws IOException {
-                throw error;
+                throw cause;
             }
         });
         appModel.musicLibraryPathProperty().set(Path.of("music"));
 
-        appModel.save();
+        var thrown = assertThrows(SettingsException.class, appModel::save);
 
-        assertEquals(error, appModel.errorProperty().get());
+        assertSame(cause, thrown.getCause());
     }
 
-    @Test
-    @DisplayName("設定の保存に成功すると、エラープロパティはクリアされる")
-    void the_error_property_is_cleared_when_saving_the_settings_succeeds() {
-        var appModel = new SettingsAppModel(new NullSettingsRepository() {
-            @Override
-            public void save(Settings settings) {}
-        });
-        appModel.musicLibraryPathProperty().set(Path.of("music"));
-        appModel.errorProperty().set(new IOException("read-only-path"));
-
-        appModel.save();
-
-        assertNull(appModel.errorProperty().get());
-    }
 }

@@ -55,6 +55,14 @@ class LibraryManagerWindowTest extends LibraryManagerViewTestBase {
     }
 
     @Test
+    @DisplayName("Fileメニューは、HeaderBar内に表示される")
+    void the_file_menu_is_shown_in_the_header_bar(FxRobot robot) {
+        var headerBar = robot.lookup("#headerBar").query();
+
+        assertTrue(robot.from(headerBar).lookup(".menu-bar").tryQuery().isPresent());
+    }
+
+    @Test
     @DisplayName("FileメニューのRescanを選ぶと、ライブラリが再スキャンされる")
     void selecting_rescan_menu_rescans_the_library(FxRobot robot) {
         robot.clickOn("File").clickOn("Rescan");

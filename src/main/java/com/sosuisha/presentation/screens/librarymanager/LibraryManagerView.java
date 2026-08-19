@@ -67,8 +67,7 @@ public class LibraryManagerView implements View {
             .create(
                 VBoxBuilder
                     .withChildren(
-                        buildHeaderBar(),
-                        LibraryMenuBar.getRoot(viewModel),
+                        buildHeaderBar(viewModel),
                         SplitPaneBuilder
                             .withItems(AlbumPane.getRoot(viewModel), TrackPane.getRoot(viewModel))
                             .vGrowInVBox(Priority.ALWAYS)
@@ -83,9 +82,10 @@ public class LibraryManagerView implements View {
     }
 
     // HeaderBar is a preview feature of JavaFX 26 and has no builder API.
-    private static HeaderBar buildHeaderBar() {
+    private static HeaderBar buildHeaderBar(LibraryManagerViewModel viewModel) {
         var headerBar = new HeaderBar();
         headerBar.setId("headerBar");
+        headerBar.setLeft(LibraryMenuBar.getRoot(viewModel));
         return headerBar;
     }
 }

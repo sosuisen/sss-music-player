@@ -18,6 +18,7 @@ import java.util.function.Function;
 
 import org.jooq.DSLContext;
 import org.jooq.SQLDialect;
+import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 
 import com.sosuisha.domain.model.MusicFile;
@@ -97,7 +98,7 @@ public class SqliteLibraryRepository implements LibraryRepository {
     private <T> T withDsl(String errorMessage, Function<DSLContext, T> operation) {
         try (var connection = DriverManager.getConnection(url)) {
             return operation.apply(DSL.using(connection, SQLDialect.SQLITE));
-        } catch (SQLException e) {
+        } catch (SQLException | DataAccessException e) {
             throw new IllegalStateException(errorMessage, e);
         }
     }

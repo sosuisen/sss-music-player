@@ -1,6 +1,7 @@
 package com.sosuisha.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
@@ -149,5 +150,66 @@ class SqliteLibraryRepositoryTest {
 
         assertEquals(Optional.empty(), database.find(fileA, 123, FileTime.fromMillis(1_000L)));
         assertEquals(Optional.of(tag), database.find(fileB, 456, FileTime.fromMillis(2_000L)));
+    }
+
+    @Test
+    @DisplayName("DBファイルがSQLiteのデータベースでない場合、IllegalStateExceptionが投げられる")
+    void creating_the_database_throws_IllegalStateException_when_the_file_is_not_a_sqlite_database()
+        throws Exception {
+        var file = folder.resolve("library.db");
+        Files.writeString(file, "this is not a sqlite database");
+
+        assertThrows(IllegalStateException.class, () -> new SqliteLibraryRepository(file));
+    }
+
+    @Test
+    @DisplayName("DBが読めない場合、findはIllegalStateExceptionを投げる")
+    void find_throws_IllegalStateException_when_the_database_cannot_be_read() throws Exception {
+        var database = brokenDatabase();
+
+        assertThrows(
+            IllegalStateException.class,
+            () -> database.find(folder.resolve("song.mp3"), 123, FileTime.fromMillis(1_000L))
+        );
+    }
+
+    @Test
+    @DisplayName("DBに書けない場合、saveはIllegalStateExceptionを投げる")
+    void save_throws_IllegalStateException_when_the_database_cannot_be_written() throws Exception {
+        var database = brokenDatabase();
+        var musicFile = new MusicFile(folder.resolve("song.mp3"), 123, TrackMetadata.EMPTY);
+
+        assertThrows(
+            IllegalStateException.class,
+            () -> database.save(musicFile, FileTime.fromMillis(1_000L))
+        );
+    }
+
+    @Test
+    @DisplayName("DBが読めない場合、findAllPathsはIllegalStateExceptionを投げる")
+    void find_all_paths_throws_IllegalStateException_when_the_database_cannot_be_read()
+        throws Exception {
+        var database = brokenDatabase();
+
+        assertThrows(IllegalStateException.class, database::findAllPaths);
+    }
+
+    @Test
+    @DisplayName("DBに書けない場合、deleteはIllegalStateExceptionを投げる")
+    void delete_throws_IllegalStateException_when_the_database_cannot_be_written()
+        throws Exception {
+        var database = brokenDatabase();
+
+        assertThrows(
+            IllegalStateException.class, () -> database.delete(folder.resolve("song.mp3"))
+        );
+    }
+
+    /** Creates a database, then overwrites its file so that it is no longer a SQLite database. */
+    private SqliteLibraryRepository brokenDatabase() throws Exception {
+        var file = folder.resolve("library.db");
+        var database = new SqliteLibraryRepository(file);
+        Files.writeString(file, "this is not a sqlite database");
+        return database;
     }
 }

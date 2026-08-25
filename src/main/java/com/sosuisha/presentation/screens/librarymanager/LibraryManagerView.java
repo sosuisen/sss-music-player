@@ -14,6 +14,7 @@ import io.github.sosuisen.jfxbuilder.controls.SplitPaneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.SceneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
 import javafx.scene.Scene;
+import javafx.stage.StageStyle;
 import javafx.scene.layout.HeaderBar;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
@@ -61,6 +62,12 @@ public class LibraryManagerView implements View {
     @Override
     public String getTitle() {
         return TITLE;
+    }
+
+    @Override
+    @SuppressWarnings("deprecation") // StageStyle.EXTENDED is a preview feature of JavaFX 26.
+    public StageStyle stageStyle() {
+        return StageStyle.EXTENDED;
     }
 
     private Scene buildSceneGraph() {

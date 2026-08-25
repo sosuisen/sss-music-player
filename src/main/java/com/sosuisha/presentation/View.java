@@ -1,6 +1,7 @@
 package com.sosuisha.presentation;
 
 import javafx.scene.Scene;
+import javafx.stage.StageStyle;
 
 /**
  * A view that provides a scene and a window title.
@@ -19,4 +20,15 @@ public interface View {
      * @return window title
      */
     String getTitle();
+
+    /**
+     * Returns the style of the window that shows this view. The default is
+     * {@link StageStyle#DECORATED}. A view that draws its own header bar
+     * returns {@link StageStyle#EXTENDED}.
+     *
+     * @return style of the window of this view
+     */
+    default StageStyle stageStyle() {
+        return StageStyle.DECORATED;
+    }
 }

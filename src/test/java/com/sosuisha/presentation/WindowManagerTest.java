@@ -1,5 +1,6 @@
 package com.sosuisha.presentation;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -21,6 +22,7 @@ import com.sosuisha.service.LibraryIndexer;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 @ExtendWith(ApplicationExtension.class)
 class WindowManagerTest {
@@ -69,5 +71,29 @@ class WindowManagerTest {
         var window = robot.window("Duplicate Files");
         assertTrue(window.isShowing());
         assertSame(view.getScene(), window.getScene());
+    }
+
+    @Test
+    @DisplayName("showWindowは、HeaderBarを持たないViewのウィンドウを通常のタイトルバー付き（DECORATED）で表示する")
+    void show_window_uses_the_decorated_style_for_a_view_without_a_header_bar(FxRobot robot) {
+        var windowManager = new WindowManager();
+        var view = new DuplicateListView(
+            new DuplicateListViewModel(
+                new MusicLibraryAppModel(
+                    new LibraryIndexer(new NullLibraryRepository()),
+                    new SimpleObjectProperty<>()
+                ),
+                new NullMusicPlayer(),
+                new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")),
+                _ -> {
+                }
+            )
+        );
+        windowManager.registerView(view);
+
+        robot.interact(() -> windowManager.showWindow(DuplicateListView.class, new Stage()));
+
+        var window = (Stage) robot.window("Duplicate Files");
+        assertEquals(StageStyle.DECORATED, window.getStyle());
     }
 }

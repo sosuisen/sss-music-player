@@ -33,6 +33,7 @@ import javafx.scene.control.Label;
 import javafx.stage.Modality;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.stage.Window;
 
 class LibraryManagerWindowTest extends LibraryManagerViewTestBase {
@@ -204,5 +205,11 @@ class LibraryManagerWindowTest extends LibraryManagerViewTestBase {
         var label = robot.lookup("#errorLabel").queryAs(Label.class);
         assertEquals("boom", label.getText());
         assertEquals(Color.RED, label.getTextFill());
+    }
+
+    @Test
+    @DisplayName("LibraryManagerViewはHeaderBarを持つので、ウィンドウのスタイルとしてEXTENDEDを宣言する")
+    void library_manager_view_declares_the_extended_stage_style() {
+        assertEquals(StageStyle.EXTENDED, new LibraryManagerView(viewModel).stageStyle());
     }
 }

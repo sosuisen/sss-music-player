@@ -3,7 +3,6 @@ package com.sosuisha.presentation.screens.librarymanager;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -131,8 +130,7 @@ class LibraryManagerWindowTest extends LibraryManagerViewTestBase {
         var scanFinished = new CountDownLatch(1);
         var blockingScanner = new LibraryIndexer(new NullLibraryRepository()) {
             @Override
-            public List<MusicFile> scan(Path folderPath, Consumer<Path> onFileRead)
-                throws IOException {
+            public List<MusicFile> scan(Path folderPath, Consumer<Path> onFileRead) {
                 var result = super.scan(folderPath, onFileRead);
                 // Keeps the scan running until the test releases it, so the
                 // dialog stays open while the label is checked.

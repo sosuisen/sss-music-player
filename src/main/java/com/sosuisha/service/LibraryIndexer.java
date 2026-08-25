@@ -49,10 +49,10 @@ public class LibraryIndexer {
      * @param folderPath path of the folder to scan
      * @return list of audio files in the folder and its subfolders
      * @throws NullPointerException if folderPath is null
-     * @throws IOException if the folder cannot be read
-     * @throws UncheckedIOException if the size of a found file cannot be read
+     * @throws UncheckedIOException if the folder or the size of a found file
+     *             cannot be read
      */
-    public List<MusicFile> scan(Path folderPath) throws IOException {
+    public List<MusicFile> scan(Path folderPath) {
         return scan(folderPath, _ -> {
         });
     }
@@ -65,10 +65,10 @@ public class LibraryIndexer {
      * @param onFileRead callback that receives the path of each file being read
      * @return list of audio files in the folder and its subfolders
      * @throws NullPointerException if folderPath or onFileRead is null
-     * @throws IOException if the folder cannot be read
-     * @throws UncheckedIOException if the size of a found file cannot be read
+     * @throws UncheckedIOException if the folder or the size of a found file
+     *             cannot be read
      */
-    public List<MusicFile> scan(Path folderPath, Consumer<Path> onFileRead) throws IOException {
+    public List<MusicFile> scan(Path folderPath, Consumer<Path> onFileRead) {
         Objects.requireNonNull(folderPath, "folderPath must not be null");
         Objects.requireNonNull(onFileRead, "onFileRead must not be null");
         try (var files = Files.walk(folderPath)) {
@@ -80,6 +80,8 @@ public class LibraryIndexer {
                 .toList();
             deleteEntriesOfMissingFiles();
             return musicFiles;
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 

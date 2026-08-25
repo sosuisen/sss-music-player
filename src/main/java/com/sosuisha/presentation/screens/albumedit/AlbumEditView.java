@@ -23,7 +23,7 @@ import javafx.scene.layout.Priority;
 public class AlbumEditView implements View {
     private static final String TITLE = "Edit Album";
     private static final double WIDTH = 400;
-    private static final double HEIGHT = 200;
+    private static final double HEIGHT = 230;
     private static final String CHANGED_FIELD_CLASS = "changed-field";
     private static final String CSS = """
                                       .changed-field {
@@ -141,6 +141,17 @@ public class AlbumEditView implements View {
                             .id("reloadNotice")
                             .visiblePropertyApply(
                                 prop -> prop.bind(viewModel.libraryChangedProperty())
+                            )
+                            .columnSpanInGridPane(2)
+                            .build()
+                    )
+                    .addRow(
+                        4,
+                        LabelBuilder.create()
+                            .id("errorLabel")
+                            .style("-fx-text-fill: red;")
+                            .textPropertyApply(
+                                prop -> prop.bind(viewModel.errorMessageProperty())
                             )
                             .columnSpanInGridPane(2)
                             .build()

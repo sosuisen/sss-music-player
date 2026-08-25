@@ -1,6 +1,7 @@
 package com.sosuisha.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,6 +11,8 @@ import org.jaudiotagger.tag.FieldKey;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+
+import com.sosuisha.domain.exception.TagWriteException;
 
 class JaudiotaggerTagWriterTest {
     @TempDir
@@ -45,5 +48,16 @@ class JaudiotaggerTagWriterTest {
         assertEquals("New Album", tag.getFirst(FieldKey.ALBUM));
         assertEquals("New Artist", tag.getFirst(FieldKey.ALBUM_ARTIST));
         assertEquals("2015", tag.getFirst(FieldKey.YEAR));
+    }
+
+    @Test
+    @DisplayName("書き込めないファイルの場合、writeAlbumTagはTagWriteExceptionを投げる")
+    void write_album_tag_throws_TagWriteException_when_the_file_cannot_be_written() {
+        var missing = folder.resolve("missing.mp3");
+
+        assertThrows(
+            TagWriteException.class,
+            () -> new JaudiotaggerTagWriter().writeAlbumTag(missing, "Album", "Artist")
+        );
     }
 }

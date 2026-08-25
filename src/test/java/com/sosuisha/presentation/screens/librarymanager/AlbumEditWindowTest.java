@@ -19,6 +19,7 @@ import com.sosuisha.domain.model.TrackMetadata;
 
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 class AlbumEditWindowTest extends LibraryManagerViewTestBase {
@@ -130,5 +131,26 @@ class AlbumEditWindowTest extends LibraryManagerViewTestBase {
 
         var notice = robot.lookup("#reloadNotice").queryAs(Label.class);
         assertFalse(notice.isVisible());
+    }
+
+    @Test
+    @DisplayName("エラーメッセージプロパティにセットした文字列が、編集ウィンドウのエラーラベルに赤字で表示される")
+    void the_string_set_to_the_error_message_property_is_shown_in_red_in_the_error_label(
+        FxRobot robot) {
+        var files = List.of(
+            new MusicFile(
+                Path.of("a/one.mp3"), 100,
+                new TrackMetadata("Song One", "Artist X", "Album A", "Artist X", "1", "")
+            )
+        );
+        robot.interact(() -> viewModel.setFiles(files));
+        robot.clickOn("Album A - Artist X");
+        robot.clickOn("#editAlbumButton");
+
+        robot.interact(() -> albumEditViewModel.errorMessageProperty().set("boom"));
+
+        var label = robot.lookup("#errorLabel").queryAs(Label.class);
+        assertEquals("boom", label.getText());
+        assertEquals(Color.RED, label.getTextFill());
     }
 }

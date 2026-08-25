@@ -6,6 +6,7 @@ import java.util.Objects;
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.FieldKey;
 
+import com.sosuisha.domain.exception.TagWriteException;
 import com.sosuisha.domain.service.TagWriter;
 
 /**
@@ -16,10 +17,11 @@ public class JaudiotaggerTagWriter implements TagWriter {
      * {@inheritDoc}
      *
      * @throws NullPointerException if file, album, or albumArtist is null
-     * @throws IllegalStateException if the tag cannot be written
+     * @throws TagWriteException if the tag cannot be written
      */
     @Override
-    public void writeAlbumTag(Path file, String album, String albumArtist) {
+    public void writeAlbumTag(Path file, String album, String albumArtist)
+        throws TagWriteException {
         Objects.requireNonNull(file, "file must not be null");
         Objects.requireNonNull(album, "album must not be null");
         Objects.requireNonNull(albumArtist, "albumArtist must not be null");
@@ -30,7 +32,7 @@ public class JaudiotaggerTagWriter implements TagWriter {
             tag.setField(FieldKey.ALBUM_ARTIST, albumArtist);
             audioFile.commit();
         } catch (Exception e) {
-            throw new IllegalStateException("cannot write the tag of " + file, e);
+            throw new TagWriteException("Could not write the tag of " + file, e);
         }
     }
 }

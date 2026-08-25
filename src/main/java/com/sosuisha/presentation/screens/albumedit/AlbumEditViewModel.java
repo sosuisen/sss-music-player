@@ -2,6 +2,7 @@ package com.sosuisha.presentation.screens.albumedit;
 
 import java.util.Objects;
 
+import com.sosuisha.domain.exception.TagWriteException;
 import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.service.TagWriter;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
@@ -29,6 +30,7 @@ public class AlbumEditViewModel {
     private final BooleanExpression albumArtistChanged =
         albumArtist.isNotEqualTo(originalAlbumArtist);
     private final BooleanProperty libraryChanged = new SimpleBooleanProperty(false);
+    private final StringProperty errorMessage = new SimpleStringProperty();
 
     /**
      * Creates the view model. The editable fields are reset to the values of
@@ -99,15 +101,30 @@ public class AlbumEditViewModel {
 
     /**
      * Saves the edited album name and album artist to the tags of all tracks
-     * of the selected album and marks the library as changed. The saved values
-     * become the new baseline of the changed flags. Does nothing when no album
-     * is selected.
+     * of the selected album. When all tracks are written, the library is
+     * marked as changed and the saved values become the new baseline of the
+     * changed flags. When a track cannot be written, the save stops there and
+     * the message of the failure is set to the error message property. The
+     * library is marked as changed when a track was written before the
+     * failure, and the baseline is kept so that the save can be retried. Does
+     * nothing when no album is selected.
      */
     public void save() {
+        errorMessage.set(null);
         var album = appModel.selectedAlbumProperty().get();
         if (album == null) { return; }
+        var writtenCount = 0;
         for (var file : album.files()) {
-            tagWriter.writeAlbumTag(file.path(), albumName.get(), albumArtist.get());
+            try {
+                tagWriter.writeAlbumTag(file.path(), albumName.get(), albumArtist.get());
+            } catch (TagWriteException e) {
+                errorMessage.set(e.getMessage());
+                if (writtenCount > 0) {
+                    libraryChanged.set(true);
+                }
+                return;
+            }
+            writtenCount++;
         }
         originalAlbumName.set(albumName.get());
         originalAlbumArtist.set(albumArtist.get());
@@ -130,6 +147,16 @@ public class AlbumEditViewModel {
         if (libraryChanged.get()) {
             appModel.rescan();
         }
+    }
+
+    /**
+     * Returns the message of the last failed save, or null when the last save
+     * succeeded.
+     *
+     * @return error message property
+     */
+    public StringProperty errorMessageProperty() {
+        return errorMessage;
     }
 
     /**

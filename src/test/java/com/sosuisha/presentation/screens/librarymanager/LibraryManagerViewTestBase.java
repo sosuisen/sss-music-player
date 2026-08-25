@@ -39,6 +39,7 @@ abstract class LibraryManagerViewTestBase {
 
     Stage stage;
     LibraryManagerViewModel viewModel;
+    AlbumEditViewModel albumEditViewModel;
     MusicLibraryAppModel appModel;
     SettingsAppModel settingsAppModel;
     AtomicBoolean rescanned;
@@ -126,10 +127,9 @@ abstract class LibraryManagerViewTestBase {
         var settingsViewModel = new SettingsViewModel(settingsAppModel, _ -> Optional.empty());
         settingsViewModel.musicLibraryPathProperty().set(Path.of("music"));
         windowManager.registerView(new SettingsView(settingsViewModel));
-        windowManager.registerView(
-            new AlbumEditView(new AlbumEditViewModel(appModel, (_, _, _) -> {
-            }))
-        );
+        albumEditViewModel = new AlbumEditViewModel(appModel, (_, _, _) -> {
+        });
+        windowManager.registerView(new AlbumEditView(albumEditViewModel));
         stage.setScene(view.getScene());
         stage.setTitle(view.getTitle());
         stage.show();

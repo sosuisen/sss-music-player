@@ -2,6 +2,7 @@ package com.sosuisha.presentation.screens.albumedit;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.FieldKey;
 import org.junit.jupiter.api.io.TempDir;
 
+import com.sosuisha.domain.exception.TagWriteException;
 import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
@@ -205,4 +207,68 @@ class AlbumEditViewModelTest {
         assertTrue(rescanned.get());
     }
 
+
+    @Test
+    @DisplayName("タグの書き込みに失敗すると、エラーメッセージプロパティに失敗の理由がセットされる")
+    void a_failed_tag_write_sets_the_reason_to_the_error_message_property() {
+        var appModel = new MusicLibraryAppModel(
+            new LibraryIndexer(new NullLibraryRepository()),
+            new SimpleObjectProperty<>()
+        );
+        var viewModel = new AlbumEditViewModel(appModel, (file, _, _) -> {
+            throw new TagWriteException("Could not write the tag of " + file, null);
+        });
+        var track = new MusicFile(Path.of("one.mp3"), 100);
+        appModel.selectAlbum(new Album("Test Album", "Test Album Artist", List.of(track)));
+
+        viewModel.save();
+
+        assertEquals(
+            "Could not write the tag of " + Path.of("one.mp3"),
+            viewModel.errorMessageProperty().get()
+        );
+    }
+
+    @Test
+    @DisplayName("Saveを実行すると、前回のエラーメッセージはエラーメッセージプロパティから消える")
+    void saving_clears_the_previous_message_from_the_error_message_property() {
+        var appModel = new MusicLibraryAppModel(
+            new LibraryIndexer(new NullLibraryRepository()),
+            new SimpleObjectProperty<>()
+        );
+        var viewModel = new AlbumEditViewModel(appModel, (_, _, _) -> {
+        });
+        var track = new MusicFile(Path.of("one.mp3"), 100);
+        appModel.selectAlbum(new Album("Test Album", "Test Album Artist", List.of(track)));
+        viewModel.errorMessageProperty().set("previous error");
+
+        viewModel.save();
+
+        assertNull(viewModel.errorMessageProperty().get());
+    }
+
+    @Test
+    @DisplayName("途中のトラックで書き込みに失敗すると、ライブラリ変更フラグは立ち、変更プロパティはtrueのまま残る")
+    void a_failure_in_the_middle_marks_the_library_as_changed_and_keeps_the_changed_flags() {
+        var appModel = new MusicLibraryAppModel(
+            new LibraryIndexer(new NullLibraryRepository()),
+            new SimpleObjectProperty<>()
+        );
+        var viewModel = new AlbumEditViewModel(appModel, (file, _, _) -> {
+            if (file.equals(Path.of("two.mp3"))) {
+                throw new TagWriteException("Could not write the tag of " + file, null);
+            }
+        });
+        var trackA = new MusicFile(Path.of("one.mp3"), 100);
+        var trackB = new MusicFile(Path.of("two.mp3"), 100);
+        appModel.selectAlbum(
+            new Album("Test Album", "Test Album Artist", List.of(trackA, trackB))
+        );
+        viewModel.albumNameProperty().set("New Album");
+
+        viewModel.save();
+
+        assertTrue(viewModel.libraryChangedProperty().get());
+        assertTrue(viewModel.albumNameChangedProperty().get());
+    }
 }

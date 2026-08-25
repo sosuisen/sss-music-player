@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.sosuisha.domain.exception.FolderOpenException;
 import com.sosuisha.domain.model.DuplicatedItems;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.service.DuplicateDetector;
@@ -123,14 +124,21 @@ public class DuplicateListViewModel {
     }
 
     /**
-     * Opens the folder that contains the given audio file.
+     * Opens the folder that contains the given audio file. When the folder
+     * cannot be opened, the error message is set to the error message
+     * property.
      *
      * @param file audio file whose folder is opened
      * @throws NullPointerException if file is null
      */
     public void openFolder(MusicFile file) {
         Objects.requireNonNull(file, "file must not be null");
-        folderOpener.open(file.path().getParent());
+        errorMessage.set(null);
+        try {
+            folderOpener.open(file.path().getParent());
+        } catch (FolderOpenException e) {
+            errorMessage.set(e.getMessage());
+        }
     }
 
     /**

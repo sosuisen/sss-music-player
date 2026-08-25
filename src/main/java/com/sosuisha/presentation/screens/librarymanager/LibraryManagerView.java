@@ -9,6 +9,7 @@ import com.sosuisha.presentation.screens.librarymanager.components.PlayerPanel;
 import com.sosuisha.presentation.screens.librarymanager.components.ScanningDialog;
 import com.sosuisha.presentation.screens.librarymanager.components.TrackPane;
 
+import io.github.sosuisen.jfxbuilder.controls.LabelBuilder;
 import io.github.sosuisen.jfxbuilder.controls.SplitPaneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.SceneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
@@ -72,7 +73,14 @@ public class LibraryManagerView implements View {
                             .withItems(AlbumPane.getRoot(viewModel), TrackPane.getRoot(viewModel))
                             .vGrowInVBox(Priority.ALWAYS)
                             .build(),
-                        PlayerPanel.getRoot(viewModel)
+                        PlayerPanel.getRoot(viewModel),
+                        LabelBuilder.create()
+                            .id("errorLabel")
+                            .style("-fx-text-fill: red;")
+                            .textPropertyApply(
+                                prop -> prop.bind(viewModel.errorMessageProperty())
+                            )
+                            .build()
                     )
                     .build(),
                 WIDTH,

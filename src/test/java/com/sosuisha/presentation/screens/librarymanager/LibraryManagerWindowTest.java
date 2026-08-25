@@ -31,6 +31,7 @@ import com.sosuisha.service.LibraryIndexer;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Label;
 import javafx.stage.Modality;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 
@@ -192,5 +193,16 @@ class LibraryManagerWindowTest extends LibraryManagerViewTestBase {
             .filter(window -> window instanceof Stage shown && "Scanning".equals(shown.getTitle()))
             .map(Stage.class::cast)
             .findFirst();
+    }
+
+    @Test
+    @DisplayName("エラーメッセージプロパティにセットした文字列が、ウィンドウ下部のステータス行に赤字で表示される")
+    void the_string_set_to_the_error_message_property_is_shown_in_red_in_the_status_row(
+        FxRobot robot) {
+        robot.interact(() -> viewModel.errorMessageProperty().set("boom"));
+
+        var label = robot.lookup("#errorLabel").queryAs(Label.class);
+        assertEquals("boom", label.getText());
+        assertEquals(Color.RED, label.getTextFill());
     }
 }

@@ -6,6 +6,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.sosuisha.domain.exception.FolderOpenException;
 import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.RepeatMode;
@@ -47,6 +48,7 @@ public class LibraryManagerViewModel {
     private final ObjectProperty<MusicFile> selectedTrack = new SimpleObjectProperty<>();
     private final ObjectProperty<SortKey> sortKey = new SimpleObjectProperty<>(SortKey.ALBUM);
     private final StringProperty albumFilter = new SimpleStringProperty("");
+    private final StringProperty errorMessage = new SimpleStringProperty();
 
     /**
      * Creates the view model.
@@ -375,13 +377,29 @@ public class LibraryManagerViewModel {
     }
 
     /**
+     * Returns the message of the last failed operation of this screen, or
+     * null when the last operation succeeded.
+     *
+     * @return error message property
+     */
+    public StringProperty errorMessageProperty() {
+        return errorMessage;
+    }
+
+    /**
      * Opens the folder of the selected track in the file manager. Does nothing
-     * when no track is selected.
+     * when no track is selected. When the folder cannot be opened, the error
+     * message is set to the error message property.
      */
     public void openTrackFolder() {
         var selected = selectedTrack.get();
         if (selected == null) { return; }
-        folderOpener.open(selected.path().getParent());
+        errorMessage.set(null);
+        try {
+            folderOpener.open(selected.path().getParent());
+        } catch (FolderOpenException e) {
+            errorMessage.set(e.getMessage());
+        }
     }
 
     /**

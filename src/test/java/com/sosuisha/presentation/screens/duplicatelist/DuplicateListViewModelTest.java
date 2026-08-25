@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.sosuisha.domain.exception.FolderOpenException;
 import com.sosuisha.domain.model.DuplicatedItems;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
@@ -263,5 +264,27 @@ class DuplicateListViewModelTest {
         viewModel.removeCheckedDuplicates();
 
         assertNull(viewModel.errorMessageProperty().get());
+    }
+
+    @Test
+    @DisplayName("フォルダを開けないと、エラーメッセージプロパティに失敗の理由がセットされる")
+    void a_failed_folder_open_sets_the_reason_to_the_error_message_property() {
+        var viewModel = new DuplicateListViewModel(
+            new MusicLibraryAppModel(
+                new LibraryIndexer(new NullLibraryRepository()),
+                new SimpleObjectProperty<>()
+            ),
+            new NullMusicPlayer(),
+            new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")),
+            folder -> {
+                throw new FolderOpenException("Could not open the folder: " + folder, null);
+            }
+        );
+
+        viewModel.openFolder(new MusicFile(Path.of("a/first.mp3"), 100));
+
+        assertEquals(
+            "Could not open the folder: " + Path.of("a"), viewModel.errorMessageProperty().get()
+        );
     }
 }

@@ -10,6 +10,7 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.sosuisha.domain.exception.FolderOpenException;
 import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.RepeatMode;
@@ -242,5 +243,29 @@ class LibraryManagerViewModelTest {
         viewModel.selectAlbum(new Album("Album A", "Artist X", List.of(trackOne, trackTwo)));
 
         assertEquals(playing, viewModel.selectedTrackProperty().get());
+    }
+
+    @Test
+    @DisplayName("フォルダを開けないと、エラーメッセージプロパティに失敗の理由がセットされる")
+    void a_failed_folder_open_sets_the_reason_to_the_error_message_property() {
+        var viewModel = new LibraryManagerViewModel(
+            new WindowManager(),
+            new MusicLibraryAppModel(
+                new LibraryIndexer(new NullLibraryRepository()),
+                new SimpleObjectProperty<>()
+            ),
+            new SettingsAppModel(new NullSettingsRepository()),
+            new NullMusicPlayer(),
+            folder -> {
+                throw new FolderOpenException("Could not open the folder: " + folder, null);
+            }
+        );
+        viewModel.selectTrack(new MusicFile(Path.of("a/one.mp3"), 100));
+
+        viewModel.openTrackFolder();
+
+        assertEquals(
+            "Could not open the folder: " + Path.of("a"), viewModel.errorMessageProperty().get()
+        );
     }
 }

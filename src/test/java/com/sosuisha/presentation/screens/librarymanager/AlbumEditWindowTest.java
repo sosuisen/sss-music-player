@@ -149,7 +149,8 @@ class AlbumEditWindowTest extends LibraryManagerViewTestBase {
 
         robot.interact(() -> albumEditViewModel.errorMessageProperty().set("boom"));
 
-        var label = robot.lookup("#errorLabel").queryAs(Label.class);
+        var editWindow = robot.window("Edit Album").getScene().getRoot();
+        var label = robot.from(editWindow).lookup("#errorLabel").queryAs(Label.class);
         assertEquals("boom", label.getText());
         assertEquals(Color.RED, label.getTextFill());
     }

@@ -26,7 +26,7 @@ import com.sosuisha.service.MediaMusicPlayer;
 import com.sosuisha.repository.SettingsRepositoryImpl;
 import com.sosuisha.repository.SqliteLibraryRepository;
 
-import com.sosuisha.domain.exception.SettingsException;
+import com.sosuisha.domain.exception.RepositoryException;
 import com.sosuisha.domain.exception.UnrecoverableException;
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.model.Theme;
@@ -108,7 +108,7 @@ public class App extends Application {
         Optional<Settings> loadedSettings;
         try {
             loadedSettings = settingsAppModel.loadSettings();
-        } catch (SettingsException e) {
+        } catch (RepositoryException e) {
             AlertDialog.showError(e.getMessage() + ". Starting with default settings.");
             loadedSettings = Optional.empty();
         }

@@ -8,11 +8,10 @@ import org.junit.jupiter.api.Test;
 
 class UnrecoverableExceptionTest {
     @Test
-    @DisplayName("RepositoryException・LibraryScanException・SettingsExceptionは、UnrecoverableExceptionのサブクラスである")
-    void the_repository_library_scan_and_settings_exceptions_are_unrecoverable_exceptions() {
+    @DisplayName("RepositoryExceptionとLibraryScanExceptionは、UnrecoverableExceptionのサブクラスである")
+    void the_repository_and_library_scan_exceptions_are_unrecoverable_exceptions() {
         assertInstanceOf(UnrecoverableException.class, new RepositoryException("message", null));
         assertInstanceOf(UnrecoverableException.class, new LibraryScanException("message", null));
-        assertInstanceOf(UnrecoverableException.class, new SettingsException("message", null));
     }
 
     @Test

@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import com.sosuisha.domain.exception.RepositoryException;
-import com.sosuisha.domain.exception.SettingsException;
 import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.service.NullSettingsRepository;
@@ -93,8 +92,8 @@ class SettingsAppModelTest {
     }
 
     @Test
-    @DisplayName("設定の読み込みに失敗すると、SettingsExceptionが投げられる（causeは元のRepositoryException）")
-    void a_settings_exception_is_thrown_when_loading_the_settings_fails() {
+    @DisplayName("設定の読み込みに失敗すると、repositoryのRepositoryExceptionがそのまま伝播する")
+    void the_repository_exception_propagates_as_is_when_loading_the_settings_fails() {
         var cause = new RepositoryException("broken-file", null);
         var appModel = new SettingsAppModel(new NullSettingsRepository() {
             @Override
@@ -103,14 +102,14 @@ class SettingsAppModelTest {
             }
         });
 
-        var thrown = assertThrows(SettingsException.class, appModel::loadSettings);
+        var thrown = assertThrows(RepositoryException.class, appModel::loadSettings);
 
-        assertSame(cause, thrown.getCause());
+        assertSame(cause, thrown);
     }
 
     @Test
-    @DisplayName("設定の保存に失敗すると、SettingsExceptionが投げられる（causeは元のRepositoryException）")
-    void a_settings_exception_is_thrown_when_saving_the_settings_fails() {
+    @DisplayName("設定の保存に失敗すると、repositoryのRepositoryExceptionがそのまま伝播する")
+    void the_repository_exception_propagates_as_is_when_saving_the_settings_fails() {
         var cause = new RepositoryException("read-only-path", null);
         var appModel = new SettingsAppModel(new NullSettingsRepository() {
             @Override
@@ -120,9 +119,9 @@ class SettingsAppModelTest {
         });
         appModel.musicLibraryPathProperty().set(Path.of("music"));
 
-        var thrown = assertThrows(SettingsException.class, appModel::save);
+        var thrown = assertThrows(RepositoryException.class, appModel::save);
 
-        assertSame(cause, thrown.getCause());
+        assertSame(cause, thrown);
     }
 
 }

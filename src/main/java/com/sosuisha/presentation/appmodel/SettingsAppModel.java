@@ -5,7 +5,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 import com.sosuisha.domain.exception.RepositoryException;
-import com.sosuisha.domain.exception.SettingsException;
 import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.model.Theme;
@@ -76,20 +75,16 @@ public class SettingsAppModel {
      *
      * @return loaded settings, or an empty optional when the settings file
      *         does not exist or has no music library path
-     * @throws SettingsException if the settings file exists but cannot be read
+     * @throws RepositoryException if the settings file exists but cannot be read
      */
     public Optional<Settings> loadSettings() {
-        try {
-            var loaded = repository.load();
-            loaded.ifPresent(settings -> {
-                musicLibraryPath.set(settings.musicLibraryPath());
-                theme.set(settings.theme());
-                repeatMode.set(settings.repeatMode());
-            });
-            return loaded;
-        } catch (RepositoryException e) {
-            throw new SettingsException("Failed to load the settings file", e);
-        }
+        var loaded = repository.load();
+        loaded.ifPresent(settings -> {
+            musicLibraryPath.set(settings.musicLibraryPath());
+            theme.set(settings.theme());
+            repeatMode.set(settings.repeatMode());
+        });
+        return loaded;
     }
 
     /**
@@ -97,7 +92,7 @@ public class SettingsAppModel {
      * repeat mode) to the settings file. Does nothing when the music library
      * path is not set.
      *
-     * @throws SettingsException if the settings file cannot be written. Since
+     * @throws RepositoryException if the settings file cannot be written. Since
      *             save() is also triggered by property listeners, the exception
      *             is not caught by the callers; App catches it with the
      *             uncaught exception handler of the FX thread and shows an
@@ -106,10 +101,6 @@ public class SettingsAppModel {
     public void save() {
         var path = musicLibraryPath.get();
         if (path == null) { return; }
-        try {
-            repository.save(new Settings(path, theme.get(), repeatMode.get()));
-        } catch (RepositoryException e) {
-            throw new SettingsException("Failed to save the settings file", e);
-        }
+        repository.save(new Settings(path, theme.get(), repeatMode.get()));
     }
 }

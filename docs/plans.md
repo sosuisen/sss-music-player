@@ -14,5 +14,5 @@ TDDの作業用todoリスト（使い捨て）。
 
 - [x] `App` の未捕捉例外ハンドラを、ドメイン専用型（または共通の親型）を受けるよう拡張し、スキャン失敗をダイアログに出す。`MusicLibraryAppModel.scanFolder` の `onFailed` で `Task` の例外を投げ直す。
 - [x] `App` のハンドラ拡張後、`SettingsAppModel` の `RepositoryException` → `SettingsException` の翻訳がまだ必要か判断する（不要なら `SettingsException` を廃止して素通しにする）。
-- [ ] `DuplicateFileMover.moveDuplicates` の `IOException` を、`domain.exception` のチェック例外に変えるか検討する。
+- [x] `DuplicateFileMover.moveDuplicates` の `IOException` を、`domain.exception` のチェック例外に変えるか検討する。
 - [ ] 起動時にライブラリDB（SQLite）が開けない場合、エラーダイアログを表示して終了する。`SqliteLibraryRepository` のコンストラクタは `App.start()` 内で同期的に呼ばれ、その例外はFXスレッドの未捕捉例外ハンドラに届かないため、`App.start()` で `RepositoryException` を捕捉して `AlertDialog.showErrorAndExit` に回す。

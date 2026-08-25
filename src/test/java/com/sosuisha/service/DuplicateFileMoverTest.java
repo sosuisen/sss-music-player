@@ -2,6 +2,7 @@ package com.sosuisha.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
@@ -13,6 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import com.sosuisha.domain.exception.DuplicateRemovalException;
 import com.sosuisha.domain.model.DuplicatedItems;
 import com.sosuisha.domain.model.MusicFile;
 
@@ -95,5 +97,26 @@ class DuplicateFileMoverTest {
             List.of(LocalDate.now() + "," + moved + ",dup.mp3"),
             Files.readAllLines(logFile)
         );
+    }
+
+    @Test
+    @DisplayName("移動できないファイルがあると、moveDuplicatesはそのファイルのパスを含むDuplicateRemovalExceptionを投げる")
+    void move_duplicates_throws_DuplicateRemovalException_naming_the_file_that_cannot_be_moved()
+        throws Exception {
+        var kept = Files.createFile(folder.resolve("dup.mp3"));
+        var missing = folder.resolve("missing").resolve("dup.mp3");
+        var group = new DuplicatedItems(
+            "dup.mp3",
+            List.of(new MusicFile(kept, 0), new MusicFile(missing, 0))
+        );
+        var mover =
+            new DuplicateFileMover(folder.resolve("duplicates"), folder.resolve("duplicates.log"));
+
+        var thrown =
+            assertThrows(
+                DuplicateRemovalException.class, () -> mover.moveDuplicates(List.of(group))
+            );
+
+        assertEquals("Could not move the duplicate file: " + missing, thrown.getMessage());
     }
 }

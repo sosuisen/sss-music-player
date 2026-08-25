@@ -1,11 +1,11 @@
 package com.sosuisha.presentation.screens.duplicatelist;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import com.sosuisha.domain.exception.DuplicateRemovalException;
 import com.sosuisha.domain.exception.FolderOpenException;
 import com.sosuisha.domain.model.DuplicatedItems;
 import com.sosuisha.domain.model.MusicFile;
@@ -96,8 +96,8 @@ public class DuplicateListViewModel {
             .toList();
         try {
             duplicateFileMover.moveDuplicates(checkedGroups);
-        } catch (IOException e) {
-            errorMessage.set("Could not move the duplicate files: " + e.getMessage());
+        } catch (DuplicateRemovalException e) {
+            errorMessage.set(e.getMessage());
         }
         appModel.rescan();
     }

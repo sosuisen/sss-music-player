@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -15,6 +14,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.sosuisha.domain.exception.DuplicateRemovalException;
 import com.sosuisha.domain.exception.FolderOpenException;
 import com.sosuisha.domain.model.DuplicatedItems;
 import com.sosuisha.domain.model.MusicFile;
@@ -219,8 +219,11 @@ class DuplicateListViewModelTest {
     void a_failed_move_in_removing_duplicates_sets_a_message_with_the_reason_to_the_error_message_property() {
         var mover = new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")) {
             @Override
-            public void moveDuplicates(List<DuplicatedItems> groups) throws IOException {
-                throw new IOException("disk full");
+            public void moveDuplicates(List<DuplicatedItems> groups)
+                throws DuplicateRemovalException {
+                throw new DuplicateRemovalException(
+                    "Could not move the duplicate file: a/first.mp3", null
+                );
             }
         };
         var viewModel = new DuplicateListViewModel(
@@ -237,7 +240,7 @@ class DuplicateListViewModelTest {
         viewModel.removeCheckedDuplicates();
 
         assertEquals(
-            "Could not move the duplicate files: disk full",
+            "Could not move the duplicate file: a/first.mp3",
             viewModel.errorMessageProperty().get()
         );
     }

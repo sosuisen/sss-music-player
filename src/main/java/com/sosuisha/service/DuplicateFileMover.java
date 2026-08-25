@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 
+import com.sosuisha.domain.exception.DuplicateRemovalException;
 import com.sosuisha.domain.model.DuplicatedItems;
 
 /**
@@ -38,17 +39,36 @@ public class DuplicateFileMover {
      *
      * @param groups groups of duplicated files
      * @throws NullPointerException if groups is null
-     * @throws IOException if a file cannot be moved or the log cannot be written
+     * @throws DuplicateRemovalException if the duplicates folder cannot be
+     *             created, a file cannot be moved, or the log cannot be written
      */
-    public void moveDuplicates(List<DuplicatedItems> groups) throws IOException {
+    public void moveDuplicates(List<DuplicatedItems> groups) throws DuplicateRemovalException {
         Objects.requireNonNull(groups, "groups must not be null");
-        Files.createDirectories(duplicatesFolder);
+        createDuplicatesFolder();
         for (var group : groups) {
             for (var file : group.files().subList(1, group.files().size())) {
                 var destination = resolveDestination(file.path().getFileName());
-                Files.move(file.path(), destination);
+                move(file.path(), destination);
                 log(file.path(), destination);
             }
+        }
+    }
+
+    private void createDuplicatesFolder() throws DuplicateRemovalException {
+        try {
+            Files.createDirectories(duplicatesFolder);
+        } catch (IOException e) {
+            throw new DuplicateRemovalException(
+                "Could not create the duplicates folder: " + duplicatesFolder, e
+            );
+        }
+    }
+
+    private static void move(Path source, Path destination) throws DuplicateRemovalException {
+        try {
+            Files.move(source, destination);
+        } catch (IOException e) {
+            throw new DuplicateRemovalException("Could not move the duplicate file: " + source, e);
         }
     }
 
@@ -64,11 +84,15 @@ public class DuplicateFileMover {
         return candidate;
     }
 
-    private void log(Path source, Path destination) throws IOException {
+    private void log(Path source, Path destination) throws DuplicateRemovalException {
         var line = LocalDate.now() + "," + source + "," + destination.getFileName()
             + System.lineSeparator();
-        Files.writeString(
-            logFile, line, StandardOpenOption.CREATE, StandardOpenOption.APPEND
-        );
+        try {
+            Files.writeString(logFile, line, StandardOpenOption.CREATE, StandardOpenOption.APPEND);
+        } catch (IOException e) {
+            throw new DuplicateRemovalException(
+                "Could not write the duplicates log: " + logFile, e
+            );
+        }
     }
 }

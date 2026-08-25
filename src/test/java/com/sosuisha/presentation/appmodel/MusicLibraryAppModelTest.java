@@ -1,5 +1,6 @@
 package com.sosuisha.presentation.appmodel;
 
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -14,6 +15,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -24,6 +26,7 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.framework.junit5.Start;
 import org.testfx.util.WaitForAsyncUtils;
 
+import com.sosuisha.domain.exception.LibraryScanException;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.service.LibraryRepository;
@@ -95,9 +98,13 @@ class MusicLibraryAppModelTest {
             new SimpleObjectProperty<>()
         );
 
-        robot.interact(() -> appModel.scanFolder(folder.resolve("missing")));
+        withFxThreadExceptionsCaptured(robot, _ -> {
+            robot.interact(() -> appModel.scanFolder(folder.resolve("missing")));
 
-        WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> !appModel.scanningProperty().get());
+            WaitForAsyncUtils.waitFor(
+                5, TimeUnit.SECONDS, () -> !appModel.scanningProperty().get()
+            );
+        });
     }
 
     @Test
@@ -253,5 +260,47 @@ class MusicLibraryAppModelTest {
 
         List<MusicFile> files = appModel.getFiles();
         assertEquals(List.of(new MusicFile(file, 42)), files);
+    }
+
+    @Test
+    @DisplayName("スキャンが失敗すると、その例外はFXスレッドの未捕捉例外ハンドラに届く")
+    void a_failed_scan_delivers_its_exception_to_the_uncaught_exception_handler_of_the_fx_thread(
+        FxRobot robot) throws Exception {
+        var appModel = new MusicLibraryAppModel(
+            new LibraryIndexer(new NullLibraryRepository()),
+            new SimpleObjectProperty<>()
+        );
+        var caught = withFxThreadExceptionsCaptured(robot, captured -> {
+            robot.interact(() -> appModel.scanFolder(folder.resolve("missing")));
+
+            WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> captured.get() != null);
+        });
+
+        assertInstanceOf(LibraryScanException.class, caught);
+    }
+
+    @FunctionalInterface
+    private interface FxTestBody {
+        void run(AtomicReference<Throwable> captured) throws Exception;
+    }
+
+    // A scan failure is rethrown on the FX thread. TestFX would report it as a
+    // test error, so the body runs with a handler that captures it instead.
+    private static Throwable withFxThreadExceptionsCaptured(FxRobot robot, FxTestBody body)
+        throws Exception {
+        var captured = new AtomicReference<Throwable>();
+        var previousHandler = new AtomicReference<Thread.UncaughtExceptionHandler>();
+        robot.interact(() -> {
+            previousHandler.set(Thread.currentThread().getUncaughtExceptionHandler());
+            Thread.currentThread().setUncaughtExceptionHandler((_, e) -> captured.set(e));
+        });
+        try {
+            body.run(captured);
+        } finally {
+            robot.interact(
+                () -> Thread.currentThread().setUncaughtExceptionHandler(previousHandler.get())
+            );
+        }
+        return captured.get();
     }
 }

@@ -27,6 +27,7 @@ import com.sosuisha.repository.SettingsRepositoryImpl;
 import com.sosuisha.repository.SqliteLibraryRepository;
 
 import com.sosuisha.domain.exception.SettingsException;
+import com.sosuisha.domain.exception.UnrecoverableException;
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.model.Theme;
 
@@ -60,7 +61,7 @@ public class App extends Application {
     public void start(Stage stage) {
         Objects.requireNonNull(stage, "stage must not be null");
         Thread.currentThread().setUncaughtExceptionHandler((_, e) -> {
-            if (e instanceof SettingsException) {
+            if (e instanceof UnrecoverableException) {
                 AlertDialog.showError(e.getMessage());
             } else {
                 e.printStackTrace();

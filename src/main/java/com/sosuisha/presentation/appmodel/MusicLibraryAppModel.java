@@ -56,7 +56,9 @@ public class MusicLibraryAppModel {
     /**
      * Scans the given folder in the background and replaces the list of audio
      * files with the result when the scan finishes. Returns immediately; the
-     * list is updated on the JavaFX application thread.
+     * list is updated on the JavaFX application thread. When the scan fails,
+     * its exception is rethrown on the JavaFX application thread, so it reaches
+     * the uncaught exception handler of that thread instead of the caller.
      *
      * @param folderPath path of the folder to scan
      * @throws NullPointerException if folderPath is null
@@ -67,7 +69,7 @@ public class MusicLibraryAppModel {
         scanning.set(true);
         var task = new Task<List<MusicFile>>() {
             @Override
-            protected List<MusicFile> call() throws Exception {
+            protected List<MusicFile> call() {
                 // updateMessage publishes the value to messageProperty on the
                 // FX thread, coalescing rapid updates.
                 return scanner.scan(folderPath, path -> updateMessage(path.toString()));
@@ -78,8 +80,18 @@ public class MusicLibraryAppModel {
             files.setAll(task.getValue());
             scanning.set(false);
         });
-        task.setOnFailed(_ -> scanning.set(false));
+        task.setOnFailed(_ -> {
+            scanning.set(false);
+            throw rethrow(task.getException());
+        });
         Thread.ofVirtual().start(task);
+    }
+
+    private static RuntimeException rethrow(Throwable exception) {
+        if (exception instanceof RuntimeException runtimeException) { return runtimeException; }
+        if (exception instanceof Error error) { throw error; }
+        // call() declares no checked exception, so this cannot happen.
+        return new IllegalStateException(exception);
     }
 
     /**

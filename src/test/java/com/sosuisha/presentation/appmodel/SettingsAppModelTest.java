@@ -18,7 +18,7 @@ import org.junit.jupiter.api.io.TempDir;
 import com.sosuisha.domain.exception.RepositoryException;
 import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.domain.model.Settings;
-import com.sosuisha.domain.service.NullSettingsRepository;
+import com.sosuisha.domain.repository.NullSettingsRepository;
 import com.sosuisha.repository.SettingsRepositoryImpl;
 
 class SettingsAppModelTest {

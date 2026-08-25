@@ -10,7 +10,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.testfx.framework.junit5.ApplicationExtension;
 
 import com.sosuisha.domain.service.MusicPlayer;
-import com.sosuisha.domain.service.NullLibraryRepository;
+import com.sosuisha.domain.repository.NullLibraryRepository;
 import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
@@ -23,7 +23,7 @@ import com.sosuisha.presentation.screens.settings.SettingsView;
 import com.sosuisha.presentation.screens.settings.SettingsViewModel;
 import com.sosuisha.service.DuplicateFileMover;
 import com.sosuisha.service.LibraryIndexer;
-import com.sosuisha.domain.service.NullSettingsRepository;
+import com.sosuisha.domain.repository.NullSettingsRepository;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.stage.Stage;

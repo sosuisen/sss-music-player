@@ -23,7 +23,7 @@ import org.jooq.impl.DSL;
 import com.sosuisha.domain.exception.RepositoryException;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
-import com.sosuisha.domain.service.LibraryRepository;
+import com.sosuisha.domain.repository.LibraryRepository;
 
 /**
  * Library database stored in a SQLite file, accessed through jOOQ.

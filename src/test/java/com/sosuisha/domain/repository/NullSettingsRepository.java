@@ -1,4 +1,4 @@
-package com.sosuisha.domain.service;
+package com.sosuisha.domain.repository;
 
 import com.sosuisha.domain.exception.RepositoryException;
 import java.util.Optional;

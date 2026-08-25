@@ -19,7 +19,7 @@ import com.sosuisha.domain.exception.FolderOpenException;
 import com.sosuisha.domain.model.DuplicatedItems;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
-import com.sosuisha.domain.service.NullLibraryRepository;
+import com.sosuisha.domain.repository.NullLibraryRepository;
 import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.service.DuplicateFileMover;

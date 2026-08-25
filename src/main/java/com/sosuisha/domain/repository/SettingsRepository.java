@@ -1,4 +1,4 @@
-package com.sosuisha.domain.service;
+package com.sosuisha.domain.repository;
 
 import java.util.Optional;
 

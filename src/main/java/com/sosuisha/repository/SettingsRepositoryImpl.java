@@ -12,7 +12,7 @@ import com.sosuisha.domain.exception.RepositoryException;
 import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.model.Theme;
-import com.sosuisha.domain.service.SettingsRepository;
+import com.sosuisha.domain.repository.SettingsRepository;
 
 /**
  * Settings repository that saves and loads the settings in a properties file.

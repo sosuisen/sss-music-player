@@ -20,9 +20,9 @@ import org.testfx.framework.junit5.Start;
 import org.testfx.util.WaitForAsyncUtils;
 
 import com.sosuisha.domain.model.MusicFile;
-import com.sosuisha.domain.service.NullLibraryRepository;
+import com.sosuisha.domain.repository.NullLibraryRepository;
 import com.sosuisha.domain.service.NullMusicPlayer;
-import com.sosuisha.domain.service.NullSettingsRepository;
+import com.sosuisha.domain.repository.NullSettingsRepository;
 import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;

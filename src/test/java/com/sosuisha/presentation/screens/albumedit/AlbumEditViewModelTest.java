@@ -22,7 +22,7 @@ import com.sosuisha.domain.exception.TagWriteException;
 import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
-import com.sosuisha.domain.service.NullLibraryRepository;
+import com.sosuisha.domain.repository.NullLibraryRepository;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.service.JaudiotaggerTagWriter;
 import com.sosuisha.service.LibraryIndexer;

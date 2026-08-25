@@ -19,7 +19,7 @@ import com.sosuisha.domain.exception.LibraryScanException;
 import com.sosuisha.domain.exception.RepositoryException;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
-import com.sosuisha.domain.service.LibraryRepository;
+import com.sosuisha.domain.repository.LibraryRepository;
 
 /**
  * Indexes a music library: scans the audio files of a folder and maintains

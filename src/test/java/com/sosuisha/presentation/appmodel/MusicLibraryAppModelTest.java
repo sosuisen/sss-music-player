@@ -29,8 +29,8 @@ import org.testfx.util.WaitForAsyncUtils;
 import com.sosuisha.domain.exception.LibraryScanException;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
-import com.sosuisha.domain.service.LibraryRepository;
-import com.sosuisha.domain.service.NullLibraryRepository;
+import com.sosuisha.domain.repository.LibraryRepository;
+import com.sosuisha.domain.repository.NullLibraryRepository;
 import com.sosuisha.service.LibraryIndexer;
 
 import javafx.beans.property.SimpleObjectProperty;

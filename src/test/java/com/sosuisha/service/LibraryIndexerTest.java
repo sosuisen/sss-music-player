@@ -17,7 +17,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
-import com.sosuisha.domain.service.NullLibraryRepository;
+import com.sosuisha.domain.repository.NullLibraryRepository;
 
 class LibraryIndexerTest {
     @TempDir

@@ -48,12 +48,25 @@ public class DuplicateListView implements View {
     }
 
     private Scene buildSceneGraph() {
+        // Why the VBox: the theme (AtlantaFX) paints the window background on
+        // the root node of the scene through its ".root" style. However, the
+        // theme also makes a SplitPane transparent so that the parent shows
+        // through it. If the SplitPane itself were the root, nothing would be
+        // painted behind it and the window would show the plain white default
+        // fill of the Scene instead of the theme color. The VBox is a root
+        // that takes the ".root" background, and the SplitPane shows it
+        // through.
         return SceneBuilder
             .withRoot(
-                SplitPaneBuilder
-                    .withItems(
-                        buildCandidatePane(),
-                        DetailedPanel.getRoot(viewModel)
+                VBoxBuilder
+                    .withChildren(
+                        SplitPaneBuilder
+                            .withItems(
+                                buildCandidatePane(),
+                                DetailedPanel.getRoot(viewModel)
+                            )
+                            .vGrowInVBox(Priority.ALWAYS)
+                            .build()
                     )
                     .build()
             )

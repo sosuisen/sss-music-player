@@ -2,6 +2,8 @@ package com.sosuisha.presentation.screens.duplicatelist;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testfx.api.FxAssert.verifyThat;
@@ -35,11 +37,15 @@ import com.sosuisha.presentation.screens.duplicatelist.components.DetailedPanel;
 import com.sosuisha.service.DuplicateFileMover;
 import com.sosuisha.service.LibraryIndexer;
 
+import atlantafx.base.theme.PrimerDark;
+
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.application.Application;
+import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 
 @ExtendWith(ApplicationExtension.class)
@@ -490,5 +496,26 @@ class DuplicateListViewTest {
         var label = robot.lookup("#errorLabel").queryAs(Label.class);
 
         assertEquals(Color.RED, label.getTextFill());
+    }
+
+    @Test
+    @DisplayName("テーマを適用すると、ウィンドウのルートはテーマの背景色で塗られる（透明のままにならない）")
+    void the_root_of_the_window_is_painted_with_the_theme_background_when_a_theme_is_applied(
+        FxRobot robot) {
+        try {
+            robot.interact(
+                () -> Application.setUserAgentStylesheet(new PrimerDark().getUserAgentStylesheet())
+            );
+
+            var root = (Region) robot.window("Duplicate Files").getScene().getRoot();
+            robot.interact(root::applyCss);
+
+            assertNotNull(root.getBackground());
+            assertNotEquals(
+                Color.TRANSPARENT, root.getBackground().getFills().getFirst().getFill()
+            );
+        } finally {
+            robot.interact(() -> Application.setUserAgentStylesheet(null));
+        }
     }
 }

@@ -16,7 +16,6 @@ import com.sosuisha.domain.service.SettingsRepository;
  * Settings repository that saves and loads the settings in a properties file.
  */
 public class SettingsRepositoryImpl implements SettingsRepository {
-    /** Default properties file: {@code ~/.sss-music-player/settings.properties}. */
     public static final Path DEFAULT_FILE =
         Path.of(System.getProperty("user.home"), ".sss-music-player", "settings.properties");
 

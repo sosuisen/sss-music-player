@@ -17,7 +17,6 @@ import java.util.Objects;
 public record TrackMetadata(String title, String artist, String album, String albumArtist,
     String trackNumber, String year) {
 
-    /** Track metadata whose fields are all empty strings. */
     public static final TrackMetadata EMPTY = new TrackMetadata("", "", "", "", "", "");
 
     /**

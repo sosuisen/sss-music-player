@@ -47,18 +47,11 @@ import javafx.stage.Window;
  * JavaFX application of SSS Music Player.
  */
 public class App extends Application {
-    /** The view whose window is shown first at startup. Change this constant during development. */
+    /** Change this constant during development to open another window first. */
     static final Class<? extends View> FIRST_VIEW = LibraryManagerView.class;
 
     /**
-     * Called when the application is started. Applies the current theme and
-     * re-applies it whenever the theme changes, then shows the library manager
-     * window as the first window. When the settings file does not exist or has
-     * no music library path, the modal settings window is opened over the
-     * first window. When the settings
-     * file exists but cannot be read, an error dialog is shown and the
-     * application starts with the default settings as if the file did not
-     * exist.
+     * Composition root that wires the dependencies and shows the first window.
      *
      * @param stage the primary stage for this application
      * @throws NullPointerException if stage is null

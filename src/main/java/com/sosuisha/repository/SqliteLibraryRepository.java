@@ -28,7 +28,6 @@ import com.sosuisha.domain.service.LibraryRepository;
  * Library database stored in a SQLite file, accessed through jOOQ.
  */
 public class SqliteLibraryRepository implements LibraryRepository {
-    /** Default database file: {@code ~/.sss-music-player/library.db}. */
     public static final Path DEFAULT_FILE =
         Path.of(System.getProperty("user.home"), ".sss-music-player", "library.db");
 

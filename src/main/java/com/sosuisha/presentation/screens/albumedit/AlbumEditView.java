@@ -25,7 +25,6 @@ public class AlbumEditView implements View {
     private static final double WIDTH = 400;
     private static final double HEIGHT = 200;
     private static final String CHANGED_FIELD_CLASS = "changed-field";
-    // Light yellow marks a field whose value differs from the album.
     private static final String CSS = """
                                       .changed-field {
                                           -fx-control-inner-background: #ffff99;

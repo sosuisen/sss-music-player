@@ -23,7 +23,6 @@ import javafx.scene.layout.VBox;
  * shows the file path, the size, and a play button.
  */
 public class DetailedPanel {
-    /** Fixed width of the detailed panel. */
     public static final double WIDTH = 300;
 
     private static final double ROW_WIDTH = 280;

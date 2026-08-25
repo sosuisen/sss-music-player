@@ -27,6 +27,11 @@ import com.sosuisha.domain.service.LibraryRepository;
 
 /**
  * Library database stored in a SQLite file, accessed through jOOQ.
+ * <p>
+ * I/O errors are reported as runtime exceptions, in line with jOOQ, which
+ * wraps every {@code SQLException} in its unchecked {@code DataAccessException}.
+ * This class translates both into {@link IllegalStateException} so that
+ * callers see one exception type and jOOQ types do not leak out.
  */
 public class SqliteLibraryRepository implements LibraryRepository {
     public static final Path DEFAULT_FILE =

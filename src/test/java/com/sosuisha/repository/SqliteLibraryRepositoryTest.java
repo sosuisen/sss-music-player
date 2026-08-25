@@ -15,6 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import com.sosuisha.domain.exception.RepositoryException;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
 
@@ -153,55 +154,55 @@ class SqliteLibraryRepositoryTest {
     }
 
     @Test
-    @DisplayName("DBファイルがSQLiteのデータベースでない場合、IllegalStateExceptionが投げられる")
-    void creating_the_database_throws_IllegalStateException_when_the_file_is_not_a_sqlite_database()
+    @DisplayName("DBファイルがSQLiteのデータベースでない場合、RepositoryExceptionが投げられる")
+    void creating_the_database_throws_RepositoryException_when_the_file_is_not_a_sqlite_database()
         throws Exception {
         var file = folder.resolve("library.db");
         Files.writeString(file, "this is not a sqlite database");
 
-        assertThrows(IllegalStateException.class, () -> new SqliteLibraryRepository(file));
+        assertThrows(RepositoryException.class, () -> new SqliteLibraryRepository(file));
     }
 
     @Test
-    @DisplayName("DBが読めない場合、findはIllegalStateExceptionを投げる")
-    void find_throws_IllegalStateException_when_the_database_cannot_be_read() throws Exception {
+    @DisplayName("DBが読めない場合、findはRepositoryExceptionを投げる")
+    void find_throws_RepositoryException_when_the_database_cannot_be_read() throws Exception {
         var database = brokenDatabase();
 
         assertThrows(
-            IllegalStateException.class,
+            RepositoryException.class,
             () -> database.find(folder.resolve("song.mp3"), 123, FileTime.fromMillis(1_000L))
         );
     }
 
     @Test
-    @DisplayName("DBに書けない場合、saveはIllegalStateExceptionを投げる")
-    void save_throws_IllegalStateException_when_the_database_cannot_be_written() throws Exception {
+    @DisplayName("DBに書けない場合、saveはRepositoryExceptionを投げる")
+    void save_throws_RepositoryException_when_the_database_cannot_be_written() throws Exception {
         var database = brokenDatabase();
         var musicFile = new MusicFile(folder.resolve("song.mp3"), 123, TrackMetadata.EMPTY);
 
         assertThrows(
-            IllegalStateException.class,
+            RepositoryException.class,
             () -> database.save(musicFile, FileTime.fromMillis(1_000L))
         );
     }
 
     @Test
-    @DisplayName("DBが読めない場合、findAllPathsはIllegalStateExceptionを投げる")
-    void find_all_paths_throws_IllegalStateException_when_the_database_cannot_be_read()
+    @DisplayName("DBが読めない場合、findAllPathsはRepositoryExceptionを投げる")
+    void find_all_paths_throws_RepositoryException_when_the_database_cannot_be_read()
         throws Exception {
         var database = brokenDatabase();
 
-        assertThrows(IllegalStateException.class, database::findAllPaths);
+        assertThrows(RepositoryException.class, database::findAllPaths);
     }
 
     @Test
-    @DisplayName("DBに書けない場合、deleteはIllegalStateExceptionを投げる")
-    void delete_throws_IllegalStateException_when_the_database_cannot_be_written()
+    @DisplayName("DBに書けない場合、deleteはRepositoryExceptionを投げる")
+    void delete_throws_RepositoryException_when_the_database_cannot_be_written()
         throws Exception {
         var database = brokenDatabase();
 
         assertThrows(
-            IllegalStateException.class, () -> database.delete(folder.resolve("song.mp3"))
+            RepositoryException.class, () -> database.delete(folder.resolve("song.mp3"))
         );
     }
 
@@ -211,5 +212,18 @@ class SqliteLibraryRepositoryTest {
         var database = new SqliteLibraryRepository(file);
         Files.writeString(file, "this is not a sqlite database");
         return database;
+    }
+
+    @Test
+    @DisplayName("RepositoryExceptionのメッセージは、失敗した操作とDBファイルのパスを人間向けに説明する")
+    void the_message_of_the_repository_exception_describes_the_failed_operation_and_the_database_file()
+        throws Exception {
+        var file = folder.resolve("library.db");
+        var database = new SqliteLibraryRepository(file);
+        Files.writeString(file, "this is not a sqlite database");
+
+        var thrown = assertThrows(RepositoryException.class, database::findAllPaths);
+
+        assertEquals("Could not read the library database: " + file, thrown.getMessage());
     }
 }

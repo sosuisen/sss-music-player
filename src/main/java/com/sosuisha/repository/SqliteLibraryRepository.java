@@ -3,7 +3,6 @@ package com.sosuisha.repository;
 import static com.sosuisha.db.Tables.TRACK;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,6 +20,7 @@ import org.jooq.SQLDialect;
 import org.jooq.exception.DataAccessException;
 import org.jooq.impl.DSL;
 
+import com.sosuisha.domain.exception.RepositoryException;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.service.LibraryRepository;
@@ -30,7 +30,7 @@ import com.sosuisha.domain.service.LibraryRepository;
  * <p>
  * I/O errors are reported as runtime exceptions, in line with jOOQ, which
  * wraps every {@code SQLException} in its unchecked {@code DataAccessException}.
- * This class translates both into {@link IllegalStateException} so that
+ * This class translates both into {@link RepositoryException} so that
  * callers see one exception type and jOOQ types do not leak out.
  */
 public class SqliteLibraryRepository implements LibraryRepository {
@@ -39,6 +39,7 @@ public class SqliteLibraryRepository implements LibraryRepository {
 
     private static final String SCHEMA_RESOURCE = "/db/schema.sql";
 
+    private final Path file;
     private final String url;
 
     /**
@@ -56,9 +57,9 @@ public class SqliteLibraryRepository implements LibraryRepository {
     /**
      * Creates the database on the SQLite file resolved by {@link #resolveFile()}.
      *
-     * @throws IllegalStateException if the database cannot be opened
+     * @throws RepositoryException if the database cannot be opened
      */
-    public SqliteLibraryRepository() {
+    public SqliteLibraryRepository() throws RepositoryException {
         this(resolveFile());
     }
 
@@ -68,12 +69,13 @@ public class SqliteLibraryRepository implements LibraryRepository {
      *
      * @param file path of the SQLite database file
      * @throws NullPointerException  if file is null
-     * @throws UncheckedIOException  if the parent folder cannot be created
-     * @throws IllegalStateException if the database cannot be opened
+     * @throws RepositoryException if the parent folder cannot be created or the
+     *             database cannot be opened
      */
-    public SqliteLibraryRepository(Path file) {
+    public SqliteLibraryRepository(Path file) throws RepositoryException {
         Objects.requireNonNull(file, "file must not be null");
         createParentFolder(file);
+        this.file = file;
         this.url = "jdbc:sqlite:" + file;
         createSchema();
     }
@@ -84,19 +86,23 @@ public class SqliteLibraryRepository implements LibraryRepository {
         try {
             Files.createDirectories(parent);
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            throw new RepositoryException(
+                "Could not create the folder for the library database: " + parent, e
+            );
         }
     }
 
     private void createSchema() {
-        runWithDsl("cannot create the database schema", dsl -> dsl.execute(loadSchemaSql()));
+        runWithDsl(
+            "Could not initialize the library database", dsl -> dsl.execute(loadSchemaSql())
+        );
     }
 
     private static String loadSchemaSql() {
         try (var in = SqliteLibraryRepository.class.getResourceAsStream(SCHEMA_RESOURCE)) {
             return new String(in.readAllBytes(), StandardCharsets.UTF_8);
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            throw new RepositoryException("Could not read the schema of the library database", e);
         }
     }
 
@@ -104,7 +110,7 @@ public class SqliteLibraryRepository implements LibraryRepository {
         try (var connection = DriverManager.getConnection(url)) {
             return operation.apply(DSL.using(connection, SQLDialect.SQLITE));
         } catch (SQLException | DataAccessException e) {
-            throw new IllegalStateException(errorMessage, e);
+            throw new RepositoryException(errorMessage + ": " + file, e);
         }
     }
 
@@ -119,14 +125,15 @@ public class SqliteLibraryRepository implements LibraryRepository {
      * {@inheritDoc}
      *
      * @throws NullPointerException  if path or lastModified is null
-     * @throws IllegalStateException if the database cannot be read
+     * @throws RepositoryException if the database cannot be read
      */
     @Override
-    public Optional<TrackMetadata> find(Path path, long size, FileTime lastModified) {
+    public Optional<TrackMetadata> find(Path path, long size, FileTime lastModified)
+        throws RepositoryException {
         Objects.requireNonNull(path, "path must not be null");
         Objects.requireNonNull(lastModified, "lastModified must not be null");
         return withDsl(
-            "cannot read the database", dsl -> dsl
+            "Could not read the library database", dsl -> dsl
                 .selectFrom(TRACK)
                 .where(
                     TRACK.PATH.eq(path.toString())
@@ -147,13 +154,13 @@ public class SqliteLibraryRepository implements LibraryRepository {
      * {@inheritDoc}
      *
      * @throws NullPointerException  if file or lastModified is null
-     * @throws IllegalStateException if the database cannot be written
+     * @throws RepositoryException if the database cannot be written
      */
     @Override
-    public void save(MusicFile file, FileTime lastModified) {
+    public void save(MusicFile file, FileTime lastModified) throws RepositoryException {
         Objects.requireNonNull(file, "file must not be null");
         Objects.requireNonNull(lastModified, "lastModified must not be null");
-        runWithDsl("cannot write to the database", dsl -> {
+        runWithDsl("Could not write to the library database", dsl -> {
             var record = dsl.newRecord(TRACK);
             record.setPath(file.path().toString());
             record.setSize(file.size());
@@ -171,12 +178,12 @@ public class SqliteLibraryRepository implements LibraryRepository {
     /**
      * {@inheritDoc}
      *
-     * @throws IllegalStateException if the database cannot be read
+     * @throws RepositoryException if the database cannot be read
      */
     @Override
-    public List<Path> findAllPaths() {
+    public List<Path> findAllPaths() throws RepositoryException {
         return withDsl(
-            "cannot read the database",
+            "Could not read the library database",
             dsl -> dsl.select(TRACK.PATH).from(TRACK).fetch(record -> Path.of(record.value1()))
         );
     }
@@ -185,13 +192,13 @@ public class SqliteLibraryRepository implements LibraryRepository {
      * {@inheritDoc}
      *
      * @throws NullPointerException  if path is null
-     * @throws IllegalStateException if the database cannot be written
+     * @throws RepositoryException if the database cannot be written
      */
     @Override
-    public void delete(Path path) {
+    public void delete(Path path) throws RepositoryException {
         Objects.requireNonNull(path, "path must not be null");
         runWithDsl(
-            "cannot write to the database",
+            "Could not write to the library database",
             dsl -> dsl.deleteFrom(TRACK).where(TRACK.PATH.eq(path.toString())).execute()
         );
     }

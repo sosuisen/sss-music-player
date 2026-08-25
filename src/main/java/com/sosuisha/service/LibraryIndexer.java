@@ -23,6 +23,10 @@ import com.sosuisha.domain.service.LibraryRepository;
 /**
  * Indexes a music library: scans the audio files of a folder and maintains
  * their metadata cache in the library database.
+ * <p>
+ * An I/O error during a scan cannot be recovered from, so it is not handled
+ * here. It is thrown as a runtime exception ({@link UncheckedIOException} for
+ * the file system, {@link IllegalStateException} for the database).
  */
 public class LibraryIndexer {
     private static final Set<String> SUPPORTED_EXTENSIONS = Set.of(".mp3", ".m4a");

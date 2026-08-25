@@ -7,6 +7,7 @@ import com.sosuisha.presentation.screens.duplicatelist.components.CandidateList;
 import com.sosuisha.presentation.screens.duplicatelist.components.DetailedPanel;
 
 import io.github.sosuisen.jfxbuilder.controls.ButtonBuilder;
+import io.github.sosuisen.jfxbuilder.controls.LabelBuilder;
 import io.github.sosuisen.jfxbuilder.controls.SplitPaneBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.HBoxBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.SceneBuilder;
@@ -85,6 +86,13 @@ public class DuplicateListView implements View {
                     .spacing(10)
                     .build(),
                 candidateList,
+                LabelBuilder.create()
+                    .id("errorLabel")
+                    .style("-fx-text-fill: red;")
+                    .textPropertyApply(
+                        prop -> prop.bind(viewModel.errorMessageProperty())
+                    )
+                    .build(),
                 HBoxBuilder
                     .withChildren(
                         ButtonBuilder.create()

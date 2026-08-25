@@ -37,7 +37,9 @@ import com.sosuisha.service.LibraryIndexer;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 @ExtendWith(ApplicationExtension.class)
@@ -471,5 +473,22 @@ class DuplicateListViewTest {
     private static Ikon playButtonIcon(FxRobot robot) {
         var button = robot.lookup(".play-button").queryAs(Button.class);
         return ((FontIcon) button.getGraphic()).getIconCode();
+    }
+
+    @Test
+    @DisplayName("エラーメッセージプロパティにセットした文字列が、エラーラベルに表示される")
+    void the_string_set_to_the_error_message_property_is_shown_in_the_error_label(
+        FxRobot robot) {
+        robot.interact(() -> viewModel.errorMessageProperty().set("boom"));
+
+        verifyThat("#errorLabel", LabeledMatchers.hasText("boom"));
+    }
+
+    @Test
+    @DisplayName("エラーラベルの文字は赤色である")
+    void the_text_of_the_error_label_is_red(FxRobot robot) {
+        var label = robot.lookup("#errorLabel").queryAs(Label.class);
+
+        assertEquals(Color.RED, label.getTextFill());
     }
 }

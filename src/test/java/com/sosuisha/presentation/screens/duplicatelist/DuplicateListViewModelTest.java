@@ -3,8 +3,10 @@ package com.sosuisha.presentation.screens.duplicatelist;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -209,5 +211,57 @@ class DuplicateListViewModelTest {
         viewModel.removeCheckedDuplicates();
 
         assertTrue(rescanned.get());
+    }
+
+    @Test
+    @DisplayName("重複除去でファイルの移動に失敗すると、エラーメッセージプロパティに失敗の理由を含むメッセージがセットされる")
+    void a_failed_move_in_removing_duplicates_sets_a_message_with_the_reason_to_the_error_message_property() {
+        var mover = new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")) {
+            @Override
+            public void moveDuplicates(List<DuplicatedItems> groups) throws IOException {
+                throw new IOException("disk full");
+            }
+        };
+        var viewModel = new DuplicateListViewModel(
+            new MusicLibraryAppModel(
+                new LibraryIndexer(new NullLibraryRepository()),
+                new SimpleObjectProperty<>()
+            ),
+            new NullMusicPlayer(),
+            mover,
+            _ -> {
+            }
+        );
+
+        viewModel.removeCheckedDuplicates();
+
+        assertEquals(
+            "Could not move the duplicate files: disk full",
+            viewModel.errorMessageProperty().get()
+        );
+    }
+
+    @Test
+    @DisplayName("重複除去を実行すると、前回のエラーメッセージはエラーメッセージプロパティから消える")
+    void removing_duplicates_clears_the_previous_message_from_the_error_message_property() {
+        var mover = new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")) {
+            @Override
+            public void moveDuplicates(List<DuplicatedItems> groups) {}
+        };
+        var viewModel = new DuplicateListViewModel(
+            new MusicLibraryAppModel(
+                new LibraryIndexer(new NullLibraryRepository()),
+                new SimpleObjectProperty<>()
+            ),
+            new NullMusicPlayer(),
+            mover,
+            _ -> {
+            }
+        );
+        viewModel.errorMessageProperty().set("previous error");
+
+        viewModel.removeCheckedDuplicates();
+
+        assertNull(viewModel.errorMessageProperty().get());
     }
 }

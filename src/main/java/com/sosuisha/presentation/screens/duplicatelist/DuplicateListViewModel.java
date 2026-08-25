@@ -1,7 +1,6 @@
 package com.sosuisha.presentation.screens.duplicatelist;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +22,8 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -42,6 +43,7 @@ public class DuplicateListViewModel {
     private final ObjectProperty<MusicFile> playingFile = new SimpleObjectProperty<>();
     private final Map<DuplicatedItems, BooleanProperty> checkedItems = new HashMap<>();
     private final BooleanProperty anyChecked = new SimpleBooleanProperty(false);
+    private final StringProperty errorMessage = new SimpleStringProperty();
     private DuplicateDetector lastDetector;
 
     /**
@@ -72,19 +74,29 @@ public class DuplicateListViewModel {
     }
 
     /**
-     * Moves the duplicated files of the checked groups out of the library and
-     * rescans the library.
+     * Returns the message of the last failed operation, or null when the last
+     * operation succeeded.
      *
-     * @throws UncheckedIOException if a file cannot be moved
+     * @return error message property
+     */
+    public StringProperty errorMessageProperty() {
+        return errorMessage;
+    }
+
+    /**
+     * Moves the duplicated files of the checked groups out of the library and
+     * rescans the library. When a file cannot be moved, the error message is set to
+     * the error message property.
      */
     public void removeCheckedDuplicates() {
+        errorMessage.set(null);
         var checkedGroups = duplicatedItems.stream()
             .filter(item -> checkedProperty(item).get())
             .toList();
         try {
             duplicateFileMover.moveDuplicates(checkedGroups);
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            errorMessage.set("Could not move the duplicate files: " + e.getMessage());
         }
         appModel.rescan();
     }

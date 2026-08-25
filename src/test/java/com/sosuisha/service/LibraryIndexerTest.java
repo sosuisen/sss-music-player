@@ -3,7 +3,7 @@ package com.sosuisha.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.UncheckedIOException;
+import com.sosuisha.domain.exception.LibraryScanException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
@@ -286,12 +286,12 @@ class LibraryIndexerTest {
     }
 
     @Test
-    @DisplayName("フォルダが読めない場合、scanはUncheckedIOExceptionを投げる")
-    void scan_throws_UncheckedIOException_when_the_folder_cannot_be_read() {
+    @DisplayName("フォルダが読めない場合、scanはLibraryScanExceptionを投げる")
+    void scan_throws_LibraryScanException_when_the_folder_cannot_be_read() {
         var scanner = new LibraryIndexer(new NullLibraryRepository());
 
         assertThrows(
-            UncheckedIOException.class, () -> scanner.scan(folder.resolve("missing"))
+            LibraryScanException.class, () -> scanner.scan(folder.resolve("missing"))
         );
     }
 }

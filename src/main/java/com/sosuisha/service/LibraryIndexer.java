@@ -1,7 +1,6 @@
 package com.sosuisha.service;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -16,6 +15,8 @@ import org.jaudiotagger.tag.Tag;
 import org.jaudiotagger.tag.TagField;
 import org.jaudiotagger.tag.id3.AbstractID3v2Frame;
 
+import com.sosuisha.domain.exception.LibraryScanException;
+import com.sosuisha.domain.exception.RepositoryException;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.service.LibraryRepository;
@@ -25,8 +26,8 @@ import com.sosuisha.domain.service.LibraryRepository;
  * their metadata cache in the library database.
  * <p>
  * An I/O error during a scan cannot be recovered from, so it is not handled
- * here. It is thrown as a runtime exception ({@link UncheckedIOException} for
- * the file system, {@link IllegalStateException} for the database).
+ * here. It is thrown as a runtime exception ({@link LibraryScanException} for
+ * the file system, {@link RepositoryException} for the database).
  */
 public class LibraryIndexer {
     private static final Set<String> SUPPORTED_EXTENSIONS = Set.of(".mp3", ".m4a");
@@ -53,10 +54,10 @@ public class LibraryIndexer {
      * @param folderPath path of the folder to scan
      * @return list of audio files in the folder and its subfolders
      * @throws NullPointerException if folderPath is null
-     * @throws UncheckedIOException if the folder or the size of a found file
-     *             cannot be read
+     * @throws LibraryScanException if the folder or a found file cannot be read
+     * @throws RepositoryException if the library database cannot be accessed
      */
-    public List<MusicFile> scan(Path folderPath) {
+    public List<MusicFile> scan(Path folderPath) throws LibraryScanException {
         return scan(folderPath, _ -> {
         });
     }
@@ -69,10 +70,11 @@ public class LibraryIndexer {
      * @param onFileRead callback that receives the path of each file being read
      * @return list of audio files in the folder and its subfolders
      * @throws NullPointerException if folderPath or onFileRead is null
-     * @throws UncheckedIOException if the folder or the size of a found file
-     *             cannot be read
+     * @throws LibraryScanException if the folder or a found file cannot be read
+     * @throws RepositoryException if the library database cannot be accessed
      */
-    public List<MusicFile> scan(Path folderPath, Consumer<Path> onFileRead) {
+    public List<MusicFile> scan(Path folderPath, Consumer<Path> onFileRead)
+        throws LibraryScanException {
         Objects.requireNonNull(folderPath, "folderPath must not be null");
         Objects.requireNonNull(onFileRead, "onFileRead must not be null");
         try (var files = Files.walk(folderPath)) {
@@ -85,7 +87,9 @@ public class LibraryIndexer {
             deleteEntriesOfMissingFiles();
             return musicFiles;
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            throw new LibraryScanException(
+                "Could not scan the music library folder: " + folderPath, e
+            );
         }
     }
 
@@ -108,7 +112,7 @@ public class LibraryIndexer {
             database.save(musicFile, lastModified);
             return musicFile;
         } catch (IOException e) {
-            throw new UncheckedIOException(e);
+            throw new LibraryScanException("Could not read the file: " + path, e);
         }
     }
 

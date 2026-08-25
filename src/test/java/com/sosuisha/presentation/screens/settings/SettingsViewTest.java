@@ -63,6 +63,7 @@ class SettingsViewTest {
         verifyThat("#musicLibraryPath", LabeledMatchers.hasText("music"));
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     @DisplayName("設定ウィンドウのテーマのプルダウンに、選択肢として全テーマが表示される")
     void the_theme_pulldown_in_the_settings_window_shows_all_themes_as_choices(FxRobot robot) {

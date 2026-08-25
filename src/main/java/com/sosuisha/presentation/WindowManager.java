@@ -27,10 +27,10 @@ public class WindowManager {
     /**
      * Returns the registered view of the given class.
      *
-     * @param <T> type of the view
+     * @param <T>       type of the view
      * @param viewClass class of the view to get
      * @return the registered view
-     * @throws NullPointerException if viewClass is null
+     * @throws NullPointerException     if viewClass is null
      * @throws IllegalArgumentException if no view of viewClass is registered
      */
     public <T extends View> T getView(Class<T> viewClass) {
@@ -48,10 +48,11 @@ public class WindowManager {
      * extends into the header bar area of the window.
      *
      * @param viewClass class of the view to show
-     * @param stage stage to show the view in
-     * @throws NullPointerException if viewClass or stage is null
+     * @param stage     stage to show the view in
+     * @throws NullPointerException     if viewClass or stage is null
      * @throws IllegalArgumentException if no view of viewClass is registered
      */
+    @SuppressWarnings("deprecation") // StageStyle.EXTENDED is a preview feature of JavaFX 26.
     public void showWindow(Class<? extends View> viewClass, Stage stage) {
         Objects.requireNonNull(stage, "stage must not be null");
         var view = getView(viewClass);

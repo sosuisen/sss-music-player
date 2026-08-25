@@ -81,7 +81,8 @@ public class LibraryManagerView implements View {
             .build();
     }
 
-    // HeaderBar is a preview feature of JavaFX 26 and has no builder API.
+    @SuppressWarnings("deprecation") // HeaderBar is a preview feature of JavaFX 26 and has no
+                                     // builder API.
     private static HeaderBar buildHeaderBar(LibraryManagerViewModel viewModel) {
         var headerBar = new HeaderBar();
         headerBar.setId("headerBar");

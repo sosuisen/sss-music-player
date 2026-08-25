@@ -1,6 +1,6 @@
 package com.sosuisha.domain.service;
 
-import java.io.IOException;
+import com.sosuisha.domain.exception.RepositoryException;
 import java.util.Optional;
 
 import com.sosuisha.domain.model.Settings;
@@ -12,10 +12,10 @@ import com.sosuisha.domain.model.Settings;
  */
 public class NullSettingsRepository implements SettingsRepository {
     @Override
-    public void save(Settings settings) throws IOException {}
+    public void save(Settings settings) throws RepositoryException {}
 
     @Override
-    public Optional<Settings> load() throws IOException {
+    public Optional<Settings> load() throws RepositoryException {
         return Optional.empty();
     }
 }

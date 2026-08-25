@@ -8,6 +8,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 
+import com.sosuisha.domain.exception.RepositoryException;
 import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.model.Theme;
@@ -52,11 +53,19 @@ public class SettingsRepositoryImpl implements SettingsRepository {
      * {@inheritDoc}
      *
      * @throws NullPointerException if settings is null
-     * @throws IOException if the file cannot be written
+     * @throws RepositoryException if the file cannot be written
      */
     @Override
-    public void save(Settings settings) throws IOException {
+    public void save(Settings settings) throws RepositoryException {
         Objects.requireNonNull(settings, "settings must not be null");
+        try {
+            write(settings);
+        } catch (IOException e) {
+            throw new RepositoryException("Could not write the settings file: " + file, e);
+        }
+    }
+
+    private void write(Settings settings) throws IOException {
         var parent = file.getParent();
         if (parent != null) {
             Files.createDirectories(parent);
@@ -76,15 +85,17 @@ public class SettingsRepositoryImpl implements SettingsRepository {
      * @return loaded settings, or an empty optional when the file does not
      *         exist or has no music library path, meaning there are no
      *         settings to load
-     * @throws IOException if the file cannot be read
+     * @throws RepositoryException if the file cannot be read
      */
     @Override
-    public Optional<Settings> load() throws IOException {
+    public Optional<Settings> load() throws RepositoryException {
         var properties = new Properties();
         try (var reader = Files.newBufferedReader(file)) {
             properties.load(reader);
         } catch (NoSuchFileException e) {
             return Optional.empty();
+        } catch (IOException e) {
+            throw new RepositoryException("Could not read the settings file: " + file, e);
         }
         var musicLibraryPathText = properties.getProperty(MUSIC_LIBRARY_PATH_KEY);
         if (musicLibraryPathText == null) { return Optional.empty(); }

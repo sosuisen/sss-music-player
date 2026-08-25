@@ -1,6 +1,7 @@
 package com.sosuisha.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
@@ -14,6 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import com.sosuisha.domain.exception.RepositoryException;
 import com.sosuisha.domain.model.Settings;
 import com.sosuisha.domain.model.Theme;
 
@@ -152,5 +154,27 @@ class SettingsRepositoryImplTest {
         var settings = repository.load().orElseThrow();
 
         assertEquals(Theme.NORD_DARK, settings.theme());
+    }
+
+    @Test
+    @DisplayName("設定ファイルが読めない場合、loadはRepositoryExceptionを投げる")
+    void loading_throws_RepositoryException_when_the_settings_file_cannot_be_read()
+        throws Exception {
+        Files.createDirectory(file);
+        var repository = new SettingsRepositoryImpl();
+
+        assertThrows(RepositoryException.class, repository::load);
+    }
+
+    @Test
+    @DisplayName("設定ファイルに書けない場合、saveはRepositoryExceptionを投げる")
+    void saving_throws_RepositoryException_when_the_settings_file_cannot_be_written()
+        throws Exception {
+        Files.createDirectory(file);
+        var repository = new SettingsRepositoryImpl();
+
+        assertThrows(
+            RepositoryException.class, () -> repository.save(new Settings(Path.of("music")))
+        );
     }
 }

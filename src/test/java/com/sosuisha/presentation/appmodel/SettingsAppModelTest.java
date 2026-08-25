@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -16,6 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
+import com.sosuisha.domain.exception.RepositoryException;
 import com.sosuisha.domain.exception.SettingsException;
 import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.domain.model.Settings;
@@ -93,12 +93,12 @@ class SettingsAppModelTest {
     }
 
     @Test
-    @DisplayName("設定の読み込みに失敗すると、SettingsExceptionが投げられる（causeは元のIOException）")
+    @DisplayName("設定の読み込みに失敗すると、SettingsExceptionが投げられる（causeは元のRepositoryException）")
     void a_settings_exception_is_thrown_when_loading_the_settings_fails() {
-        var cause = new IOException("broken-file");
+        var cause = new RepositoryException("broken-file", null);
         var appModel = new SettingsAppModel(new NullSettingsRepository() {
             @Override
-            public Optional<Settings> load() throws IOException {
+            public Optional<Settings> load() {
                 throw cause;
             }
         });
@@ -109,12 +109,12 @@ class SettingsAppModelTest {
     }
 
     @Test
-    @DisplayName("設定の保存に失敗すると、SettingsExceptionが投げられる（causeは元のIOException）")
+    @DisplayName("設定の保存に失敗すると、SettingsExceptionが投げられる（causeは元のRepositoryException）")
     void a_settings_exception_is_thrown_when_saving_the_settings_fails() {
-        var cause = new IOException("read-only-path");
+        var cause = new RepositoryException("read-only-path", null);
         var appModel = new SettingsAppModel(new NullSettingsRepository() {
             @Override
-            public void save(Settings settings) throws IOException {
+            public void save(Settings settings) {
                 throw cause;
             }
         });

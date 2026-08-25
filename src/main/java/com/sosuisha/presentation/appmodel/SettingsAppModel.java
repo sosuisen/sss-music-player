@@ -1,10 +1,10 @@
 package com.sosuisha.presentation.appmodel;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.sosuisha.domain.exception.RepositoryException;
 import com.sosuisha.domain.exception.SettingsException;
 import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.domain.model.Settings;
@@ -87,7 +87,7 @@ public class SettingsAppModel {
                 repeatMode.set(settings.repeatMode());
             });
             return loaded;
-        } catch (IOException e) {
+        } catch (RepositoryException e) {
             throw new SettingsException("Failed to load the settings file", e);
         }
     }
@@ -108,7 +108,7 @@ public class SettingsAppModel {
         if (path == null) { return; }
         try {
             repository.save(new Settings(path, theme.get(), repeatMode.get()));
-        } catch (IOException e) {
+        } catch (RepositoryException e) {
             throw new SettingsException("Failed to save the settings file", e);
         }
     }

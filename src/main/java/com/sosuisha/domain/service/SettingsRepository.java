@@ -1,8 +1,8 @@
 package com.sosuisha.domain.service;
 
-import java.io.IOException;
 import java.util.Optional;
 
+import com.sosuisha.domain.exception.RepositoryException;
 import com.sosuisha.domain.model.Settings;
 
 /**
@@ -14,16 +14,16 @@ public interface SettingsRepository {
      *
      * @param settings settings to save
      * @throws NullPointerException if settings is null
-     * @throws IOException if the settings cannot be written
+     * @throws RepositoryException if the settings cannot be written
      */
-    void save(Settings settings) throws IOException;
+    void save(Settings settings) throws RepositoryException;
 
     /**
      * Loads the settings.
      *
      * @return loaded settings, or an empty optional when there are no settings
      *         to load
-     * @throws IOException if the settings cannot be read
+     * @throws RepositoryException if the settings cannot be read
      */
-    Optional<Settings> load() throws IOException;
+    Optional<Settings> load() throws RepositoryException;
 }

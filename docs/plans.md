@@ -12,11 +12,6 @@ TDDの作業用todoリスト（使い捨て）。
 
 共通ルール: Javadocの `@throws` も同様に、呼び出し元へスタックを通って伝播する例外だけを、発生源と契約の境界（ドメインのインタフェース、service層の入口）に書く。素通しする中間層には列挙しない。`Task` などで経路が変わる（別スレッドで実行され、FXスレッドの未捕捉例外ハンドラに届く）場合は `@throws` ではなく本文に散文で書く。
 
-- [x] `domain.exception.RepositoryException`（非チェック、メッセージ付き）を新設し、`SqliteLibraryRepository` の `IllegalStateException` と `UncheckedIOException`（親フォルダ作成・schema.sql読み込み）を置き換える。
-- [x] `SettingsRepositoryImpl` の `save`／`load` を `IOException` から `RepositoryException` に変える。`SettingsAppModel` の `catch (IOException)` を追従させる（`SettingsException` へ集約するか、そのまま `App` に通すかを決める）。
-- [x] `LibraryIndexer` の `UncheckedIOException`（`Files.walk`・ファイルサイズ読み取りの2箇所）を、ドメイン専用の非チェック例外に変える。
-- [x] `JaudiotaggerTagWriter` の `IllegalStateException` を、`domain.exception` のチェック例外（または結果型）に変え、編集ウィンドウ内に表示する（局所経路）。
-- [x] `ShellFolderOpener.open` の `UncheckedIOException` を、`domain.exception` のチェック例外（または結果型）に変え、呼び出し元の画面内に表示する（局所経路）。
 - [ ] `App` の未捕捉例外ハンドラを、ドメイン専用型（または共通の親型）を受けるよう拡張し、スキャン失敗をダイアログに出す。`MusicLibraryAppModel.scanFolder` の `onFailed` で `Task` の例外を投げ直す。
 - [ ] `App` のハンドラ拡張後、`SettingsAppModel` の `RepositoryException` → `SettingsException` の翻訳がまだ必要か判断する（不要なら `SettingsException` を廃止して素通しにする）。
 - [ ] `DuplicateFileMover.moveDuplicates` の `IOException` を、`domain.exception` のチェック例外に変えるか検討する。

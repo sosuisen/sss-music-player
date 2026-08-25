@@ -77,7 +77,7 @@ public class SettingsRepositoryImpl implements SettingsRepository {
      * @throws IOException if the file cannot be read
      */
     @Override
-    public Settings load() throws IOException {
+    public Settings load() throws NoSuchFileException, IOException {
         var properties = new Properties();
         try (var reader = Files.newBufferedReader(file)) {
             properties.load(reader);

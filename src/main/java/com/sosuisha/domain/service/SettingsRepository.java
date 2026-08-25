@@ -25,5 +25,5 @@ public interface SettingsRepository {
      * @throws NoSuchFileException if there are no settings to load
      * @throws IOException if the settings cannot be read
      */
-    Settings load() throws IOException;
+    Settings load() throws NoSuchFileException, IOException;
 }

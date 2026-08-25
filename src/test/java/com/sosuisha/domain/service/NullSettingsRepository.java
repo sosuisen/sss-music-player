@@ -15,7 +15,7 @@ public class NullSettingsRepository implements SettingsRepository {
     public void save(Settings settings) throws IOException {}
 
     @Override
-    public Settings load() throws IOException {
+    public Settings load() throws NoSuchFileException, IOException {
         throw new NoSuchFileException("NullSettingsRepository has no settings file");
     }
 }

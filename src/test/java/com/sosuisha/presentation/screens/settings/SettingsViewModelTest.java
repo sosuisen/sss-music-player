@@ -62,7 +62,7 @@ class SettingsViewModelTest {
 
         viewModel.selectMusicLibraryFolder(null);
 
-        assertEquals(Theme.NORD_DARK, new SettingsRepositoryImpl().load().theme());
+        assertEquals(Theme.NORD_DARK, new SettingsRepositoryImpl().load().orElseThrow().theme());
     }
 
     @Test

@@ -1,7 +1,7 @@
 package com.sosuisha.domain.service;
 
 import java.io.IOException;
-import java.nio.file.NoSuchFileException;
+import java.util.Optional;
 
 import com.sosuisha.domain.model.Settings;
 
@@ -15,7 +15,7 @@ public class NullSettingsRepository implements SettingsRepository {
     public void save(Settings settings) throws IOException {}
 
     @Override
-    public Settings load() throws NoSuchFileException, IOException {
-        throw new NoSuchFileException("NullSettingsRepository has no settings file");
+    public Optional<Settings> load() throws IOException {
+        return Optional.empty();
     }
 }

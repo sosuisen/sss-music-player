@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Properties;
 
 import com.sosuisha.domain.model.RepeatMode;
@@ -72,28 +73,27 @@ public class SettingsRepositoryImpl implements SettingsRepository {
     /**
      * {@inheritDoc}
      *
-     * @throws NoSuchFileException if the file does not exist or has no music
-     *             library path, meaning there are no settings to load
+     * @return loaded settings, or an empty optional when the file does not
+     *         exist or has no music library path, meaning there are no
+     *         settings to load
      * @throws IOException if the file cannot be read
      */
     @Override
-    public Settings load() throws NoSuchFileException, IOException {
+    public Optional<Settings> load() throws IOException {
         var properties = new Properties();
         try (var reader = Files.newBufferedReader(file)) {
             properties.load(reader);
+        } catch (NoSuchFileException e) {
+            return Optional.empty();
         }
         var musicLibraryPathText = properties.getProperty(MUSIC_LIBRARY_PATH_KEY);
-        if (musicLibraryPathText == null) {
-            throw new NoSuchFileException(
-                file.toString(), null, "the settings file has no music library path"
-            );
-        }
+        if (musicLibraryPathText == null) { return Optional.empty(); }
         var musicLibraryPath = Path.of(musicLibraryPathText);
         var themeName = properties.getProperty(THEME_KEY);
         var theme = themeName == null ? Theme.PRIMER_LIGHT : Theme.valueOf(themeName);
         var repeatModeName = properties.getProperty(REPEAT_MODE_KEY);
         var repeatMode =
             repeatModeName == null ? RepeatMode.ALL : RepeatMode.valueOf(repeatModeName);
-        return new Settings(musicLibraryPath, theme, repeatMode);
+        return Optional.of(new Settings(musicLibraryPath, theme, repeatMode));
     }
 }

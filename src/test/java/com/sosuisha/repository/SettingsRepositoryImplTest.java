@@ -1,12 +1,11 @@
 package com.sosuisha.repository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.Properties;
 
 import org.junit.jupiter.api.AfterEach;
@@ -118,19 +117,19 @@ class SettingsRepositoryImplTest {
         Files.writeString(file, "musicLibraryPath=music");
         var repository = new SettingsRepositoryImpl();
 
-        var settings = repository.load();
+        var settings = repository.load().orElseThrow();
 
         assertEquals(new Settings(Path.of("music")), settings);
     }
 
     @Test
-    @DisplayName("propertiesファイルに音楽ライブラリのパスが無い場合、設定なしとみなしてNoSuchFileExceptionが投げられる")
-    void loading_throws_NoSuchFileException_when_the_properties_file_has_no_music_library_path()
+    @DisplayName("propertiesファイルに音楽ライブラリのパスが無い場合、設定なしとみなして空のOptionalが返る")
+    void loading_returns_an_empty_optional_when_the_properties_file_has_no_music_library_path()
         throws Exception {
         Files.writeString(file, "theme=NORD_DARK");
         var repository = new SettingsRepositoryImpl();
 
-        assertThrows(NoSuchFileException.class, repository::load);
+        assertEquals(Optional.empty(), repository.load());
     }
 
     @Test
@@ -139,7 +138,7 @@ class SettingsRepositoryImplTest {
         Files.writeString(file, "musicLibraryPath=music");
         var repository = new SettingsRepositoryImpl();
 
-        var settings = repository.load();
+        var settings = repository.load().orElseThrow();
 
         assertEquals(Theme.PRIMER_LIGHT, settings.theme());
     }
@@ -150,7 +149,7 @@ class SettingsRepositoryImplTest {
         Files.writeString(file, "musicLibraryPath=music\ntheme=NORD_DARK");
         var repository = new SettingsRepositoryImpl();
 
-        var settings = repository.load();
+        var settings = repository.load().orElseThrow();
 
         assertEquals(Theme.NORD_DARK, settings.theme());
     }

@@ -1,7 +1,6 @@
 package com.sosuisha.presentation.appmodel;
 
 import java.io.IOException;
-import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
@@ -82,12 +81,12 @@ public class SettingsAppModel {
     public Optional<Settings> loadSettings() {
         try {
             var loaded = repository.load();
-            musicLibraryPath.set(loaded.musicLibraryPath());
-            theme.set(loaded.theme());
-            repeatMode.set(loaded.repeatMode());
-            return Optional.of(loaded);
-        } catch (NoSuchFileException e) {
-            return Optional.empty();
+            loaded.ifPresent(settings -> {
+                musicLibraryPath.set(settings.musicLibraryPath());
+                theme.set(settings.theme());
+                repeatMode.set(settings.repeatMode());
+            });
+            return loaded;
         } catch (IOException e) {
             throw new SettingsException("Failed to load the settings file", e);
         }

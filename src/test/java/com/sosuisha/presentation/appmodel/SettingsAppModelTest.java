@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.AfterEach;
@@ -72,7 +73,9 @@ class SettingsAppModelTest {
 
         appModel.repeatModeProperty().set(RepeatMode.ONE);
 
-        assertEquals(RepeatMode.ONE, new SettingsRepositoryImpl().load().repeatMode());
+        assertEquals(
+            RepeatMode.ONE, new SettingsRepositoryImpl().load().orElseThrow().repeatMode()
+        );
     }
 
     @Test
@@ -95,7 +98,7 @@ class SettingsAppModelTest {
         var cause = new IOException("broken-file");
         var appModel = new SettingsAppModel(new NullSettingsRepository() {
             @Override
-            public Settings load() throws IOException {
+            public Optional<Settings> load() throws IOException {
                 throw cause;
             }
         });

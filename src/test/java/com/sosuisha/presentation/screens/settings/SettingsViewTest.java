@@ -117,7 +117,7 @@ class SettingsViewTest {
         throws Exception {
         robot.clickOn("#theme").clickOn("Nord Dark");
 
-        assertEquals(Theme.NORD_DARK, new SettingsRepositoryImpl().load().theme());
+        assertEquals(Theme.NORD_DARK, new SettingsRepositoryImpl().load().orElseThrow().theme());
     }
 
     @Test
@@ -126,6 +126,8 @@ class SettingsViewTest {
         FxRobot robot) throws Exception {
         robot.clickOn("#selectFolder");
 
-        assertEquals(new Settings(Path.of("selected")), new SettingsRepositoryImpl().load());
+        assertEquals(
+            Optional.of(new Settings(Path.of("selected"))), new SettingsRepositoryImpl().load()
+        );
     }
 }

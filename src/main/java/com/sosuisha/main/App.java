@@ -71,8 +71,17 @@ public class App extends Application {
         var settingsViewModel = new SettingsViewModel(settingsAppModel, App::chooseDirectory);
         settingsAppModel.themeProperty()
             .subscribe(theme -> setUserAgentStylesheet(toStylesheet(theme)));
+        SqliteLibraryRepository libraryRepository;
+        try {
+            libraryRepository = new SqliteLibraryRepository();
+        } catch (RepositoryException e) {
+            // The app cannot work without its database. No window is opened,
+            // so the app exits when the dialog is closed.
+            AlertDialog.showError(e.getMessage() + ". The application will exit.");
+            return;
+        }
         var musicLibAppModel = new MusicLibraryAppModel(
-            new LibraryIndexer(new SqliteLibraryRepository()),
+            new LibraryIndexer(libraryRepository),
             settingsAppModel.musicLibraryPathProperty()
         );
 

@@ -57,7 +57,11 @@ abstract class LibraryManagerViewTestBase {
     // TestFX's ApplicationExtension looks up @Start with getDeclaredMethods(),
     // which does not see inherited methods, so each subclass declares a
     // @Start method that delegates here.
-    @Initializer // NullAway cannot see that @Start delegates here.
+    // NullAway checks that the fields above are set by an initializer. It treats
+    // @Start as one (see the NullAway options in pom.xml), but it cannot see
+    // that @Start delegates here, so this method is marked as an initializer
+    // with @Initializer from nullaway-annotations.
+    @Initializer
     void setUpLibraryManager(Stage stage) {
         this.stage = stage;
         var windowManager = new WindowManager();

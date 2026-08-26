@@ -107,7 +107,6 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <!-- @Initializer marks test setup methods that NullAway cannot detect. -->
       <groupId>com.uber.nullaway</groupId>
       <artifactId>nullaway-annotations</artifactId>
       <version>${nullaway.version}</version>

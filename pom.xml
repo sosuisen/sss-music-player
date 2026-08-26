@@ -129,7 +129,7 @@
             <arg>--should-stop=ifError=FLOW</arg>
             <!-- Only NullAway runs. The built-in Error Prone checks are off.
                  The javac plugin arguments must be one argument. -->
-            <arg>-Xplugin:ErrorProne -XepDisableAllChecks -Xep:NullAway:ERROR -XepOpt:NullAway:AnnotatedPackages=com.sosuisha -XepOpt:NullAway:TreatGeneratedAsUnannotated=true -XepOpt:NullAway:CustomInitializerAnnotations=org.testfx.framework.junit5.Start</arg>
+            <arg>-Xplugin:ErrorProne -XepDisableAllChecks -Xep:NullAway:ERROR -XepOpt:NullAway:JSpecifyMode=true -XepOpt:NullAway:AnnotatedPackages=com.sosuisha -XepOpt:NullAway:TreatGeneratedAsUnannotated=true -XepOpt:NullAway:CustomInitializerAnnotations=org.testfx.framework.junit5.Start</arg>
           </compilerArgs>
           <annotationProcessorPaths>
             <path>

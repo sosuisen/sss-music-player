@@ -29,6 +29,7 @@ import com.sosuisha.domain.repository.NullSettingsRepository;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.stage.Stage;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Shared setup of the library manager view tests: a stub music player, the
@@ -46,13 +47,13 @@ abstract class LibraryManagerViewTestBase {
     MusicLibraryAppModel appModel;
     SettingsAppModel settingsAppModel;
     AtomicBoolean rescanned;
-    AtomicReference<Path> playedPath;
+    AtomicReference<@Nullable Path> playedPath;
     AtomicBoolean playbackStopped;
     AtomicBoolean playbackPaused;
     AtomicBoolean playbackResumed;
-    AtomicReference<Runnable> trackFinishedCallback;
-    AtomicReference<Path> loadedPath;
-    AtomicReference<Path> openedFolder;
+    AtomicReference<@Nullable Runnable> trackFinishedCallback;
+    AtomicReference<@Nullable Path> loadedPath;
+    AtomicReference<@Nullable Path> openedFolder;
 
     // TestFX's ApplicationExtension looks up @Start with getDeclaredMethods(),
     // which does not see inherited methods, so each subclass declares a

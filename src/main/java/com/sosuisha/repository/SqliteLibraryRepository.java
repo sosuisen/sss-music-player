@@ -24,6 +24,7 @@ import com.sosuisha.domain.exception.RepositoryException;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.repository.LibraryRepository;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Library database stored in a SQLite file, accessed through jOOQ.
@@ -106,7 +107,8 @@ public class SqliteLibraryRepository implements LibraryRepository {
         }
     }
 
-    private <T> T withDsl(String errorMessage, Function<DSLContext, T> operation) {
+    private <T extends @Nullable Object> T withDsl(
+        String errorMessage, Function<DSLContext, T> operation) {
         try (var connection = DriverManager.getConnection(url)) {
             return operation.apply(DSL.using(connection, SQLDialect.SQLITE));
         } catch (SQLException | DataAccessException e) {
@@ -115,7 +117,7 @@ public class SqliteLibraryRepository implements LibraryRepository {
     }
 
     private void runWithDsl(String errorMessage, Consumer<DSLContext> operation) {
-        withDsl(errorMessage, dsl -> {
+        this.<@Nullable Void>withDsl(errorMessage, dsl -> {
             operation.accept(dsl);
             return null;
         });

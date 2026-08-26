@@ -57,6 +57,7 @@ abstract class LibraryManagerViewTestBase {
     // TestFX's ApplicationExtension looks up @Start with getDeclaredMethods(),
     // which does not see inherited methods, so each subclass declares a
     // @Start method that delegates here.
+    //
     // NullAway reports a field without @Nullable when the constructor does not
     // set it, unless a method that NullAway knows as an "initializer" sets it.
     // In pom.xml, two things define such methods:

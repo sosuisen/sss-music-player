@@ -80,6 +80,15 @@
       <version>${jspecify.version}</version>
     </dependency>
     <dependency>
+      <!-- Compile time only. jOOQ classes such as org.jooq.conf.Settings carry
+           JAXB annotations, and javac warns about them when the JAXB API is
+           missing. jOOQ itself does not need it at runtime here. -->
+      <groupId>jakarta.xml.bind</groupId>
+      <artifactId>jakarta.xml.bind-api</artifactId>
+      <version>4.0.5</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
       <version>6.1.3</version>

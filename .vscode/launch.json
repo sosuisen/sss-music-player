@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Launch sss-music-player",
+      "request": "launch",
+      "mainClass": "com.sosuisha.main.Launcher",
+      "projectName": "sss-music-player",
+      "vmArgs": "-Djavafx.enablePreview=true"
+    }
+  ]
+}

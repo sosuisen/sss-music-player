@@ -17,6 +17,7 @@ import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
 import javafx.scene.control.ListCell;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Component that shows the files of the selected duplicated group. Each row
@@ -44,7 +45,7 @@ public class DetailedPanel {
                     .id("detailedFileList")
                     .cellFactory(_ -> new ListCell<>() {
                         @Override
-                        protected void updateItem(MusicFile item, boolean empty) {
+                        protected void updateItem(@Nullable MusicFile item, boolean empty) {
                             super.updateItem(item, empty);
                             setGraphic(
                                 empty || item == null

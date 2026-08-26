@@ -18,6 +18,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Component that shows the album info panel and the track list of the
@@ -91,7 +92,7 @@ public class TrackPane {
                 }
 
                 @Override
-                protected void updateItem(MusicFile item, boolean empty) {
+                protected void updateItem(@Nullable MusicFile item, boolean empty) {
                     super.updateItem(item, empty);
                     setText(empty || item == null ? null : viewModel.trackRowText(item));
                 }

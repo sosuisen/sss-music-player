@@ -8,6 +8,7 @@ import com.sosuisha.domain.service.MusicPlayer;
 
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Plays audio files with the JavaFX media framework. Starting a new file stops
@@ -19,7 +20,7 @@ public class MediaMusicPlayer implements MusicPlayer {
     }
 
     // Null while nothing is loaded.
-    private Playing playing;
+    private @Nullable Playing playing;
     // The initial callback does nothing.
     private Runnable onFinished = () -> {
     };

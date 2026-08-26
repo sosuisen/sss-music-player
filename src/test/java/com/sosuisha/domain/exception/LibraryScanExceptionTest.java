@@ -8,7 +8,10 @@ import java.io.IOException;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.jspecify.annotations.NullUnmarked;
 
+// These tests pass null on purpose to check the runtime contract.
+@NullUnmarked
 class LibraryScanExceptionTest {
     @Test
     @DisplayName("LibraryScanExceptionは、非チェック例外である")

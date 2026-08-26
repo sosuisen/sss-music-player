@@ -1,6 +1,7 @@
 package com.sosuisha.presentation.screens.librarymanager;
 
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -8,6 +9,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.testfx.framework.junit5.ApplicationExtension;
+import com.uber.nullaway.annotations.Initializer;
 
 import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.domain.repository.NullLibraryRepository;
@@ -55,6 +57,7 @@ abstract class LibraryManagerViewTestBase {
     // TestFX's ApplicationExtension looks up @Start with getDeclaredMethods(),
     // which does not see inherited methods, so each subclass declares a
     // @Start method that delegates here.
+    @Initializer // NullAway cannot see that @Start delegates here.
     void setUpLibraryManager(Stage stage) {
         this.stage = stage;
         var windowManager = new WindowManager();
@@ -134,5 +137,10 @@ abstract class LibraryManagerViewTestBase {
         stage.setScene(view.getScene());
         stage.setTitle(view.getTitle());
         stage.show();
+    }
+
+    // The fake music player stores the callback that runs when a track ends.
+    void fireTrackFinished() {
+        Objects.requireNonNull(trackFinishedCallback.get(), "no track finished callback").run();
     }
 }

@@ -27,6 +27,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import org.jspecify.annotations.Nullable;
 
 /**
  * ViewModel for the duplicate file list screen.
@@ -123,16 +124,18 @@ public class DuplicateListViewModel {
     /**
      * Opens the folder that contains the given audio file. When the folder
      * cannot be opened, the error message is set to the error message
-     * property.
+     * property. Does nothing when the file has no parent folder.
      *
      * @param file audio file whose folder is opened
      * @throws NullPointerException if file is null
      */
     public void openFolder(MusicFile file) {
         Objects.requireNonNull(file, "file must not be null");
+        var folder = file.path().getParent();
+        if (folder == null) { return; }
         errorMessage.set(null);
         try {
-            folderOpener.open(file.path().getParent());
+            folderOpener.open(folder);
         } catch (FolderOpenException e) {
             errorMessage.set(e.getMessage());
         }
@@ -210,7 +213,7 @@ public class DuplicateListViewModel {
      *
      * @param item duplicated group to select, or null to clear the selection
      */
-    public void select(DuplicatedItems item) {
+    public void select(@Nullable DuplicatedItems item) {
         selectedItem.set(item);
     }
 

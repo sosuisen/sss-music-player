@@ -19,11 +19,12 @@ import org.testfx.util.WaitForAsyncUtils;
 
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import org.jspecify.annotations.Nullable;
 
 @ExtendWith(ApplicationExtension.class)
 class AppWithMusicLibraryTest {
     private Stage stage;
-    private Window scanningWindowOwner;
+    private @Nullable Window scanningWindowOwner;
 
     @Start
     void setup(Stage stage) throws Exception {

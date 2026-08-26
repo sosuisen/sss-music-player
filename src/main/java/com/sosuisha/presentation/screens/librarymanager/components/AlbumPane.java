@@ -21,6 +21,7 @@ import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Component that shows the album list with its toolbar: the sort key combo
@@ -77,7 +78,7 @@ public class AlbumPane {
             .id("albumList")
             .cellFactory(_ -> new ListCell<>() {
                 @Override
-                protected void updateItem(Album item, boolean empty) {
+                protected void updateItem(@Nullable Album item, boolean empty) {
                     super.updateItem(item, empty);
                     setText(empty || item == null ? null : viewModel.albumRowText(item));
                 }

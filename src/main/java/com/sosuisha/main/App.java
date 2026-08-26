@@ -61,8 +61,8 @@ public class App extends Application {
     public void start(Stage stage) {
         Objects.requireNonNull(stage, "stage must not be null");
         Thread.currentThread().setUncaughtExceptionHandler((_, e) -> {
-            if (e instanceof UnrecoverableException) {
-                AlertDialog.showError(e.getMessage());
+            if (e instanceof UnrecoverableException unrecoverable) {
+                AlertDialog.showError(unrecoverable.getMessage());
             } else {
                 e.printStackTrace();
             }

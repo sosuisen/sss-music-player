@@ -31,6 +31,7 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.stage.Modality;
+import org.jspecify.annotations.Nullable;
 
 /**
  * ViewModel for the library manager screen.
@@ -255,7 +256,7 @@ public class LibraryManagerViewModel {
      *
      * @param album album to select, or null to clear the selection
      */
-    public void selectAlbum(Album album) {
+    public void selectAlbum(@Nullable Album album) {
         appModel.selectAlbum(album);
         selectedTracks.setAll(album == null ? List.of() : orderByTrackNumber(album.files()));
         if (playerState.get() == PlayerState.PLAYING) { return; }
@@ -287,7 +288,7 @@ public class LibraryManagerViewModel {
      *
      * @param track track to select, or null to clear the selection
      */
-    public void selectTrack(MusicFile track) {
+    public void selectTrack(@Nullable MusicFile track) {
         selectedTrack.set(track);
     }
 
@@ -388,15 +389,18 @@ public class LibraryManagerViewModel {
 
     /**
      * Opens the folder of the selected track in the file manager. Does nothing
-     * when no track is selected. When the folder cannot be opened, the error
-     * message is set to the error message property.
+     * when no track is selected or the track has no parent folder. When the
+     * folder cannot be opened, the error message is set to the error message
+     * property.
      */
     public void openTrackFolder() {
         var selected = selectedTrack.get();
         if (selected == null) { return; }
+        var folder = selected.path().getParent();
+        if (folder == null) { return; }
         errorMessage.set(null);
         try {
-            folderOpener.open(selected.path().getParent());
+            folderOpener.open(folder);
         } catch (FolderOpenException e) {
             errorMessage.set(e.getMessage());
         }

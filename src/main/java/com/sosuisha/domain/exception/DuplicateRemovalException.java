@@ -2,6 +2,8 @@ package com.sosuisha.domain.exception;
 
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Thrown when a duplicated file cannot be moved out of the music library. The
  * caller is expected to report the failure to the user and continue, so this
@@ -13,11 +15,11 @@ public class DuplicateRemovalException extends Exception {
      * Creates the exception.
      *
      * @param message description of the failure, written for the user
-     * @param cause underlying cause of the failure
+     * @param cause underlying cause of the failure, or null when there is none
      * @throws NullPointerException if message is null
      * @throws IllegalArgumentException if message is blank
      */
-    public DuplicateRemovalException(String message, Throwable cause) {
+    public DuplicateRemovalException(String message, @Nullable Throwable cause) {
         super(requireMessage(message), cause);
     }
 

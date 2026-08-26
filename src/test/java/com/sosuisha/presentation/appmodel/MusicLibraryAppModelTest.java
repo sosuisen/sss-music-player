@@ -10,6 +10,7 @@ import java.nio.file.attribute.FileTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -301,6 +302,6 @@ class MusicLibraryAppModelTest {
                 () -> Thread.currentThread().setUncaughtExceptionHandler(previousHandler.get())
             );
         }
-        return captured.get();
+        return Objects.requireNonNull(captured.get(), "no exception was captured");
     }
 }

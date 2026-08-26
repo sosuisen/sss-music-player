@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Recognizes albums by the album name and the album artist of the track
  * metadata. A file without an album name falls back to recognition by its
@@ -24,7 +26,8 @@ public class AlbumDetector {
     private record MetadataKey(String name, String artist) implements GroupKey {
     }
 
-    private record FolderKey(Path folder) implements GroupKey {
+    // The folder is null for a file without a parent folder.
+    private record FolderKey(@Nullable Path folder) implements GroupKey {
     }
 
     private final List<MusicFile> files;

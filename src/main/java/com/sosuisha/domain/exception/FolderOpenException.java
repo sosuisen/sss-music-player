@@ -2,6 +2,8 @@ package com.sosuisha.domain.exception;
 
 import java.util.Objects;
 
+import org.jspecify.annotations.Nullable;
+
 /**
  * Thrown when a folder cannot be opened in the file manager. The caller is
  * expected to report the failure to the user and continue, so this is a
@@ -12,11 +14,11 @@ public class FolderOpenException extends Exception {
      * Creates the exception.
      *
      * @param message description of the failure, written for the user
-     * @param cause underlying cause of the failure
+     * @param cause underlying cause of the failure, or null when there is none
      * @throws NullPointerException if message is null
      * @throws IllegalArgumentException if message is blank
      */
-    public FolderOpenException(String message, Throwable cause) {
+    public FolderOpenException(String message, @Nullable Throwable cause) {
         super(requireMessage(message), cause);
     }
 

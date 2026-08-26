@@ -5,7 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.jspecify.annotations.NullUnmarked;
 
+// These tests pass null on purpose to check the runtime contract.
+@NullUnmarked
 class UnrecoverableExceptionTest {
     @Test
     @DisplayName("RepositoryExceptionとLibraryScanExceptionは、UnrecoverableExceptionのサブクラスである")

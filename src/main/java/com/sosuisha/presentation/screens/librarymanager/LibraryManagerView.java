@@ -18,6 +18,7 @@ import javafx.stage.StageStyle;
 import javafx.scene.layout.HeaderBar;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
+import org.jspecify.annotations.Nullable;
 
 /**
  * View for the library manager screen.
@@ -29,7 +30,9 @@ public class LibraryManagerView implements View {
 
     private final LibraryManagerViewModel viewModel;
     private final Scene scene;
-    private Stage scanningDialog;
+    // Created on the first scan, because its owner window does not exist yet
+    // when this view is constructed.
+    private @Nullable Stage scanningDialog;
 
     /**
      * Creates the view.

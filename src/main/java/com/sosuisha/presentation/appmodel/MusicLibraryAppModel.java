@@ -21,6 +21,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Application-wide state of the music library shared by multiple screens.
@@ -130,7 +131,7 @@ public class MusicLibraryAppModel {
      *
      * @param album album to select, or null to clear the selection
      */
-    public void selectAlbum(Album album) {
+    public void selectAlbum(@Nullable Album album) {
         selectedAlbum.set(album);
     }
 

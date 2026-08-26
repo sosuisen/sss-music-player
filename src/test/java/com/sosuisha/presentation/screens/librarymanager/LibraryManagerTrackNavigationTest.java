@@ -124,10 +124,10 @@ class LibraryManagerTrackNavigationTest extends LibraryManagerViewTestBase {
         robot.clickOn("1. Song One");
         robot.clickOn("#playButton");
 
-        robot.interact(() -> trackFinishedCallback.get().run());
+        robot.interact(this::fireTrackFinished);
         assertEquals(Path.of("a/two.mp3"), playedPath.get());
 
-        robot.interact(() -> trackFinishedCallback.get().run());
+        robot.interact(this::fireTrackFinished);
         assertEquals(Path.of("a/one.mp3"), playedPath.get());
     }
 
@@ -150,7 +150,7 @@ class LibraryManagerTrackNavigationTest extends LibraryManagerViewTestBase {
         // 再再生の play() 呼び出しを検出するため、記録をいったん消す。
         playedPath.set(null);
 
-        robot.interact(() -> trackFinishedCallback.get().run());
+        robot.interact(this::fireTrackFinished);
 
         assertEquals(Path.of("a/one.mp3"), playedPath.get());
     }

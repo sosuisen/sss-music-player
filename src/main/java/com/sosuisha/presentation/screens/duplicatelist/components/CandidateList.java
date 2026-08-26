@@ -9,6 +9,7 @@ import io.github.sosuisen.jfxbuilder.controls.ListViewBuilder;
 import javafx.scene.control.ListView;
 import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.util.StringConverter;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Component that lists the duplicated groups. Selecting a group publishes it
@@ -33,12 +34,12 @@ public class CandidateList {
                     viewModel::checkedProperty,
                     new StringConverter<DuplicatedItems>() {
                         @Override
-                        public String toString(DuplicatedItems item) {
-                            return item.title();
+                        public String toString(@Nullable DuplicatedItems item) {
+                            return item == null ? "" : item.title();
                         }
 
                         @Override
-                        public DuplicatedItems fromString(String string) {
+                        public DuplicatedItems fromString(@Nullable String string) {
                             throw new UnsupportedOperationException(
                                 "the duplicate list is not editable"
                             );

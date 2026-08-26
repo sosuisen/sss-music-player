@@ -108,7 +108,7 @@ class LibraryManagerWindowTest extends LibraryManagerViewTestBase {
         var shownDuringScan = new AtomicBoolean(false);
         var modality = new AtomicReference<Modality>();
         robot.interact(() -> {
-            appModel.scanFolder(folder);
+            musicLibraryPath.set(folder);
             findScanningWindow(robot).ifPresent(window -> {
                 shownDuringScan.set(window.isShowing());
                 modality.set(window.getModality());
@@ -144,9 +144,8 @@ class LibraryManagerWindowTest extends LibraryManagerViewTestBase {
                 return result;
             }
         };
-        var blockingAppModel = new MusicLibraryAppModel(
-            blockingScanner, new SimpleObjectProperty<>()
-        );
+        var blockingLibraryPath = new SimpleObjectProperty<Path>();
+        var blockingAppModel = new MusicLibraryAppModel(blockingScanner, blockingLibraryPath);
         var blockingViewModel =
             new LibraryManagerViewModel(
                 new WindowManager(), blockingAppModel,
@@ -156,7 +155,7 @@ class LibraryManagerWindowTest extends LibraryManagerViewTestBase {
         try {
             robot.interact(() -> {
                 new LibraryManagerView(blockingViewModel);
-                blockingAppModel.scanFolder(folder);
+                blockingLibraryPath.set(folder);
             });
 
             WaitForAsyncUtils.waitFor(
@@ -182,7 +181,7 @@ class LibraryManagerWindowTest extends LibraryManagerViewTestBase {
     void the_owner_of_the_scanning_window_is_the_library_manager_window(FxRobot robot) {
         var owner = new AtomicReference<Window>();
         robot.interact(() -> {
-            appModel.scanFolder(folder);
+            musicLibraryPath.set(folder);
             findScanningWindow(robot).ifPresent(window -> owner.set(window.getOwner()));
         });
 

@@ -31,12 +31,13 @@ public class MusicLibraryAppModel {
     private final StringProperty scanningFile = new SimpleStringProperty("");
     private final ObjectProperty<Album> selectedAlbum = new SimpleObjectProperty<>();
     private final LibraryIndexer scanner;
-    private Path lastScannedFolder;
+    private final ObservableValue<Path> musicLibraryPath;
 
     /**
      * Creates the app model. It follows the given music library path: whenever
      * it holds a path (at creation and on every path change), that folder is
-     * scanned and the list of audio files is updated.
+     * scanned and the list of audio files is updated. {@link #rescan()}
+     * scans the folder it holds at that time.
      *
      * @param scanner scanner that lists the audio files in a library folder
      * @param musicLibraryPath observable path of the music library folder,
@@ -45,7 +46,8 @@ public class MusicLibraryAppModel {
      */
     public MusicLibraryAppModel(LibraryIndexer scanner, ObservableValue<Path> musicLibraryPath) {
         this.scanner = Objects.requireNonNull(scanner, "scanner must not be null");
-        Objects.requireNonNull(musicLibraryPath, "musicLibraryPath must not be null");
+        this.musicLibraryPath =
+            Objects.requireNonNull(musicLibraryPath, "musicLibraryPath must not be null");
         musicLibraryPath.subscribe(path -> {
             if (path != null) {
                 scanFolder(path);
@@ -61,11 +63,8 @@ public class MusicLibraryAppModel {
      * the uncaught exception handler of that thread instead of the caller.
      *
      * @param folderPath path of the folder to scan
-     * @throws NullPointerException if folderPath is null
      */
-    public void scanFolder(Path folderPath) {
-        Objects.requireNonNull(folderPath, "folderPath must not be null");
-        lastScannedFolder = folderPath;
+    private void scanFolder(Path folderPath) {
         scanning.set(true);
         var task = new Task<List<MusicFile>>() {
             @Override
@@ -95,12 +94,13 @@ public class MusicLibraryAppModel {
     }
 
     /**
-     * Scans the last scanned folder again in the background. Does nothing when
-     * no folder has been scanned yet.
+     * Scans the music library folder again in the background. Does nothing
+     * while no folder has been chosen.
      */
     public void rescan() {
-        if (lastScannedFolder != null) {
-            scanFolder(lastScannedFolder);
+        var folder = musicLibraryPath.getValue();
+        if (folder != null) {
+            scanFolder(folder);
         }
     }
 

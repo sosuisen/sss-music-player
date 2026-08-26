@@ -53,16 +53,16 @@ class MusicLibraryAppModelTest {
         FxRobot robot) throws Exception {
         Files.createFile(folder.resolve("song1.mp3"));
         Files.createFile(folder.resolve("song2.m4a"));
+        var musicLibraryPath = new SimpleObjectProperty<Path>();
         var appModel = new MusicLibraryAppModel(
-            new LibraryIndexer(new NullLibraryRepository()),
-            new SimpleObjectProperty<>()
+            new LibraryIndexer(new NullLibraryRepository()), musicLibraryPath
         );
 
         // AtomicInteger is a mutable box to carry the size measured on the FX
         // thread out to the test thread. -1 means "not measured yet".
         var sizeRightAfterCall = new AtomicInteger(-1);
         robot.interact(() -> {
-            appModel.scanFolder(folder);
+            musicLibraryPath.set(folder);
             sizeRightAfterCall.set(appModel.getFiles().size());
         });
 
@@ -75,14 +75,14 @@ class MusicLibraryAppModelTest {
     void scanning_is_true_while_a_scan_runs_and_false_when_it_finishes(FxRobot robot)
         throws Exception {
         Files.createFile(folder.resolve("song1.mp3"));
+        var musicLibraryPath = new SimpleObjectProperty<Path>();
         var appModel = new MusicLibraryAppModel(
-            new LibraryIndexer(new NullLibraryRepository()),
-            new SimpleObjectProperty<>()
+            new LibraryIndexer(new NullLibraryRepository()), musicLibraryPath
         );
 
         var scanningRightAfterCall = new AtomicBoolean(false);
         robot.interact(() -> {
-            appModel.scanFolder(folder);
+            musicLibraryPath.set(folder);
             scanningRightAfterCall.set(appModel.scanningProperty().get());
         });
 
@@ -93,13 +93,13 @@ class MusicLibraryAppModelTest {
     @Test
     @DisplayName("スキャンが失敗してもscanningはfalseに戻る")
     void scanning_returns_to_false_when_the_scan_fails(FxRobot robot) throws Exception {
+        var musicLibraryPath = new SimpleObjectProperty<Path>();
         var appModel = new MusicLibraryAppModel(
-            new LibraryIndexer(new NullLibraryRepository()),
-            new SimpleObjectProperty<>()
+            new LibraryIndexer(new NullLibraryRepository()), musicLibraryPath
         );
 
         withFxThreadExceptionsCaptured(robot, _ -> {
-            robot.interact(() -> appModel.scanFolder(folder.resolve("missing")));
+            robot.interact(() -> musicLibraryPath.set(folder.resolve("missing")));
 
             WaitForAsyncUtils.waitFor(
                 5, TimeUnit.SECONDS, () -> !appModel.scanningProperty().get()
@@ -112,12 +112,12 @@ class MusicLibraryAppModelTest {
     void the_path_of_the_file_being_read_is_reflected_in_scanning_file(FxRobot robot)
         throws Exception {
         var file = Files.createFile(folder.resolve("song1.mp3"));
+        var musicLibraryPath = new SimpleObjectProperty<Path>();
         var appModel = new MusicLibraryAppModel(
-            new LibraryIndexer(new NullLibraryRepository()),
-            new SimpleObjectProperty<>()
+            new LibraryIndexer(new NullLibraryRepository()), musicLibraryPath
         );
 
-        robot.interact(() -> appModel.scanFolder(folder));
+        robot.interact(() -> musicLibraryPath.set(folder));
 
         // Updates are coalesced on the FX thread, so the property eventually
         // holds the path of the last read file.
@@ -152,11 +152,11 @@ class MusicLibraryAppModelTest {
     @DisplayName("rescanを呼ぶと、最後に走査したフォルダが再走査され一覧が更新される")
     void rescan_scans_the_last_scanned_folder_again(FxRobot robot) throws Exception {
         Files.createFile(folder.resolve("song1.mp3"));
+        var musicLibraryPath = new SimpleObjectProperty<Path>();
         var appModel = new MusicLibraryAppModel(
-            new LibraryIndexer(new NullLibraryRepository()),
-            new SimpleObjectProperty<>()
+            new LibraryIndexer(new NullLibraryRepository()), musicLibraryPath
         );
-        robot.interact(() -> appModel.scanFolder(folder));
+        robot.interact(() -> musicLibraryPath.set(folder));
         WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> appModel.getFiles().size() == 1);
         Files.createFile(folder.resolve("song2.mp3"));
 
@@ -172,11 +172,11 @@ class MusicLibraryAppModelTest {
         var kept = Files.write(folder.resolve("song1.mp3"), new byte[42]);
         var deleted = Files.write(folder.resolve("song2.mp3"), new byte[42]);
         var database = new InMemoryLibraryRepository();
+        var musicLibraryPath = new SimpleObjectProperty<Path>();
         var appModel = new MusicLibraryAppModel(
-            new LibraryIndexer(database),
-            new SimpleObjectProperty<>()
+            new LibraryIndexer(database), musicLibraryPath
         );
-        robot.interact(() -> appModel.scanFolder(folder));
+        robot.interact(() -> musicLibraryPath.set(folder));
         WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> appModel.getFiles().size() == 2);
         Files.delete(deleted);
 
@@ -195,11 +195,11 @@ class MusicLibraryAppModelTest {
         );
         var database = new InMemoryLibraryRepository();
         database.save(new MusicFile(file, 42, cachedTag), Files.getLastModifiedTime(file));
+        var musicLibraryPath = new SimpleObjectProperty<Path>();
         var appModel = new MusicLibraryAppModel(
-            new LibraryIndexer(database),
-            new SimpleObjectProperty<>()
+            new LibraryIndexer(database), musicLibraryPath
         );
-        robot.interact(() -> appModel.scanFolder(folder));
+        robot.interact(() -> musicLibraryPath.set(folder));
         WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> appModel.getFiles().size() == 1);
 
         robot.interact(() -> appModel.rescan());
@@ -250,12 +250,12 @@ class MusicLibraryAppModelTest {
         throws Exception {
         var file = folder.resolve("song1.mp3");
         Files.write(file, new byte[42]);
+        var musicLibraryPath = new SimpleObjectProperty<Path>();
         var appModel = new MusicLibraryAppModel(
-            new LibraryIndexer(new NullLibraryRepository()),
-            new SimpleObjectProperty<>()
+            new LibraryIndexer(new NullLibraryRepository()), musicLibraryPath
         );
 
-        robot.interact(() -> appModel.scanFolder(folder));
+        robot.interact(() -> musicLibraryPath.set(folder));
         WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> !appModel.getFiles().isEmpty());
 
         List<MusicFile> files = appModel.getFiles();
@@ -266,12 +266,12 @@ class MusicLibraryAppModelTest {
     @DisplayName("スキャンが失敗すると、その例外はFXスレッドの未捕捉例外ハンドラに届く")
     void a_failed_scan_delivers_its_exception_to_the_uncaught_exception_handler_of_the_fx_thread(
         FxRobot robot) throws Exception {
+        var musicLibraryPath = new SimpleObjectProperty<Path>();
         var appModel = new MusicLibraryAppModel(
-            new LibraryIndexer(new NullLibraryRepository()),
-            new SimpleObjectProperty<>()
+            new LibraryIndexer(new NullLibraryRepository()), musicLibraryPath
         );
         var caught = withFxThreadExceptionsCaptured(robot, captured -> {
-            robot.interact(() -> appModel.scanFolder(folder.resolve("missing")));
+            robot.interact(() -> musicLibraryPath.set(folder.resolve("missing")));
 
             WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> captured.get() != null);
         });

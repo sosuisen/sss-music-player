@@ -40,6 +40,7 @@ abstract class LibraryManagerViewTestBase {
     Stage stage;
     LibraryManagerViewModel viewModel;
     AlbumEditViewModel albumEditViewModel;
+    SimpleObjectProperty<Path> musicLibraryPath;
     MusicLibraryAppModel appModel;
     SettingsAppModel settingsAppModel;
     AtomicBoolean rescanned;
@@ -58,9 +59,9 @@ abstract class LibraryManagerViewTestBase {
         this.stage = stage;
         var windowManager = new WindowManager();
         rescanned = new AtomicBoolean(false);
+        musicLibraryPath = new SimpleObjectProperty<>();
         appModel = new MusicLibraryAppModel(
-            new LibraryIndexer(new NullLibraryRepository()),
-            new SimpleObjectProperty<>()
+            new LibraryIndexer(new NullLibraryRepository()), musicLibraryPath
         ) {
             @Override
             public void rescan() {

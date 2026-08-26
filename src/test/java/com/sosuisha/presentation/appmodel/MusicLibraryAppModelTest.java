@@ -268,7 +268,9 @@ class MusicLibraryAppModelTest {
     void a_failed_scan_delivers_its_exception_to_the_uncaught_exception_handler_of_the_fx_thread(
         FxRobot robot) throws Exception {
         var musicLibraryPath = new SimpleObjectProperty<Path>();
-        var appModel = new MusicLibraryAppModel(
+        // The app model is not referenced later. Creating it is enough, because it
+        // subscribes to the path and scans when the path is set.
+        new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()), musicLibraryPath
         );
         var caught = withFxThreadExceptionsCaptured(robot, captured -> {

@@ -14,9 +14,15 @@ import javafx.scene.media.MediaPlayer;
  * the file that is currently playing.
  */
 public class MediaMusicPlayer implements MusicPlayer {
-    private MediaPlayer mediaPlayer;
-    private Runnable onFinished;
-    private Path playingPath;
+    /** The player of the loaded audio file and the path of that file. */
+    private record Playing(MediaPlayer player, Path path) {
+    }
+
+    // Null while nothing is loaded.
+    private Playing playing;
+    // The initial callback does nothing.
+    private Runnable onFinished = () -> {
+    };
 
     /**
      * Plays the audio file at the given path.
@@ -27,16 +33,11 @@ public class MediaMusicPlayer implements MusicPlayer {
     @Override
     public void play(Path path) {
         Objects.requireNonNull(path, "path must not be null");
-        if (mediaPlayer != null) {
-            mediaPlayer.stop();
-            mediaPlayer.dispose();
-        }
-        mediaPlayer = new MediaPlayer(new Media(path.toUri().toString()));
-        if (onFinished != null) {
-            mediaPlayer.setOnEndOfMedia(onFinished);
-        }
-        mediaPlayer.play();
-        playingPath = path;
+        stop();
+        var player = new MediaPlayer(new Media(path.toUri().toString()));
+        player.setOnEndOfMedia(onFinished);
+        player.play();
+        playing = new Playing(player, path);
     }
 
     /**
@@ -45,11 +46,10 @@ public class MediaMusicPlayer implements MusicPlayer {
      */
     @Override
     public void stop() {
-        if (mediaPlayer == null) { return; }
-        mediaPlayer.stop();
-        mediaPlayer.dispose();
-        mediaPlayer = null;
-        playingPath = null;
+        if (playing == null) { return; }
+        playing.player().stop();
+        playing.player().dispose();
+        playing = null;
     }
 
     /**
@@ -58,8 +58,8 @@ public class MediaMusicPlayer implements MusicPlayer {
      */
     @Override
     public void pause() {
-        if (mediaPlayer == null) { return; }
-        mediaPlayer.pause();
+        if (playing == null) { return; }
+        playing.player().pause();
     }
 
     /**
@@ -68,8 +68,8 @@ public class MediaMusicPlayer implements MusicPlayer {
      */
     @Override
     public void resume() {
-        if (mediaPlayer == null) { return; }
-        mediaPlayer.play();
+        if (playing == null) { return; }
+        playing.player().play();
     }
 
     /**
@@ -77,10 +77,11 @@ public class MediaMusicPlayer implements MusicPlayer {
      * its end. It applies to files played after this call.
      *
      * @param onFinished callback invoked at the end of the audio file
+     * @throws NullPointerException if onFinished is null
      */
     @Override
     public void setOnFinished(Runnable onFinished) {
-        this.onFinished = onFinished;
+        this.onFinished = Objects.requireNonNull(onFinished, "onFinished must not be null");
     }
 
     /**
@@ -92,6 +93,6 @@ public class MediaMusicPlayer implements MusicPlayer {
      */
     @Override
     public Optional<Path> playingPath() {
-        return Optional.ofNullable(playingPath);
+        return Optional.ofNullable(playing).map(Playing::path);
     }
 }

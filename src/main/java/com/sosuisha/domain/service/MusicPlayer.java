@@ -37,6 +37,7 @@ public interface MusicPlayer {
      * its end.
      *
      * @param onFinished callback invoked at the end of the audio file
+     * @throws NullPointerException if onFinished is null
      */
     void setOnFinished(Runnable onFinished);
 

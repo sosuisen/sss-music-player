@@ -206,6 +206,7 @@ class LibraryManagerWindowTest extends LibraryManagerViewTestBase {
         assertEquals(Color.RED, label.getTextFill());
     }
 
+    @SuppressWarnings("deprecation") // StageStyle.EXTENDED is a preview feature of JavaFX 26.
     @Test
     @DisplayName("LibraryManagerViewはHeaderBarを持つので、ウィンドウのスタイルとしてEXTENDEDを宣言する")
     void library_manager_view_declares_the_extended_stage_style() {

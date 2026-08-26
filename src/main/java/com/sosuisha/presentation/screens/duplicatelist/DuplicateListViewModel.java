@@ -45,7 +45,8 @@ public class DuplicateListViewModel {
     private final Map<DuplicatedItems, BooleanProperty> checkedItems = new HashMap<>();
     private final BooleanProperty anyChecked = new SimpleBooleanProperty(false);
     private final StringProperty errorMessage = new SimpleStringProperty();
-    private DuplicateDetector lastDetector;
+    // The initial detector returns nothing.
+    private DuplicateDetector lastDetector = List::of;
 
     /**
      * Creates the view model.
@@ -67,11 +68,7 @@ public class DuplicateListViewModel {
         selectedItem.subscribe(
             item -> selectedFiles.setAll(item == null ? List.of() : item.files())
         );
-        appModel.getFiles().subscribe(() -> {
-            if (lastDetector != null) {
-                detect(lastDetector);
-            }
-        });
+        appModel.getFiles().subscribe(() -> detect(lastDetector));
     }
 
     /**

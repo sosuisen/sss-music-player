@@ -146,12 +146,11 @@ class LibraryManagerWindowTest extends LibraryManagerViewTestBase {
         };
         var blockingLibraryPath = new SimpleObjectProperty<Path>();
         var blockingAppModel = new MusicLibraryAppModel(blockingScanner, blockingLibraryPath);
-        var blockingViewModel =
-            new LibraryManagerViewModel(
-                new WindowManager(), blockingAppModel,
-                new SettingsAppModel(new NullSettingsRepository()), new NullMusicPlayer(), _ -> {
-                }
-            );
+        var blockingViewModel = new LibraryManagerViewModel(
+            new WindowManager(), blockingAppModel,
+            new SettingsAppModel(new NullSettingsRepository()), new NullMusicPlayer(), _ -> {
+            }
+        );
         try {
             robot.interact(() -> {
                 new LibraryManagerView(blockingViewModel);

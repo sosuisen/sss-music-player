@@ -57,10 +57,15 @@ abstract class LibraryManagerViewTestBase {
     // TestFX's ApplicationExtension looks up @Start with getDeclaredMethods(),
     // which does not see inherited methods, so each subclass declares a
     // @Start method that delegates here.
-    // NullAway checks that the fields above are set by an initializer. It treats
-    // @Start as one (see the NullAway options in pom.xml), but it cannot see
-    // that @Start delegates here, so this method is marked as an initializer
-    // with @Initializer from nullaway-annotations.
+    // NullAway reports a field without @Nullable when the constructor does not
+    // set it, unless a method that NullAway knows as an "initializer" sets it.
+    // In pom.xml, two things define such methods:
+    // - the NullAway option CustomInitializerAnnotations=org.testfx.framework.junit5.Start
+    //   makes every @Start method an initializer
+    // - the test dependency com.uber.nullaway:nullaway-annotations provides
+    //   @Initializer, which marks any method as an initializer
+    // The @Start methods of the subclasses only call this method, and NullAway
+    // does not follow that call, so this method needs @Initializer.
     @Initializer
     void setUpLibraryManager(Stage stage) {
         this.stage = stage;

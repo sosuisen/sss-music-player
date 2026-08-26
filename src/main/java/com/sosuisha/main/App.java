@@ -65,6 +65,7 @@ public class App extends Application {
                 AlertDialog.showError(unrecoverable.getMessage());
             } else {
                 e.printStackTrace();
+                AlertDialog.showUnexpectedError(e);
             }
         });
         var windowManager = new WindowManager();

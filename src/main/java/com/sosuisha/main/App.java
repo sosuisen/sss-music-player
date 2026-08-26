@@ -67,8 +67,14 @@ public class App extends Application {
                 e.printStackTrace();
             }
         });
+        var windowManager = new WindowManager();
         var settingsAppModel = new SettingsAppModel(new SettingsRepositoryImpl());
-        var settingsViewModel = new SettingsViewModel(settingsAppModel, App::chooseDirectory);
+        // The settings window owns the folder chooser dialog. It is looked up
+        // when the dialog opens, because the views are registered later.
+        var settingsViewModel = new SettingsViewModel(
+            settingsAppModel,
+            () -> chooseDirectory(windowManager.getView(SettingsView.class).getScene().getWindow())
+        );
         settingsAppModel.themeProperty()
             .subscribe(theme -> setUserAgentStylesheet(toStylesheet(theme)));
         SqliteLibraryRepository libraryRepository;
@@ -85,7 +91,6 @@ public class App extends Application {
             settingsAppModel.musicLibraryPathProperty()
         );
 
-        var windowManager = new WindowManager();
         var folderOpener = new ShellFolderOpener();
         var libraryManagerViewModel =
             new LibraryManagerViewModel(

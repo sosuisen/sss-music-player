@@ -43,7 +43,7 @@ class SettingsViewTest {
         );
         viewModel = new SettingsViewModel(
             new SettingsAppModel(new SettingsRepositoryImpl()),
-            _ -> Optional.of(Path.of("selected"))
+            () -> Optional.of(Path.of("selected"))
         );
         viewModel.musicLibraryPathProperty().set(Path.of("music"));
         var view = new SettingsView(viewModel);

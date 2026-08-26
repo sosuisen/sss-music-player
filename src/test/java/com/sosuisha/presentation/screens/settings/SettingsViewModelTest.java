@@ -41,11 +41,11 @@ class SettingsViewModelTest {
     void selecting_a_folder_updates_the_music_library_path() {
         var viewModel = new SettingsViewModel(
             new SettingsAppModel(new SettingsRepositoryImpl()),
-            _ -> Optional.of(Path.of("newMusic"))
+            () -> Optional.of(Path.of("newMusic"))
         );
         viewModel.musicLibraryPathProperty().set(Path.of("music"));
 
-        viewModel.selectMusicLibraryFolder(null);
+        viewModel.selectMusicLibraryFolder();
 
         assertEquals(Path.of("newMusic"), viewModel.musicLibraryPathProperty().get());
     }
@@ -55,12 +55,12 @@ class SettingsViewModelTest {
     void selecting_a_folder_keeps_the_current_theme() throws Exception {
         var viewModel = new SettingsViewModel(
             new SettingsAppModel(new SettingsRepositoryImpl()),
-            _ -> Optional.of(Path.of("newMusic"))
+            () -> Optional.of(Path.of("newMusic"))
         );
         viewModel.musicLibraryPathProperty().set(Path.of("music"));
         viewModel.themeProperty().set(Theme.NORD_DARK);
 
-        viewModel.selectMusicLibraryFolder(null);
+        viewModel.selectMusicLibraryFolder();
 
         assertEquals(Theme.NORD_DARK, new SettingsRepositoryImpl().load().orElseThrow().theme());
     }
@@ -69,11 +69,11 @@ class SettingsViewModelTest {
     @DisplayName("フォルダの選択をキャンセルすると、設定は変わらず、ファイルにも保存されない")
     void canceling_the_folder_selection_keeps_the_settings_unchanged_and_saves_nothing() {
         var viewModel = new SettingsViewModel(
-            new SettingsAppModel(new SettingsRepositoryImpl()), _ -> Optional.empty()
+            new SettingsAppModel(new SettingsRepositoryImpl()), () -> Optional.empty()
         );
         viewModel.musicLibraryPathProperty().set(Path.of("music"));
 
-        viewModel.selectMusicLibraryFolder(null);
+        viewModel.selectMusicLibraryFolder();
 
         assertEquals(Path.of("music"), viewModel.musicLibraryPathProperty().get());
         assertFalse(Files.exists(folder.resolve("settings.properties")));
@@ -90,7 +90,7 @@ class SettingsViewModelTest {
         Thread.currentThread().setUncaughtExceptionHandler((_, e) -> thrown.set(e));
         try {
             var viewModel = new SettingsViewModel(
-                new SettingsAppModel(new SettingsRepositoryImpl()), _ -> Optional.empty()
+                new SettingsAppModel(new SettingsRepositoryImpl()), () -> Optional.empty()
             );
 
             viewModel.themeProperty().set(Theme.NORD_DARK);

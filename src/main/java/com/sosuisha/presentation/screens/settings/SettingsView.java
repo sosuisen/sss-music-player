@@ -72,7 +72,7 @@ public class SettingsView implements View {
                         ButtonBuilder.create()
                             .text("Select folder...")
                             .id("selectFolder")
-                            .onAction(_ -> viewModel.selectMusicLibraryFolder(scene.getWindow()))
+                            .onAction(_ -> viewModel.selectMusicLibraryFolder())
                             .build()
                     )
                     .addRow(

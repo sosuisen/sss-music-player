@@ -3,14 +3,13 @@ package com.sosuisha.presentation.screens.settings;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Function;
+import java.util.function.Supplier;
 
 import com.sosuisha.domain.model.Theme;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableValue;
-import javafx.stage.Window;
 
 /**
  * ViewModel for the settings screen. The settings state lives in the
@@ -18,19 +17,19 @@ import javafx.stage.Window;
  */
 public class SettingsViewModel {
     private final SettingsAppModel appModel;
-    private final Function<Window, Optional<Path>> directoryChooser;
+    private final Supplier<Optional<Path>> directoryChooser;
 
     /**
      * Creates the view model.
      *
      * @param appModel application-wide state of the settings
      * @param directoryChooser function that lets the user choose a folder. It
-     *            receives the owner window and returns the chosen folder, or an
-     *            empty optional when the user cancels
+     *            returns the chosen folder, or an empty optional when the user
+     *            cancels
      * @throws NullPointerException if appModel or directoryChooser is null
      */
     public SettingsViewModel(SettingsAppModel appModel,
-        Function<Window, Optional<Path>> directoryChooser) {
+        Supplier<Optional<Path>> directoryChooser) {
         this.appModel = Objects.requireNonNull(appModel, "appModel must not be null");
         this.directoryChooser =
             Objects.requireNonNull(directoryChooser, "directoryChooser must not be null");
@@ -70,11 +69,9 @@ public class SettingsViewModel {
     /**
      * Lets the user choose the music library folder and saves the chosen path
      * to the settings. Does nothing when the user cancels.
-     *
-     * @param ownerWindow window that owns the folder chooser dialog
      */
-    public void selectMusicLibraryFolder(Window ownerWindow) {
-        directoryChooser.apply(ownerWindow)
+    public void selectMusicLibraryFolder() {
+        directoryChooser.get()
             .ifPresent(path -> {
                 appModel.musicLibraryPathProperty().set(path);
                 appModel.save();

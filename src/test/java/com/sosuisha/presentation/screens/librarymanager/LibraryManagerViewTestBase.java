@@ -125,7 +125,7 @@ abstract class LibraryManagerViewTestBase {
                 )
             )
         );
-        var settingsViewModel = new SettingsViewModel(settingsAppModel, _ -> Optional.empty());
+        var settingsViewModel = new SettingsViewModel(settingsAppModel, () -> Optional.empty());
         settingsViewModel.musicLibraryPathProperty().set(Path.of("music"));
         windowManager.registerView(new SettingsView(settingsViewModel));
         albumEditViewModel = new AlbumEditViewModel(appModel, (_, _, _) -> {

@@ -96,4 +96,30 @@ class WindowManagerTest {
         var window = (Stage) robot.window("Duplicate Files");
         assertEquals(StageStyle.DECORATED, window.getStyle());
     }
+
+    @Test
+    @DisplayName("showWindowすると、ウィンドウのアイコンにアプリのアイコン（images/icon.png）が設定される")
+    void show_window_sets_the_app_icon_on_the_window(FxRobot robot) {
+        var windowManager = new WindowManager();
+        windowManager.registerView(
+            new DuplicateListView(
+                new DuplicateListViewModel(
+                    new MusicLibraryAppModel(
+                        new LibraryIndexer(new NullLibraryRepository()),
+                        new SimpleObjectProperty<>()
+                    ),
+                    new NullMusicPlayer(),
+                    new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")),
+                    _ -> {
+                    }
+                )
+            )
+        );
+
+        robot.interact(() -> windowManager.showWindow(DuplicateListView.class, new Stage()));
+
+        var window = (Stage) robot.window("Duplicate Files");
+        assertEquals(1, window.getIcons().size());
+        assertEquals(256, window.getIcons().getFirst().getWidth());
+    }
 }

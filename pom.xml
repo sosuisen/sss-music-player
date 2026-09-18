@@ -289,6 +289,7 @@
             <option>-Djavafx.enablePreview=true</option>
           </javaOptions>
           <type>${jpackage.type}</type>
+          <icon>${jpackage.icon}</icon>
         </configuration>
       </plugin>
     </plugins>
@@ -306,6 +307,7 @@
         <!-- APP_IMAGE or MSI -->
         <!-- If you choose MSI, install WiX and set the path -->
         <jpackage.type>APP_IMAGE</jpackage.type>
+        <jpackage.icon>${project.basedir}/images/icon.ico</jpackage.icon>
       </properties>
       <build>
         <plugins>
@@ -350,6 +352,7 @@
       <properties>
         <!-- DMG or PKG -->
         <jpackage.type>DMG</jpackage.type>
+        <jpackage.icon>${project.basedir}/images/icon.icns</jpackage.icon>
       </properties>
     </profile>
     <profile>
@@ -362,6 +365,7 @@
       <properties>
         <!-- APP_IMAGE, RPM or DEB -->
         <jpackage.type>APP_IMAGE</jpackage.type>
+        <jpackage.icon>${project.basedir}/images/icon.png</jpackage.icon>
       </properties>
     </profile>
   </profiles>

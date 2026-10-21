@@ -10,8 +10,8 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <javafx.plugin.version>0.0.8</javafx.plugin.version>
-    <javafx.version>26.0.2</javafx.version>
-    <javafx.builder.version>26.0.0</javafx.builder.version>
+    <javafx.version>27</javafx.version>
+    <javafx.builder.version>27.0.0</javafx.builder.version>
     <maven.compiler.release>25</maven.compiler.release>
     <main.class>com.sosuisha.main.Launcher</main.class>
     <jooq.version>3.21.7</jooq.version>
@@ -156,8 +156,6 @@
           <reuseForks>true</reuseForks>
           <systemPropertyVariables>
             <glass.platform>Headless</glass.platform>
-            <!-- StageStyle.EXTENDED is a preview feature in JavaFX 26. -->
-            <javafx.enablePreview>true</javafx.enablePreview>
           </systemPropertyVariables>
         </configuration>
       </plugin>
@@ -243,10 +241,6 @@
         <version>${javafx.plugin.version}</version>
         <configuration>
           <mainClass>${main.class}</mainClass>
-          <options>
-            <!-- StageStyle.EXTENDED is a preview feature in JavaFX 26. -->
-            <option>-Djavafx.enablePreview=true</option>
-          </options>
         </configuration>
       </plugin>
       <plugin>
@@ -285,8 +279,6 @@
           <destination>${project.build.directory}/jpackage</destination>
           <javaOptions>
             <option>-Dfile.encoding=UTF-8</option>
-            <!-- StageStyle.EXTENDED is a preview feature in JavaFX 26. -->
-            <option>-Djavafx.enablePreview=true</option>
           </javaOptions>
           <type>${jpackage.type}</type>
           <icon>${jpackage.icon}</icon>

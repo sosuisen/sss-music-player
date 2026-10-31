@@ -63,9 +63,9 @@ abstract class LibraryManagerViewTestBase {
     // set it, unless a method that NullAway knows as an "initializer" sets it.
     // In pom.xml, two things define such methods:
     // - the NullAway option CustomInitializerAnnotations=org.testfx.framework.junit5.Start
-    //   makes every @Start method an initializer
+    // makes every @Start method an initializer
     // - the test dependency com.uber.nullaway:nullaway-annotations provides
-    //   @Initializer, which marks any method as an initializer
+    // @Initializer, which marks any method as an initializer
     // The @Start methods of the subclasses only call this method, and NullAway
     // does not follow that call, so this method needs @Initializer.
     @Initializer

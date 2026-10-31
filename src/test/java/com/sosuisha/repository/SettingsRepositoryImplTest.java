@@ -177,4 +177,35 @@ class SettingsRepositoryImplTest {
             RepositoryException.class, () -> repository.save(new Settings(Path.of("music")))
         );
     }
+
+    @Test
+    @DisplayName("設定ファイルのテーマ名が不正な場合、loadはRepositoryExceptionを投げる")
+    void loading_throws_RepositoryException_when_the_theme_name_in_the_settings_file_is_invalid()
+        throws Exception {
+        Files.writeString(file, "musicLibraryPath=music\ntheme=NO_SUCH_THEME");
+        var repository = new SettingsRepositoryImpl();
+
+        assertThrows(RepositoryException.class, repository::load);
+    }
+
+    @Test
+    @DisplayName("設定ファイルのリピートモード名が不正な場合、loadはRepositoryExceptionを投げる")
+    void loading_throws_RepositoryException_when_the_repeat_mode_name_in_the_settings_file_is_invalid()
+        throws Exception {
+        Files.writeString(file, "musicLibraryPath=music\nrepeatMode=NO_SUCH_MODE");
+        var repository = new SettingsRepositoryImpl();
+
+        assertThrows(RepositoryException.class, repository::load);
+    }
+
+    @Test
+    @DisplayName("設定ファイルの音楽ライブラリのパスが不正な場合、loadはRepositoryExceptionを投げる")
+    void loading_throws_RepositoryException_when_the_music_library_path_in_the_settings_file_is_invalid()
+        throws Exception {
+        // A NUL character is not allowed in a path on any platform.
+        Files.writeString(file, "musicLibraryPath=music\u0000bad");
+        var repository = new SettingsRepositoryImpl();
+
+        assertThrows(RepositoryException.class, repository::load);
+    }
 }

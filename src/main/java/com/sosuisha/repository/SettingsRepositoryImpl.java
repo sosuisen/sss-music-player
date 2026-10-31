@@ -2,6 +2,7 @@ package com.sosuisha.repository;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -85,7 +86,8 @@ public class SettingsRepositoryImpl implements SettingsRepository {
      * @return loaded settings, or an empty optional when the file does not
      *         exist or has no music library path, meaning there are no
      *         settings to load
-     * @throws RepositoryException if the file cannot be read
+     * @throws RepositoryException if the file cannot be read, has an invalid
+     *         music library path, or has an unknown theme or repeat mode
      */
     @Override
     public Optional<Settings> load() throws RepositoryException {
@@ -99,12 +101,30 @@ public class SettingsRepositoryImpl implements SettingsRepository {
         }
         var musicLibraryPathText = properties.getProperty(MUSIC_LIBRARY_PATH_KEY);
         if (musicLibraryPathText == null) { return Optional.empty(); }
-        var musicLibraryPath = Path.of(musicLibraryPathText);
-        var themeName = properties.getProperty(THEME_KEY);
-        var theme = themeName == null ? Theme.PRIMER_LIGHT : Theme.valueOf(themeName);
-        var repeatModeName = properties.getProperty(REPEAT_MODE_KEY);
-        var repeatMode =
-            repeatModeName == null ? RepeatMode.ALL : RepeatMode.valueOf(repeatModeName);
+        Path musicLibraryPath;
+        try {
+            musicLibraryPath = Path.of(musicLibraryPathText);
+        } catch (InvalidPathException e) {
+            throw new RepositoryException(
+                "The settings file has an invalid music library path \"" + musicLibraryPathText
+                    + "\": " + file,
+                e
+            );
+        }
+        var theme = readEnum(properties, THEME_KEY, Theme.PRIMER_LIGHT);
+        var repeatMode = readEnum(properties, REPEAT_MODE_KEY, RepeatMode.ALL);
         return Optional.of(new Settings(musicLibraryPath, theme, repeatMode));
+    }
+
+    private <E extends Enum<E>> E readEnum(Properties properties, String key, E defaultValue) {
+        var name = properties.getProperty(key);
+        if (name == null) { return defaultValue; }
+        try {
+            return Enum.valueOf(defaultValue.getDeclaringClass(), name);
+        } catch (IllegalArgumentException e) {
+            throw new RepositoryException(
+                "The settings file has an unknown " + key + " \"" + name + "\": " + file, e
+            );
+        }
     }
 }

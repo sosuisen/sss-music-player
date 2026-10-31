@@ -101,26 +101,20 @@ public class SettingsRepositoryImpl implements SettingsRepository {
         var musicLibraryPathText = properties.getProperty(MUSIC_LIBRARY_PATH_KEY);
         if (musicLibraryPathText == null) { return Optional.empty(); }
         var musicLibraryPath = Path.of(musicLibraryPathText);
-        var themeName = properties.getProperty(THEME_KEY);
-        Theme theme;
-        try {
-            theme = themeName == null ? Theme.PRIMER_LIGHT : Theme.valueOf(themeName);
-        } catch (IllegalArgumentException e) {
-            throw new RepositoryException(
-                "The settings file has an unknown theme \"" + themeName + "\": " + file, e
-            );
-        }
-        var repeatModeName = properties.getProperty(REPEAT_MODE_KEY);
-        RepeatMode repeatMode;
-        try {
-            repeatMode =
-                repeatModeName == null ? RepeatMode.ALL : RepeatMode.valueOf(repeatModeName);
-        } catch (IllegalArgumentException e) {
-            throw new RepositoryException(
-                "The settings file has an unknown repeat mode \"" + repeatModeName + "\": " + file,
-                e
-            );
-        }
+        var theme = readEnum(properties, THEME_KEY, Theme.PRIMER_LIGHT);
+        var repeatMode = readEnum(properties, REPEAT_MODE_KEY, RepeatMode.ALL);
         return Optional.of(new Settings(musicLibraryPath, theme, repeatMode));
+    }
+
+    private <E extends Enum<E>> E readEnum(Properties properties, String key, E defaultValue) {
+        var name = properties.getProperty(key);
+        if (name == null) { return defaultValue; }
+        try {
+            return Enum.valueOf(defaultValue.getDeclaringClass(), name);
+        } catch (IllegalArgumentException e) {
+            throw new RepositoryException(
+                "The settings file has an unknown " + key + " \"" + name + "\": " + file, e
+            );
+        }
     }
 }

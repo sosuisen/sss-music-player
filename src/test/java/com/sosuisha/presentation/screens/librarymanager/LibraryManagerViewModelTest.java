@@ -5,7 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,6 +19,7 @@ import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.repository.NullLibraryRepository;
+import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.domain.repository.NullSettingsRepository;
 import com.sosuisha.presentation.WindowManager;
@@ -25,6 +29,7 @@ import com.sosuisha.service.LibraryIndexer;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
+import org.jspecify.annotations.Nullable;
 
 class LibraryManagerViewModelTest {
     @Test
@@ -267,5 +272,43 @@ class LibraryManagerViewModelTest {
         assertEquals(
             "Could not open the folder: " + Path.of("a"), viewModel.errorMessageProperty().get()
         );
+    }
+
+    @Test
+    @DisplayName("再生中に曲の選択が解除されてから曲が終わっても、RepeatMode.ONEでは同じ曲を再生し直す")
+    void the_finished_track_is_played_again_in_repeat_one_even_after_the_selection_was_cleared_while_playing() {
+        var onFinished = new AtomicReference<@Nullable Runnable>();
+        var playedPaths = new ArrayList<Path>();
+        MusicPlayer recordingPlayer = new NullMusicPlayer() {
+            @Override
+            public void play(Path path) {
+                playedPaths.add(path);
+            }
+
+            @Override
+            public void setOnFinished(Runnable callback) {
+                onFinished.set(callback);
+            }
+        };
+        var settingsAppModel = new SettingsAppModel(new NullSettingsRepository());
+        var viewModel = new LibraryManagerViewModel(
+            new WindowManager(),
+            new MusicLibraryAppModel(
+                new LibraryIndexer(new NullLibraryRepository()),
+                new SimpleObjectProperty<>()
+            ),
+            settingsAppModel,
+            recordingPlayer,
+            _ -> {
+            }
+        );
+        settingsAppModel.repeatModeProperty().set(RepeatMode.ONE);
+        var playing = new MusicFile(Path.of("p/playing.mp3"), 100);
+        viewModel.playTrack(playing);
+        viewModel.selectTrack(null);
+
+        Objects.requireNonNull(onFinished.get()).run();
+
+        assertEquals(List.of(playing.path(), playing.path()), playedPaths);
     }
 }

@@ -177,4 +177,14 @@ class SettingsRepositoryImplTest {
             RepositoryException.class, () -> repository.save(new Settings(Path.of("music")))
         );
     }
+
+    @Test
+    @DisplayName("設定ファイルのテーマ名が不正な場合、loadはRepositoryExceptionを投げる")
+    void loading_throws_RepositoryException_when_the_theme_name_in_the_settings_file_is_invalid()
+        throws Exception {
+        Files.writeString(file, "musicLibraryPath=music\ntheme=NO_SUCH_THEME");
+        var repository = new SettingsRepositoryImpl();
+
+        assertThrows(RepositoryException.class, repository::load);
+    }
 }

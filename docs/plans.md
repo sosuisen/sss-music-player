@@ -6,7 +6,7 @@ TDDの作業用todoリスト（使い捨て）。
 
 ## レビュー指摘のバグ修正
 
-- [ ] 再生中に曲の選択が解除された状態で曲が終わると、RepeatMode.ONEでNPEになる（LibraryManagerViewModel）
+- [x] 再生中に曲の選択が解除された状態で曲が終わると、RepeatMode.ONEでNPEになる（LibraryManagerViewModel）
 - [ ] 設定ファイルのテーマ名・リピートモード名・パスが不正なとき、RepositoryException以外の例外が漏れる（SettingsRepositoryImpl）
 
 ## ライブラリマネージャー

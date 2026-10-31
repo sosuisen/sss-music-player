@@ -187,4 +187,14 @@ class SettingsRepositoryImplTest {
 
         assertThrows(RepositoryException.class, repository::load);
     }
+
+    @Test
+    @DisplayName("設定ファイルのリピートモード名が不正な場合、loadはRepositoryExceptionを投げる")
+    void loading_throws_RepositoryException_when_the_repeat_mode_name_in_the_settings_file_is_invalid()
+        throws Exception {
+        Files.writeString(file, "musicLibraryPath=music\nrepeatMode=NO_SUCH_MODE");
+        var repository = new SettingsRepositoryImpl();
+
+        assertThrows(RepositoryException.class, repository::load);
+    }
 }

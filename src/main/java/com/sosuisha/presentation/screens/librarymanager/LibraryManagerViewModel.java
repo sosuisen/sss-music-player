@@ -284,11 +284,14 @@ public class LibraryManagerViewModel {
     }
 
     /**
-     * Selects the given track as the playback target.
+     * Selects the given track as the playback target. While a track is
+     * playing, clearing the selection is ignored so that the playing track
+     * stays selected.
      *
      * @param track track to select, or null to clear the selection
      */
     public void selectTrack(@Nullable MusicFile track) {
+        if (track == null && playerState.get() == PlayerState.PLAYING) { return; }
         selectedTrack.set(track);
     }
 

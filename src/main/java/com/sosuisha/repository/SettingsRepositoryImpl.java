@@ -86,7 +86,7 @@ public class SettingsRepositoryImpl implements SettingsRepository {
      *         exist or has no music library path, meaning there are no
      *         settings to load
      * @throws RepositoryException if the file cannot be read or has an
-     *         unknown theme
+     *         unknown theme or repeat mode
      */
     @Override
     public Optional<Settings> load() throws RepositoryException {
@@ -111,8 +111,16 @@ public class SettingsRepositoryImpl implements SettingsRepository {
             );
         }
         var repeatModeName = properties.getProperty(REPEAT_MODE_KEY);
-        var repeatMode =
-            repeatModeName == null ? RepeatMode.ALL : RepeatMode.valueOf(repeatModeName);
+        RepeatMode repeatMode;
+        try {
+            repeatMode =
+                repeatModeName == null ? RepeatMode.ALL : RepeatMode.valueOf(repeatModeName);
+        } catch (IllegalArgumentException e) {
+            throw new RepositoryException(
+                "The settings file has an unknown repeat mode \"" + repeatModeName + "\": " + file,
+                e
+            );
+        }
         return Optional.of(new Settings(musicLibraryPath, theme, repeatMode));
     }
 }

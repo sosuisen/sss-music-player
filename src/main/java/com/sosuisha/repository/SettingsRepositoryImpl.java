@@ -85,7 +85,8 @@ public class SettingsRepositoryImpl implements SettingsRepository {
      * @return loaded settings, or an empty optional when the file does not
      *         exist or has no music library path, meaning there are no
      *         settings to load
-     * @throws RepositoryException if the file cannot be read
+     * @throws RepositoryException if the file cannot be read or has an
+     *         unknown theme
      */
     @Override
     public Optional<Settings> load() throws RepositoryException {
@@ -101,7 +102,14 @@ public class SettingsRepositoryImpl implements SettingsRepository {
         if (musicLibraryPathText == null) { return Optional.empty(); }
         var musicLibraryPath = Path.of(musicLibraryPathText);
         var themeName = properties.getProperty(THEME_KEY);
-        var theme = themeName == null ? Theme.PRIMER_LIGHT : Theme.valueOf(themeName);
+        Theme theme;
+        try {
+            theme = themeName == null ? Theme.PRIMER_LIGHT : Theme.valueOf(themeName);
+        } catch (IllegalArgumentException e) {
+            throw new RepositoryException(
+                "The settings file has an unknown theme \"" + themeName + "\": " + file, e
+            );
+        }
         var repeatModeName = properties.getProperty(REPEAT_MODE_KEY);
         var repeatMode =
             repeatModeName == null ? RepeatMode.ALL : RepeatMode.valueOf(repeatModeName);

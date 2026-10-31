@@ -2,6 +2,7 @@ package com.sosuisha.repository;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -85,8 +86,8 @@ public class SettingsRepositoryImpl implements SettingsRepository {
      * @return loaded settings, or an empty optional when the file does not
      *         exist or has no music library path, meaning there are no
      *         settings to load
-     * @throws RepositoryException if the file cannot be read or has an
-     *         unknown theme or repeat mode
+     * @throws RepositoryException if the file cannot be read, has an invalid
+     *         music library path, or has an unknown theme or repeat mode
      */
     @Override
     public Optional<Settings> load() throws RepositoryException {
@@ -100,7 +101,16 @@ public class SettingsRepositoryImpl implements SettingsRepository {
         }
         var musicLibraryPathText = properties.getProperty(MUSIC_LIBRARY_PATH_KEY);
         if (musicLibraryPathText == null) { return Optional.empty(); }
-        var musicLibraryPath = Path.of(musicLibraryPathText);
+        Path musicLibraryPath;
+        try {
+            musicLibraryPath = Path.of(musicLibraryPathText);
+        } catch (InvalidPathException e) {
+            throw new RepositoryException(
+                "The settings file has an invalid music library path \"" + musicLibraryPathText
+                    + "\": " + file,
+                e
+            );
+        }
         var theme = readEnum(properties, THEME_KEY, Theme.PRIMER_LIGHT);
         var repeatMode = readEnum(properties, REPEAT_MODE_KEY, RepeatMode.ALL);
         return Optional.of(new Settings(musicLibraryPath, theme, repeatMode));

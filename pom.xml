@@ -12,17 +12,17 @@
     <javafx.plugin.version>0.0.8</javafx.plugin.version>
     <!-- The static JavaFX libraries for the native exe must come from the same
          commit as the JavaFX jars. See ADR 4. -->
-    <javafx.version>27</javafx.version>
+    <javafx.version>27.0.1</javafx.version>
     <javafx.builder.version>27.0.0</javafx.builder.version>
     <maven.compiler.release>25</maven.compiler.release>
     <main.class>com.sosuisha.main.Launcher</main.class>
-    <jooq.version>3.21.7</jooq.version>
+    <jooq.version>3.21.9</jooq.version>
     <atlantafx.version>2.0.1</atlantafx.version>
     <ikonli.version>12.4.0</ikonli.version>
-    <sqlite.jdbc.version>3.53.2.1</sqlite.jdbc.version>
-    <jspecify.version>1.0.0</jspecify.version>
-    <errorprone.version>2.50.0</errorprone.version>
-    <nullaway.version>0.14.0</nullaway.version>
+    <sqlite.jdbc.version>3.54.1.0</sqlite.jdbc.version>
+    <jspecify.version>1.0.1</jspecify.version>
+    <errorprone.version>2.51.0</errorprone.version>
+    <nullaway.version>0.14.3</nullaway.version>
     <!-- Extra options for the test JVMs, passed on the command line as
          -Dtest.jvm.options=... (for example the native-image tracing agent).
          Empty by default. -->
@@ -125,7 +125,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.13.0</version>
+        <version>3.16.0</version>
         <configuration>
           <release>${maven.compiler.release}</release>
           <compilerArgs>
@@ -154,7 +154,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.5.6</version>
+        <version>3.6.1</version>
         <configuration>
           <!-- Test classes run in parallel across forked JVMs. TestFX needs
                one JavaFX toolkit per JVM, so in-JVM parallelism is not safe. -->
@@ -221,7 +221,7 @@
       <plugin>
         <groupId>net.revelc.code.formatter</groupId>
         <artifactId>formatter-maven-plugin</artifactId>
-        <version>2.24.1</version>
+        <version>2.29.0</version>
         <configuration>
           <configFile>${project.basedir}/styles_for_jfxbuilder.xml</configFile>
           <lineEnding>LF</lineEnding>

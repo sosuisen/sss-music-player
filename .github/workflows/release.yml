@@ -1,0 +1,57 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      # The version names the zip and the release.
+      - name: Read the version from the tag
+        run: |
+          version="${GITHUB_REF_NAME#v}"
+          if [[ ! "$version" =~ ^[0-9]+(\.[0-9]+){0,2}$ ]]; then
+            echo "::error::The tag must look like v1.2.0: $GITHUB_REF_NAME"
+            exit 1
+          fi
+          echo "APP_VERSION=$version" >> "$GITHUB_ENV"
+
+      - run: git config --global core.autocrlf input
+
+      - uses: actions/checkout@v7
+
+      # Community Edition, because Oracle GraalVM needs the GFTC license checked. See ADR 4.
+      - uses: graalvm/setup-graalvm@v1
+        with:
+          distribution: graalvm-community
+          version: '25.4'
+          java-version: '25'
+          cache: maven
+          github-token: ${{ github.token }}
+
+      # A release runs the tests again, because a tag can point to any commit.
+      - name: Test and build the native exe
+        run: mvn -B -Pnative clean package
+
+      # A missing registration in the metadata fails only at run time, not at build time.
+      - name: Start the native exe and close its window
+        shell: pwsh
+        run: ./.github/scripts/smoke-test-exe.ps1 -Exe target/sss-music-player.exe
+
+      # The exe does not run without the DLLs for JavaFX media and AWT.
+      - name: Zip the native exe
+        shell: pwsh
+        run: Compress-Archive -Path target/sss-music-player.exe, target/*.dll -DestinationPath "sss-music-player-$env:APP_VERSION.zip"
+
+      - name: Create the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" "sss-music-player-$APP_VERSION.zip" --title "$GITHUB_REF_NAME" --generate-notes

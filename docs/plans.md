@@ -1,3 +1,4 @@
+2026-11-01 ギア5速：テストもコードもAIが書く。人間は最初の設計に関わるだけで、コードレビューはしない
 2026-10-31 ギア3速：テストもコードもAIが書く。ただし、ステップごとに人間がレビューしながら進める
 
 # plans
@@ -18,7 +19,7 @@ TDDの作業用todoリスト（使い捨て）。
 - [ ] 例外メッセージ全文を比較しているテスト2件（`SqliteLibraryRepositoryTest:227`、`DuplicateFileMoverTest:120`）をどこまで検証するか決める
 - [ ] `MusicFileTest`と`SettingsAppModelTest:42-49`（アクセサ・set/getだけのテスト）を消すか決める
 - [ ] PIT（`pitest-maven`）の導入
-- [ ] CI（GitHub Actions）の導入。`.github/modernize/java-upgrade/`の作業ファイルも不要なら消す
+- [x] CI（GitHub Actions）の導入。`.github/modernize/java-upgrade/`の作業ファイルも不要なら消す（native imageのexeを配る。ADR 004）
 - [ ] `classdiagram-maven-plugin`の導入と`docs/architecture.md`の作成
 - [ ] プロパティテスト: `SettingsRepositoryImpl`の「保存して読み込むと元に戻る」往復（jqwik等の導入が要る）
 
@@ -46,8 +47,8 @@ TDDの作業用todoリスト（使い捨て）。
 
 - [ ] JaCoCoの導入（`prepare-agent`と`report`）。テストしないクラスは理由コメント付きで`<excludes>`へ
 - [ ] formatter-maven-plugin: 版を2.29.0へ、設定ファイル名を`java-formatter.xml`へ（`.vscode/settings.json`も）、`format`ゴールの`<executions>`を足す
-- [ ] surefire: `forkCount=1C`に合わせて`javafx.cachedir`をフォークごとに分ける`<argLine>`（`@{argLine}`と空の`<argLine>`プロパティ）
-- [ ] jpackageの`appVersion`が`1.0.0`固定。仮の値だと分かるコメントを添える
+- [x] surefire: `forkCount=1C`に合わせて`javafx.cachedir`をフォークごとに分ける`<argLine>`（`${test.jvm.options}`で追加オプションを渡せる。JaCoCo導入時に`@{argLine}`を足す）
+- [x] jpackageの`appVersion`が`1.0.0`固定。仮の値だと分かるコメントを添える（jpackageごと撤去。ADR 004）
 - [ ] `maven.compiler.release`が25、READMEも「Java 25」。意図を確認して揃える
 - [ ] 依存の最新版の確認（`maven-compiler-plugin` 3.13.0など）
 

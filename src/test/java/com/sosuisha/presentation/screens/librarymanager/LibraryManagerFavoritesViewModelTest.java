@@ -98,6 +98,19 @@ class LibraryManagerFavoritesViewModelTest {
         assertEquals(List.of(new TrackItem(SONG)), viewModel.getListItems());
     }
 
+    @Test
+    @DisplayName("曲の項目を選ぶと、曲リストはその曲だけになり、選択中のアルバムはその曲のアルバムになる")
+    void selecting_a_track_row_shows_only_the_track_and_selects_its_album() {
+        var viewModel = createViewModel(List.of(new FavoriteTrack(TWO.path())));
+        viewModel.sortKeyProperty().set(SortKey.FAVORITES);
+
+        viewModel.selectListItem(new TrackItem(TWO));
+
+        assertEquals(List.of(TWO), viewModel.getSelectedTracks());
+        assertEquals(TWO, viewModel.selectedTrackProperty().get());
+        assertEquals(ALBUM_A, viewModel.selectedAlbumProperty().get());
+    }
+
     private static LibraryManagerViewModel createViewModel(List<Favorite> favorites) {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()), new SimpleObjectProperty<>()

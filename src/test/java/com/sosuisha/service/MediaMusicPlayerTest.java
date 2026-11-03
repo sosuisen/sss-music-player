@@ -2,10 +2,12 @@ package com.sosuisha.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
@@ -142,6 +144,24 @@ class MediaMusicPlayerTest {
         var second = waitForMediaSource(robot, player);
 
         assertEquals(first, second);
+        robot.interact(player::stop);
+    }
+
+    @Test
+    @DisabledIfEnvironmentVariable(
+        named = "CI", matches = "true",
+        disabledReason = "A MediaPlayer ends the test JVM on the Windows Server runner")
+    @DisplayName("別の曲を再生すると、前の一時WAVを消す")
+    void playing_another_track_deletes_the_previous_temporary_wav(FxRobot robot)
+        throws Exception {
+        var player = new MediaMusicPlayer();
+        robot.interact(() -> player.play(Path.of("src/test/resources/id3/tagged.m4a")));
+        var wav = Path.of(URI.create(waitForMediaSource(robot, player)));
+
+        robot.interact(() -> player.play(Path.of("src/test/resources/id3/tagged.mp3")));
+        waitForMediaSource(robot, player);
+
+        assertFalse(Files.exists(wav), wav.toString());
         robot.interact(player::stop);
     }
 

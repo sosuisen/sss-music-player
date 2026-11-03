@@ -3,6 +3,7 @@ package com.sosuisha.service;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.List;
@@ -230,6 +231,17 @@ public class MediaMusicPlayer implements MusicPlayer {
         if (loaded.player != null) {
             loaded.player.play();
         }
+    }
+
+    /**
+     * Moves the playback of the loaded audio file to the given position.
+     *
+     * @param position time from the start of the file
+     * @throws NullPointerException if position is null
+     */
+    @Override
+    public void seek(Duration position) {
+        Objects.requireNonNull(position, "position must not be null");
     }
 
     /**

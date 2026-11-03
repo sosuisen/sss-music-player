@@ -1,6 +1,7 @@
 package com.sosuisha.domain.service;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -34,6 +35,16 @@ public interface MusicPlayer {
      * when nothing is paused.
      */
     void resume();
+
+    /**
+     * Moves the playback of the loaded audio file to the given position. The
+     * playback stays paused when it is paused. Does nothing when nothing is
+     * loaded.
+     *
+     * @param position time from the start of the file
+     * @throws NullPointerException if position is null
+     */
+    void seek(Duration position);
 
     /**
      * Sets the callback that is invoked when the playing audio file reaches

@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testfx.api.FxAssert.verifyThat;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -85,6 +86,9 @@ class DuplicateListViewTest {
 
             @Override
             public void resume() {}
+
+            @Override
+            public void seek(Duration position) {}
 
             @Override
             public void setOnFinished(Runnable onFinished) {}

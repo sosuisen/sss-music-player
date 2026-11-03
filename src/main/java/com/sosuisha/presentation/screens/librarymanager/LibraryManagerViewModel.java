@@ -1,6 +1,7 @@
 package com.sosuisha.presentation.screens.librarymanager;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -570,6 +571,18 @@ public class LibraryManagerViewModel {
         } catch (FolderOpenException e) {
             errorMessage.set(e.getMessage());
         }
+    }
+
+    /**
+     * Moves the playback of the playing or paused track to the given
+     * position.
+     *
+     * @param position time from the start of the track
+     * @throws NullPointerException if position is null
+     */
+    public void seek(Duration position) {
+        Objects.requireNonNull(position, "position must not be null");
+        musicPlayer.seek(position);
     }
 
     /**

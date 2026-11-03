@@ -1,6 +1,7 @@
 package com.sosuisha.presentation.screens.librarymanager;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -120,6 +121,9 @@ abstract class LibraryManagerViewTestBase {
                 public void resume() {
                     playbackResumed.set(true);
                 }
+
+                @Override
+                public void seek(Duration position) {}
 
                 @Override
                 public void setOnFinished(Runnable onFinished) {

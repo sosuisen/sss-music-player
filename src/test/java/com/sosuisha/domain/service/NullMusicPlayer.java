@@ -1,6 +1,7 @@
 package com.sosuisha.domain.service;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -22,6 +23,9 @@ public class NullMusicPlayer implements MusicPlayer {
 
     @Override
     public void resume() {}
+
+    @Override
+    public void seek(Duration position) {}
 
     @Override
     public void setOnFinished(Runnable onFinished) {}

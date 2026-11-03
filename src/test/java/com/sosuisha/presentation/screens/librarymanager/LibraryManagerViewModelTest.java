@@ -1,5 +1,6 @@
 package com.sosuisha.presentation.screens.librarymanager;
 
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -507,6 +508,40 @@ class LibraryManagerViewModelTest {
         viewModel.seek(Duration.ofSeconds(90));
 
         assertEquals(Duration.ofSeconds(90), sought.get());
+    }
+
+    @Test
+    @DisplayName("アルバムの行で再生すると、トラック番号順の先頭の曲を再生し、その曲を選ぶ")
+    void playing_an_album_row_plays_and_selects_the_first_track_by_track_number() {
+        var playedPaths = new ArrayList<Path>();
+        var viewModel = viewModelWith(recordingPlayer(playedPaths));
+        var trackOne = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("Song One", "", "Album A", "Artist X", "1", "")
+        );
+        var trackTwo = new MusicFile(
+            Path.of("a/two.mp3"), 100,
+            new TrackMetadata("Song Two", "", "Album A", "Artist X", "2", "")
+        );
+
+        viewModel.playListItem(
+            new AlbumItem(new Album("Album A", "Artist X", List.of(trackTwo, trackOne)))
+        );
+
+        assertAll(
+            () -> assertEquals(List.of(Path.of("a/one.mp3")), playedPaths),
+            () -> assertEquals(trackOne, viewModel.selectedTrackProperty().get())
+        );
+    }
+
+    // A player that records the paths it is asked to play.
+    private static MusicPlayer recordingPlayer(List<Path> playedPaths) {
+        return new NullMusicPlayer() {
+            @Override
+            public void play(Path path) {
+                playedPaths.add(path);
+            }
+        };
     }
 
     // A player that hands its progress callback to the test.

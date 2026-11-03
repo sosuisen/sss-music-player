@@ -616,6 +616,7 @@ public class LibraryManagerViewModel {
     public void stopPlayback() {
         musicPlayer.stop();
         playerState.set(PlayerState.STOPPED);
+        playbackPosition.set(null);
     }
 
     private static List<MusicFile> orderByTrackNumber(List<MusicFile> files) {

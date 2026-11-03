@@ -16,6 +16,7 @@ import com.sosuisha.domain.model.PlaybackPosition;
 
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.input.MouseButton;
 import javafx.stage.Stage;
 
 class LibraryManagerSeekBarTest extends LibraryManagerViewTestBase {
@@ -54,6 +55,22 @@ class LibraryManagerSeekBarTest extends LibraryManagerViewTestBase {
             () -> assertEquals("1:23", label(robot, "#elapsedTime")),
             () -> assertEquals("4:05", label(robot, "#trackLength"))
         );
+    }
+
+    @Test
+    @DisplayName("シークバーのつまみを動かして離すと、その位置へシークする")
+    void releasing_the_dragged_thumb_seeks_to_that_position(FxRobot robot) {
+        var seekBar = robot.lookup("#seekBar").queryAs(Slider.class);
+        robot.interact(
+            () -> reportProgress(new PlaybackPosition(Duration.ZERO, Duration.ofSeconds(100)))
+        );
+
+        // Past the right end of the bar, so the thumb stops at the end.
+        robot.drag("#seekBar .thumb", MouseButton.PRIMARY)
+            .moveBy(seekBar.getWidth(), 0)
+            .release(MouseButton.PRIMARY);
+
+        assertEquals(Duration.ofSeconds(100), seekedPosition.get());
     }
 
     private static String label(FxRobot robot, String query) {

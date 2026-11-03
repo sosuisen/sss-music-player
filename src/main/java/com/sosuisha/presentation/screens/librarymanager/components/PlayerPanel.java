@@ -119,6 +119,17 @@ public class PlayerPanel {
 
     private static HBox buildSeekRow(LibraryManagerViewModel viewModel) {
         var position = viewModel.playbackPositionProperty();
+        var seekBar = SliderBuilder.create()
+            .id("seekBar")
+            .hGrowInHBox(Priority.ALWAYS)
+            .disablePropertyApply(prop -> prop.bind(position.isNull()))
+            .build();
+        // Not bound. The user moves the value by dragging the thumb.
+        position.addListener((_, _, current) -> {
+            if (current == null) { return; }
+            seekBar.setMax(seconds(current.length()));
+            seekBar.setValue(seconds(current.position()));
+        });
         return HBoxBuilder
             .withChildren(
                 LabelBuilder.create()
@@ -127,11 +138,7 @@ public class PlayerPanel {
                         prop -> prop.bind(timeOf(position, PlaybackPosition::position))
                     )
                     .build(),
-                SliderBuilder.create()
-                    .id("seekBar")
-                    .hGrowInHBox(Priority.ALWAYS)
-                    .disablePropertyApply(prop -> prop.bind(position.isNull()))
-                    .build(),
+                seekBar,
                 LabelBuilder.create()
                     .id("trackLength")
                     .textPropertyApply(
@@ -142,6 +149,10 @@ public class PlayerPanel {
             .spacing(10)
             .alignment(Pos.CENTER_LEFT)
             .build();
+    }
+
+    private static double seconds(Duration time) {
+        return time.toMillis() / 1000.0;
     }
 
     // The time is 0:00 while the position is not known.

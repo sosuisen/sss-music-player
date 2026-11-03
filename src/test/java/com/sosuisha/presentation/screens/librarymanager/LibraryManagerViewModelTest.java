@@ -491,6 +491,24 @@ class LibraryManagerViewModelTest {
         assertNull(viewModel.playbackPositionProperty().get());
     }
 
+    @Test
+    @DisplayName("シークすると、プレイヤーにその位置への移動を頼む")
+    void seeking_asks_the_player_to_move_to_the_position() {
+        var sought = new AtomicReference<@Nullable Duration>();
+        MusicPlayer seekingPlayer = new NullMusicPlayer() {
+            @Override
+            public void seek(Duration position) {
+                sought.set(position);
+            }
+        };
+        var viewModel = viewModelWith(seekingPlayer);
+        viewModel.playTrack(new MusicFile(Path.of("a/one.mp3"), 100));
+
+        viewModel.seek(Duration.ofSeconds(90));
+
+        assertEquals(Duration.ofSeconds(90), sought.get());
+    }
+
     // A player that hands its progress callback to the test.
     private static MusicPlayer reportingPlayer(
         AtomicReference<@Nullable Consumer<PlaybackPosition>> onProgress) {

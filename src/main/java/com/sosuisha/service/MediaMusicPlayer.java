@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import com.sosuisha.domain.service.MusicPlayer;
 
 import javafx.scene.media.Media;
+import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import org.jspecify.annotations.Nullable;
 
@@ -43,7 +44,13 @@ public class MediaMusicPlayer implements MusicPlayer {
     public void play(Path path) {
         Objects.requireNonNull(path, "path must not be null");
         stop();
-        var player = new MediaPlayer(new Media(mediaUri(path)));
+        MediaPlayer player;
+        try {
+            player = new MediaPlayer(new Media(mediaUri(path)));
+        } catch (MediaException e) {
+            onError.accept(e.getMessage());
+            return;
+        }
         player.setOnEndOfMedia(onFinished);
         player.play();
         playing = new Playing(player, path);

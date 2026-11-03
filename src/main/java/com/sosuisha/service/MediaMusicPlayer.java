@@ -259,6 +259,8 @@ public class MediaMusicPlayer implements MusicPlayer {
     @Override
     public void seek(Duration position) {
         Objects.requireNonNull(position, "position must not be null");
+        if (loaded == null || loaded.player == null) { return; }
+        loaded.player.seek(javafx.util.Duration.millis(position.toMillis()));
     }
 
     /**

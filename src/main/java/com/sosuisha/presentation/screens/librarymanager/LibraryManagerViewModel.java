@@ -537,6 +537,7 @@ public class LibraryManagerViewModel {
     // a failure inside play() and the failure sets the state to STOPPED.
     private void startPlaying(Path path) {
         errorMessage.set(null);
+        playbackPosition.set(null);
         playerState.set(PlayerState.PLAYING);
         musicPlayer.play(path);
     }

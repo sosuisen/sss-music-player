@@ -5,10 +5,12 @@ import java.nio.file.Path;
 import java.util.HexFormat;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import com.sosuisha.domain.service.MusicPlayer;
 
 import javafx.scene.media.Media;
+import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import org.jspecify.annotations.Nullable;
 
@@ -28,6 +30,9 @@ public class MediaMusicPlayer implements MusicPlayer {
     // The initial callback does nothing.
     private Runnable onFinished = () -> {
     };
+    // The initial callback does nothing.
+    private Consumer<String> onError = _ -> {
+    };
 
     /**
      * Plays the audio file at the given path.
@@ -39,8 +44,20 @@ public class MediaMusicPlayer implements MusicPlayer {
     public void play(Path path) {
         Objects.requireNonNull(path, "path must not be null");
         stop();
-        var player = new MediaPlayer(new Media(mediaUri(path)));
+        MediaPlayer player;
+        try {
+            player = new MediaPlayer(new Media(mediaUri(path)));
+        } catch (MediaException e) {
+            onError.accept(e.getMessage());
+            return;
+        }
         player.setOnEndOfMedia(onFinished);
+        player.setOnError(() -> {
+            // getError() is set whenever onError runs.
+            var reason = player.getError().getMessage();
+            stop();
+            onError.accept(reason);
+        });
         player.play();
         playing = new Playing(player, path);
     }
@@ -102,6 +119,18 @@ public class MediaMusicPlayer implements MusicPlayer {
     @Override
     public void setOnFinished(Runnable onFinished) {
         this.onFinished = Objects.requireNonNull(onFinished, "onFinished must not be null");
+    }
+
+    /**
+     * Sets the callback that is invoked when an audio file cannot be played.
+     * It applies to files played after this call.
+     *
+     * @param onError callback invoked with the reason of the failure
+     * @throws NullPointerException if onError is null
+     */
+    @Override
+    public void setOnError(Consumer<String> onError) {
+        this.onError = Objects.requireNonNull(onError, "onError must not be null");
     }
 
     /**

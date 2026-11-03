@@ -84,11 +84,18 @@ public class LibraryManagerViewModel {
         this.musicPlayer = Objects.requireNonNull(musicPlayer, "musicPlayer must not be null");
         this.folderOpener = Objects.requireNonNull(folderOpener, "folderOpener must not be null");
         musicPlayer.setOnFinished(this::continuePlaybackWhenTrackFinishes);
+        musicPlayer.setOnError(this::stopWhenPlaybackFails);
         appModel.getFiles().subscribe(this::updateAlbums);
         // subscribe(Consumer) also fires with the current value, which
         // computes the initial album list here.
         sortKey.subscribe(_ -> updateAlbums());
         albumFilter.subscribe(_ -> updateAlbums());
+    }
+
+    private void stopWhenPlaybackFails(String reason) {
+        var track = selectedTrack.get();
+        playerState.set(PlayerState.STOPPED);
+        errorMessage.set("Cannot play " + track.path().getFileName() + ": " + reason);
     }
 
     private void continuePlaybackWhenTrackFinishes() {
@@ -487,8 +494,7 @@ public class LibraryManagerViewModel {
     public void playTrack(MusicFile track) {
         Objects.requireNonNull(track, "track must not be null");
         selectedTrack.set(track);
-        musicPlayer.play(track.path());
-        playerState.set(PlayerState.PLAYING);
+        startPlaying(track.path());
     }
 
     /**
@@ -507,20 +513,27 @@ public class LibraryManagerViewModel {
                 if (selected == null
                     || musicPlayer.playingPath().equals(Optional.of(selected.path()))) {
                     musicPlayer.resume();
+                    playerState.set(PlayerState.PLAYING);
                 } else {
                     // The selection moved while paused; the selected track
                     // starts from the beginning.
-                    musicPlayer.play(selected.path());
+                    startPlaying(selected.path());
                 }
-                playerState.set(PlayerState.PLAYING);
             }
             case STOPPED -> {
                 if (selectedTrack.get() != null) {
-                    musicPlayer.play(selectedTrack.get().path());
-                    playerState.set(PlayerState.PLAYING);
+                    startPlaying(selectedTrack.get().path());
                 }
             }
         }
+    }
+
+    // The state becomes PLAYING before play(), because the player may report
+    // a failure inside play() and the failure sets the state to STOPPED.
+    private void startPlaying(Path path) {
+        errorMessage.set(null);
+        playerState.set(PlayerState.PLAYING);
+        musicPlayer.play(path);
     }
 
     /**

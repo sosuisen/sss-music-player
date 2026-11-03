@@ -1,5 +1,6 @@
 package com.sosuisha.presentation.screens.librarymanager;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
@@ -15,8 +16,10 @@ import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.presentation.screens.librarymanager.AlbumListItem.AlbumItem;
 import com.sosuisha.presentation.screens.librarymanager.AlbumListItem.TrackItem;
+import com.sosuisha.presentation.screens.librarymanager.components.FavoriteStar;
 
 import javafx.scene.Node;
+import javafx.scene.control.Labeled;
 import javafx.stage.Stage;
 
 class LibraryManagerFavoritesTest extends LibraryManagerViewTestBase {
@@ -38,6 +41,17 @@ class LibraryManagerFavoritesTest extends LibraryManagerViewTestBase {
         robot.clickOn(star);
 
         assertTrue(viewModel.isFavorite(new AlbumItem(new Album("Album A", "X", List.of(ONE)))));
+    }
+
+    @Test
+    @DisplayName("アルバムを登録すると、アルバム行の星は登録済みの表示になる")
+    void registering_an_album_shows_the_star_of_its_row_as_a_favorite(FxRobot robot) {
+        robot.interact(() -> viewModel.setFiles(List.of(ONE)));
+
+        robot.clickOn(robot.lookup("#albumList .favorite-star").<Node>query());
+
+        Labeled star = robot.lookup("#albumList .favorite-star").query();
+        assertEquals(FavoriteStar.glyph(true), star.getText());
     }
 
     @Test

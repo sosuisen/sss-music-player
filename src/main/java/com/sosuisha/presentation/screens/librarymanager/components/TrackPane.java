@@ -14,7 +14,6 @@ import io.github.sosuisen.jfxbuilder.graphics.HBoxBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
@@ -102,10 +101,7 @@ public class TrackPane {
                         return;
                     }
                     setText(viewModel.trackRowText(item));
-                    var star = new Label("☆");
-                    star.getStyleClass().add("favorite-star");
-                    star.setOnMouseClicked(_ -> viewModel.toggleFavorite(new TrackItem(item)));
-                    setGraphic(star);
+                    setGraphic(FavoriteStar.create(() -> viewModel.toggleFavorite(new TrackItem(item))));
                 }
             })
             .apply(listView -> {

@@ -16,7 +16,6 @@ import io.github.sosuisen.jfxbuilder.controls.ListViewBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.HBoxBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
 import javafx.scene.Cursor;
-import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
@@ -87,10 +86,7 @@ public class AlbumPane {
                         return;
                     }
                     setText(viewModel.listItemText(item));
-                    var star = new Label("☆");
-                    star.getStyleClass().add("favorite-star");
-                    star.setOnMouseClicked(_ -> viewModel.toggleFavorite(item));
-                    setGraphic(star);
+                    setGraphic(FavoriteStar.create(() -> viewModel.toggleFavorite(item)));
                 }
             })
             .apply(

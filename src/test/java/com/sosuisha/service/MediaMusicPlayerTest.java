@@ -27,6 +27,7 @@ import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.util.WaitForAsyncUtils;
 
 import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import org.jspecify.annotations.Nullable;
 
 // Media and MediaPlayer use the JavaFX toolkit in their background threads.
@@ -193,6 +194,33 @@ class MediaMusicPlayerTest {
         });
 
         assertFalse(Files.exists(wav), wav.toString());
+        robot.interact(player::stop);
+    }
+
+    @Test
+    @DisabledIfEnvironmentVariable(
+        named = "CI", matches = "true",
+        disabledReason = "A MediaPlayer ends the test JVM on the Windows Server runner")
+    @DisplayName("変換中に一時停止すると、変換が終わっても一時停止のままである")
+    void pausing_during_the_conversion_keeps_the_track_paused(FxRobot robot) throws Exception {
+        var m4a = Path.of("src/test/resources/id3/tagged.m4a");
+        // The conversion waits here until the test runs it.
+        var conversions = new ArrayList<Runnable>();
+        var player = new MediaMusicPlayer(
+            new WavConverter(createFolderInTarget("paused")), conversions::add
+        );
+        robot.interact(() -> player.play(m4a));
+        robot.interact(player::pause);
+
+        conversions.forEach(Runnable::run);
+
+        WaitForAsyncUtils.waitFor(
+            10, TimeUnit.SECONDS, () -> onFxThread(
+                robot,
+                () -> player.mediaPlayer().map(MediaPlayer::getStatus)
+            ).equals(Optional.of(MediaPlayer.Status.PAUSED))
+        );
+        assertEquals(Optional.of(m4a), onFxThread(robot, player::playingPath));
         robot.interact(player::stop);
     }
 

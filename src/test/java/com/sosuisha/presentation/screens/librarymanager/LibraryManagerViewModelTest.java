@@ -348,18 +348,7 @@ class LibraryManagerViewModelTest {
                 onError.set(callback);
             }
         };
-        var viewModel = new LibraryManagerViewModel(
-            new WindowManager(),
-            new MusicLibraryAppModel(
-                new LibraryIndexer(new NullLibraryRepository()),
-                new SimpleObjectProperty<>()
-            ),
-            new SettingsAppModel(new NullSettingsRepository()),
-            new FavoritesAppModel(new InMemoryFavoriteRepository()),
-            failingPlayer,
-            _ -> {
-            }
-        );
+        var viewModel = viewModelWith(failingPlayer);
         viewModel.playTrack(new MusicFile(Path.of("a/one.m4a"), 100));
 
         Objects.requireNonNull(onError.get()).accept("ERROR_MEDIA_INVALID");
@@ -387,18 +376,7 @@ class LibraryManagerViewModelTest {
                 onError = callback;
             }
         };
-        var viewModel = new LibraryManagerViewModel(
-            new WindowManager(),
-            new MusicLibraryAppModel(
-                new LibraryIndexer(new NullLibraryRepository()),
-                new SimpleObjectProperty<>()
-            ),
-            new SettingsAppModel(new NullSettingsRepository()),
-            new FavoritesAppModel(new InMemoryFavoriteRepository()),
-            failingPlayer,
-            _ -> {
-            }
-        );
+        var viewModel = viewModelWith(failingPlayer);
 
         viewModel.playTrack(new MusicFile(Path.of("a/missing.mp3"), 100));
 
@@ -415,7 +393,17 @@ class LibraryManagerViewModelTest {
                 onError.set(callback);
             }
         };
-        var viewModel = new LibraryManagerViewModel(
+        var viewModel = viewModelWith(failingPlayer);
+        viewModel.playTrack(new MusicFile(Path.of("a/one.m4a"), 100));
+        Objects.requireNonNull(onError.get()).accept("ERROR_MEDIA_INVALID");
+
+        viewModel.playTrack(new MusicFile(Path.of("a/two.mp3"), 100));
+
+        assertNull(viewModel.errorMessageProperty().get());
+    }
+
+    private static LibraryManagerViewModel viewModelWith(MusicPlayer musicPlayer) {
+        return new LibraryManagerViewModel(
             new WindowManager(),
             new MusicLibraryAppModel(
                 new LibraryIndexer(new NullLibraryRepository()),
@@ -423,15 +411,9 @@ class LibraryManagerViewModelTest {
             ),
             new SettingsAppModel(new NullSettingsRepository()),
             new FavoritesAppModel(new InMemoryFavoriteRepository()),
-            failingPlayer,
+            musicPlayer,
             _ -> {
             }
         );
-        viewModel.playTrack(new MusicFile(Path.of("a/one.m4a"), 100));
-        Objects.requireNonNull(onError.get()).accept("ERROR_MEDIA_INVALID");
-
-        viewModel.playTrack(new MusicFile(Path.of("a/two.mp3"), 100));
-
-        assertNull(viewModel.errorMessageProperty().get());
     }
 }

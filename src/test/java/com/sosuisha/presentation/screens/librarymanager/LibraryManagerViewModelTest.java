@@ -2,6 +2,7 @@ package com.sosuisha.presentation.screens.librarymanager;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.nio.file.Path;
@@ -402,5 +403,35 @@ class LibraryManagerViewModelTest {
         viewModel.playTrack(new MusicFile(Path.of("a/missing.mp3"), 100));
 
         assertEquals(PlayerState.STOPPED, viewModel.playerStateProperty().get());
+    }
+
+    @Test
+    @DisplayName("次の再生が始まると、エラーメッセージは消える")
+    void the_error_message_is_cleared_when_the_next_playback_starts() {
+        var onError = new AtomicReference<@Nullable Consumer<String>>();
+        MusicPlayer failingPlayer = new NullMusicPlayer() {
+            @Override
+            public void setOnError(Consumer<String> callback) {
+                onError.set(callback);
+            }
+        };
+        var viewModel = new LibraryManagerViewModel(
+            new WindowManager(),
+            new MusicLibraryAppModel(
+                new LibraryIndexer(new NullLibraryRepository()),
+                new SimpleObjectProperty<>()
+            ),
+            new SettingsAppModel(new NullSettingsRepository()),
+            new FavoritesAppModel(new InMemoryFavoriteRepository()),
+            failingPlayer,
+            _ -> {
+            }
+        );
+        viewModel.playTrack(new MusicFile(Path.of("a/one.m4a"), 100));
+        Objects.requireNonNull(onError.get()).accept("ERROR_MEDIA_INVALID");
+
+        viewModel.playTrack(new MusicFile(Path.of("a/two.mp3"), 100));
+
+        assertNull(viewModel.errorMessageProperty().get());
     }
 }

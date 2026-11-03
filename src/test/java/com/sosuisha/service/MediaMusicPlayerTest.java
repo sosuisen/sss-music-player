@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -280,8 +281,34 @@ class MediaMusicPlayerTest {
         robot.interact(player::stop);
     }
 
-    // Not @TempDir. Media keeps the file open, and Windows then refuses to
-    // delete the folder. A folder in target/ is deleted by mvn clean.
+    @Test
+    @DisabledIfEnvironmentVariable(
+        named = "CI", matches = "true",
+        disabledReason = "A MediaPlayer ends the test JVM on the Windows Server runner")
+    @DisplayName("シークすると、その位置から再生を続ける")
+    void seeking_continues_the_playback_from_that_position(FxRobot robot) throws Exception {
+        var wav = writeSilentWav(createFolderInTarget("seek"), 10);
+        var player = new MediaMusicPlayer();
+        var reports = new CopyOnWriteArrayList<PlaybackPosition>();
+        robot.interact(() -> {
+            player.setOnProgress(reports::add);
+            player.play(wav);
+        });
+        WaitForAsyncUtils.waitFor(
+            10, TimeUnit.SECONDS,
+            () -> reports.stream().anyMatch(report -> report.position().isPositive())
+        );
+
+        robot.interact(() -> player.seek(Duration.ofSeconds(8)));
+
+        // The playback from the start cannot reach 8 seconds in 3 seconds.
+        WaitForAsyncUtils.waitFor(
+            3, TimeUnit.SECONDS,
+            () -> reports.getLast().position().compareTo(Duration.ofMillis(8100)) > 0
+        );
+        robot.interact(player::stop);
+    }
+
     // 16-bit stereo silence at 44100Hz. The fixtures in src/test/resources
     // are too short to watch the position move.
     private static Path writeSilentWav(Path folder, int seconds) throws IOException {
@@ -295,6 +322,8 @@ class MediaMusicPlayerTest {
         return wav;
     }
 
+    // Not @TempDir. Media keeps the file open, and Windows then refuses to
+    // delete the folder. A folder in target/ is deleted by mvn clean.
     private static Path createFolderInTarget(String prefix) throws IOException {
         return Files.createTempDirectory(
             Files.createDirectories(Path.of("target/media-test")), prefix

@@ -38,15 +38,22 @@ public class FavoritesAppModel {
     }
 
     /**
-     * Registers the given favorite at the end of the favorites and saves it.
+     * Toggles the given favorite. An unregistered favorite is added at the
+     * end of the favorites, and a registered one is removed. The change is
+     * saved to the repository.
      *
      * @param favorite favorite to toggle
      * @throws NullPointerException if favorite is null
-     * @throws RepositoryException if the favorite cannot be saved
+     * @throws RepositoryException if the change cannot be saved
      */
     public void toggle(Favorite favorite) {
         Objects.requireNonNull(favorite, "favorite must not be null");
-        repository.add(favorite);
-        favorites.add(favorite);
+        if (favorites.contains(favorite)) {
+            repository.remove(favorite);
+            favorites.remove(favorite);
+        } else {
+            repository.add(favorite);
+            favorites.add(favorite);
+        }
     }
 }

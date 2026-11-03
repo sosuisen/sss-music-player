@@ -7,6 +7,7 @@ import java.util.Optional;
 
 import com.sosuisha.presentation.View;
 import com.sosuisha.presentation.WindowManager;
+import com.sosuisha.presentation.appmodel.FavoritesAppModel;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.presentation.screens.alert.AlertDialog;
@@ -24,6 +25,7 @@ import com.sosuisha.service.ShellFolderOpener;
 import com.sosuisha.service.LibraryIndexer;
 import com.sosuisha.service.MediaMusicPlayer;
 import com.sosuisha.repository.SettingsRepositoryImpl;
+import com.sosuisha.repository.SqliteFavoriteRepository;
 import com.sosuisha.repository.SqliteLibraryRepository;
 
 import com.sosuisha.domain.exception.RepositoryException;
@@ -79,8 +81,10 @@ public class App extends Application {
         settingsAppModel.themeProperty()
             .subscribe(theme -> setUserAgentStylesheet(toStylesheet(theme)));
         SqliteLibraryRepository libraryRepository;
+        FavoritesAppModel favoritesAppModel;
         try {
             libraryRepository = new SqliteLibraryRepository();
+            favoritesAppModel = new FavoritesAppModel(new SqliteFavoriteRepository());
         } catch (RepositoryException e) {
             // The app cannot work without its database. No window is opened,
             // so the app exits when the dialog is closed.
@@ -95,7 +99,8 @@ public class App extends Application {
         var folderOpener = new ShellFolderOpener();
         var libraryManagerViewModel =
             new LibraryManagerViewModel(
-                windowManager, musicLibAppModel, settingsAppModel, new MediaMusicPlayer(),
+                windowManager, musicLibAppModel, settingsAppModel, favoritesAppModel,
+                new MediaMusicPlayer(),
                 folderOpener
             );
         windowManager.registerView(new LibraryManagerView(libraryManagerViewModel));

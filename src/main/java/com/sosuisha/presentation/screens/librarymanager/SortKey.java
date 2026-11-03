@@ -1,13 +1,16 @@
 package com.sosuisha.presentation.screens.librarymanager;
 
 /**
- * Sort key of the album list.
+ * Sort key of the album list. {@link #FAVORITES} replaces the albums with the
+ * favorites in the order they were added.
  */
 public enum SortKey {
     /** Sorts the albums by album name. */
     ALBUM("Album"),
     /** Sorts the albums by album artist name. */
-    ARTIST("Artist");
+    ARTIST("Artist"),
+    /** Shows the favorite albums and tracks in the order they were added. */
+    FAVORITES("Favorites");
 
     private final String label;
 

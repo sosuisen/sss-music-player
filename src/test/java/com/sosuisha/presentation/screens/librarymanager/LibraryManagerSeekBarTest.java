@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Duration;
+import java.util.Objects;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -98,6 +99,24 @@ class LibraryManagerSeekBarTest extends LibraryManagerViewTestBase {
         var valueAfterReport = seekBar.getValue();
         robot.release(MouseButton.PRIMARY);
         assertEquals(draggedValue, valueAfterReport);
+    }
+
+    @Test
+    @DisplayName("シークバーをクリックすると、その位置へシークする")
+    void clicking_the_seek_bar_seeks_to_that_position(FxRobot robot) {
+        var seekBar = robot.lookup("#seekBar").queryAs(Slider.class);
+        robot.interact(
+            () -> reportProgress(new PlaybackPosition(Duration.ZERO, Duration.ofSeconds(100)))
+        );
+        var track = robot.lookup("#seekBar .track").query();
+        var bounds = track.localToScreen(track.getBoundsInLocal());
+
+        // The bar has padding around the track. A click there does not move
+        // the thumb.
+        robot.clickOn(new Point2D(bounds.getCenterX(), bounds.getCenterY()));
+
+        var seeked = Objects.requireNonNull(seekedPosition.get(), "no seek");
+        assertEquals(50_000, seeked.toMillis(), 1_000, seeked.toString());
     }
 
     private static String label(FxRobot robot, String query) {

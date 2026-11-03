@@ -71,6 +71,13 @@
       <version>3.0.1</version>
     </dependency>
     <dependency>
+      <!-- Decodes m4a (AAC) through Java Sound. JavaFX cannot play m4a on
+           some Windows PCs. See ADR 005. -->
+      <groupId>com.tianscar.javasound</groupId>
+      <artifactId>jaad</artifactId>
+      <version>0.9.4</version>
+    </dependency>
+    <dependency>
       <groupId>org.xerial</groupId>
       <artifactId>sqlite-jdbc</artifactId>
       <version>${sqlite.jdbc.version}</version>

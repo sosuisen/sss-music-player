@@ -2,16 +2,21 @@ package com.sosuisha.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,8 +24,10 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
+import org.testfx.util.WaitForAsyncUtils;
 
 import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
 import org.jspecify.annotations.Nullable;
 
 // Media and MediaPlayer use the JavaFX toolkit in their background threads.
@@ -55,6 +62,47 @@ class MediaMusicPlayerTest {
         assertEquals(Optional.empty(), player.playingPath());
     }
 
+    // No MediaPlayer is created, so this test also runs on the CI runner.
+    @Test
+    @DisplayName("変換できないm4aを再生すると、失敗を通知し、何も読み込んでいない状態になる")
+    void playing_an_m4a_that_cannot_be_converted_reports_the_failure_and_loads_nothing(
+        FxRobot robot) throws Exception {
+        var broken = Files.write(
+            createFolderInTarget("broken").resolve("broken.m4a"), new byte[4096]
+        );
+        var player = new MediaMusicPlayer();
+        var reported = new CompletableFuture<String>();
+        robot.interact(() -> {
+            player.setOnError(reported::complete);
+            player.play(broken);
+        });
+
+        assertNotNull(reported.get(10, TimeUnit.SECONDS));
+        assertEquals(Optional.empty(), onFxThread(robot, player::playingPath));
+    }
+
+    // No MediaPlayer is created, so this test also runs on the CI runner.
+    @Test
+    @DisplayName("変換中に停止すると、変換が終わっても何も読み込まず、一時WAVを消す")
+    void stopping_during_the_conversion_loads_nothing_and_deletes_the_wav(FxRobot robot)
+        throws Exception {
+        var wavFolder = createFolderInTarget("stopped");
+        // The conversion waits here until the test runs it.
+        var conversions = new ArrayList<Runnable>();
+        var player = new MediaMusicPlayer(new WavConverter(wavFolder), conversions::add);
+        robot.interact(() -> player.play(Path.of("src/test/resources/id3/tagged.m4a")));
+        robot.interact(player::stop);
+
+        conversions.forEach(Runnable::run);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        assertEquals(Optional.empty(), onFxThread(robot, player::playingPath));
+        assertEquals(Optional.empty(), onFxThread(robot, player::mediaPlayer));
+        try (var wavs = Files.list(wavFolder)) {
+            assertEquals(List.of(), wavs.toList());
+        }
+    }
+
     // On the CI runner, which is Windows Server, the test JVM exits with code 1
     // once a MediaPlayer is created. Windows Server has no Media Foundation by
     // default, which is the likely cause. GitHub Actions sets CI=true.
@@ -81,6 +129,121 @@ class MediaMusicPlayerTest {
         var loaded = new CompletableFuture<Optional<Path>>();
         robot.interact(() -> loaded.complete(player.playingPath()));
         assertEquals(Optional.empty(), loaded.get());
+    }
+
+    @Test
+    @DisabledIfEnvironmentVariable(
+        named = "CI", matches = "true",
+        disabledReason = "A MediaPlayer ends the test JVM on the Windows Server runner")
+    @DisplayName("m4aを再生すると、変換したWAVをJavaFXで再生する")
+    void playing_an_m4a_plays_the_converted_wav_with_javafx(FxRobot robot) throws Exception {
+        var m4a = Path.of("src/test/resources/id3/tagged.m4a");
+        var player = new MediaMusicPlayer();
+        var reason = new AtomicReference<@Nullable String>();
+        robot.interact(() -> {
+            player.setOnError(reason::set);
+            player.play(m4a);
+        });
+
+        var source = waitForMediaSource(robot, player);
+
+        assertTrue(source.endsWith(".wav"), source);
+        assertEquals(Optional.of(m4a), onFxThread(robot, player::playingPath));
+        assertEquals(null, reason.get());
+        robot.interact(player::stop);
+    }
+
+    // Repeating one track plays the same file again each time it ends.
+    @Test
+    @DisabledIfEnvironmentVariable(
+        named = "CI", matches = "true",
+        disabledReason = "A MediaPlayer ends the test JVM on the Windows Server runner")
+    @DisplayName("同じm4aをもう一度再生すると、同じ一時WAVを使い回す")
+    void playing_the_same_m4a_again_reuses_the_temporary_wav(FxRobot robot) throws Exception {
+        var m4a = Path.of("src/test/resources/id3/tagged.m4a");
+        var player = new MediaMusicPlayer();
+        robot.interact(() -> player.play(m4a));
+        var first = waitForMediaSource(robot, player);
+
+        robot.interact(() -> player.play(m4a));
+        var second = waitForMediaSource(robot, player);
+
+        assertEquals(first, second);
+        robot.interact(player::stop);
+    }
+
+    @Test
+    @DisabledIfEnvironmentVariable(
+        named = "CI", matches = "true",
+        disabledReason = "A MediaPlayer ends the test JVM on the Windows Server runner")
+    @DisplayName("別の曲を再生すると、前の一時WAVは、JavaFXが手放したあとの再生で消える")
+    void the_previous_temporary_wav_is_deleted_by_a_later_play_after_javafx_releases_it(
+        FxRobot robot) throws Exception {
+        var mp3 = Path.of("src/test/resources/id3/tagged.mp3");
+        var player = new MediaMusicPlayer();
+        robot.interact(() -> player.play(Path.of("src/test/resources/id3/tagged.m4a")));
+        var wav = Path.of(URI.create(waitForMediaSource(robot, player)));
+        robot.interact(() -> player.play(mp3));
+
+        // JavaFX keeps the file open until its Media is garbage collected.
+        // The test asks for a collection, which the app itself never does.
+        WaitForAsyncUtils.waitFor(10, TimeUnit.SECONDS, () -> {
+            System.gc();
+            robot.interact(() -> player.play(mp3));
+            return !Files.exists(wav);
+        });
+
+        assertFalse(Files.exists(wav), wav.toString());
+        robot.interact(player::stop);
+    }
+
+    @Test
+    @DisabledIfEnvironmentVariable(
+        named = "CI", matches = "true",
+        disabledReason = "A MediaPlayer ends the test JVM on the Windows Server runner")
+    @DisplayName("変換中に一時停止すると、変換が終わっても再生を始めない")
+    void pausing_during_the_conversion_does_not_start_the_track(FxRobot robot) throws Exception {
+        var m4a = Path.of("src/test/resources/id3/tagged.m4a");
+        // The conversion waits here until the test runs it.
+        var conversions = new ArrayList<Runnable>();
+        var player = new MediaMusicPlayer(
+            new WavConverter(createFolderInTarget("paused")), conversions::add
+        );
+        robot.interact(() -> player.play(m4a));
+        robot.interact(player::pause);
+
+        conversions.forEach(Runnable::run);
+
+        WaitForAsyncUtils.waitFor(
+            10, TimeUnit.SECONDS,
+            () -> status(robot, player).equals(Optional.of(MediaPlayer.Status.READY))
+        );
+        // A player that was told to play leaves READY soon after it is ready.
+        WaitForAsyncUtils.sleep(500, TimeUnit.MILLISECONDS);
+        assertEquals(Optional.of(MediaPlayer.Status.READY), status(robot, player));
+        assertEquals(Optional.of(m4a), onFxThread(robot, player::playingPath));
+        robot.interact(player::stop);
+    }
+
+    private static Optional<MediaPlayer.Status> status(FxRobot robot, MediaMusicPlayer player)
+        throws Exception {
+        return onFxThread(robot, () -> player.mediaPlayer().map(MediaPlayer::getStatus));
+    }
+
+    // The conversion runs in the background, so the MediaPlayer appears later.
+    private static String waitForMediaSource(FxRobot robot, MediaMusicPlayer player)
+        throws Exception {
+        WaitForAsyncUtils.waitFor(
+            10, TimeUnit.SECONDS,
+            () -> onFxThread(robot, player::mediaPlayer).isPresent()
+        );
+        return onFxThread(robot, player::mediaPlayer).orElseThrow().getMedia().getSource();
+    }
+
+    private static <T> T onFxThread(FxRobot robot, Supplier<T> query) throws Exception {
+        var result = new CompletableFuture<T>();
+        robot.interact(() -> result.complete(query.get()));
+        return result.get(10, TimeUnit.SECONDS);
     }
 
     // Not @TempDir. Media keeps the file open, and Windows then refuses to

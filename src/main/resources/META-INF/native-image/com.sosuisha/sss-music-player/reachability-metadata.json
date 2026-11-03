@@ -1570,6 +1570,1047 @@
       "type": "javafx.stage.Window"
     },
     {
+      "type": "net.sourceforge.jaad.mp4.boxes.BoxFactory",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.BoxImpl",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.FullBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.Utils",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.AppleLosslessBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.BinaryXMLBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.BitRateBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.ChapterBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.ChunkOffsetBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.CleanApertureBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.ColorParameterBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.CompositionTimeToSampleBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.CopyrightBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.DataEntryUrlBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.DataEntryUrnBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.DataReferenceBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.DecodingTimeToSampleBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.DegradationPriorityBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.ESDBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.EditListBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.FileTypeBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.FreeSpaceBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.HandlerBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.HintMediaHeaderBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.IPMPControlBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.IPMPInfoBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.ItemInformationBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.ItemInformationEntry",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.ItemInformationEntry$FDExtension",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.ItemLocationBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.ItemProtectionBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.MediaDataBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.MediaHeaderBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.MetaBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.MetaBoxRelationBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.MovieExtendsHeaderBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.MovieFragmentHeaderBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.MovieFragmentRandomAccessOffsetBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.MovieHeaderBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.ObjectDescriptorBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.OriginalFormatBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.PaddingBitBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.PixelAspectRatioBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.PrimaryItemBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.ProgressiveDownloadInformationBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.SampleDependencyBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.SampleDependencyTypeBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.SampleDescriptionBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.SampleGroupDescriptionBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.SampleScaleBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.SampleSizeBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.SampleToChunkBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.SampleToGroupBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.SchemeTypeBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.ShadowSyncSampleBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.SoundMediaHeaderBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.SubSampleInformationBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.SyncSampleBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.TrackExtendsBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.TrackFragmentHeaderBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.TrackFragmentRandomAccessBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.TrackFragmentRunBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.TrackHeaderBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.TrackReferenceBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.TrackSelectionBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.VideoMediaHeaderBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.XMLBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.drm.FairPlayDataBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.fd.FDItemInformationBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.fd.FDSessionGroupBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.fd.FECReservoirBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.fd.FilePartitionBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.fd.GroupIDToNameBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.meta.EncoderBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.meta.GenreBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.meta.ID3TagBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.meta.ITunesMetadataBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.meta.ITunesMetadataMeanBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.meta.ITunesMetadataNameBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.meta.NeroMetadataTagsBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.meta.RatingBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.meta.RequirementBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.meta.ThreeGPPAlbumBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.meta.ThreeGPPClassificationBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.meta.ThreeGPPKeywordsBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.meta.ThreeGPPLocationBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.meta.ThreeGPPMetadataBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.meta.ThreeGPPRecordingYearBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.oma.OMAAccessUnitFormatBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.oma.OMACommonHeadersBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.oma.OMAContentIDBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.oma.OMAContentObjectBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.oma.OMADiscreteMediaHeadersBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.oma.OMARightsObjectBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.oma.OMATransactionTrackingBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.oma.OMAURLBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.sampleentries.AudioSampleEntry",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.sampleentries.FDHintSampleEntry",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.sampleentries.MPEGSampleEntry",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.sampleentries.RTPHintSampleEntry",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.sampleentries.TextMetadataSampleEntry",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.sampleentries.VideoSampleEntry",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": [
+            "java.lang.String"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.sampleentries.XMLMetadataSampleEntry",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.sampleentries.codec.AC3SpecificBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.sampleentries.codec.AMRSpecificBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.sampleentries.codec.AVCSpecificBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.sampleentries.codec.EAC3SpecificBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.sampleentries.codec.EVRCSpecificBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.sampleentries.codec.H263SpecificBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.sampleentries.codec.QCELPSpecificBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.sampleentries.codec.SMVSpecificBox",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.samplegroupentries.AudioSampleGroupEntry",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.samplegroupentries.HintSampleGroupEntry",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.mp4.boxes.impl.samplegroupentries.VisualSampleGroupEntry",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
+      "type": "net.sourceforge.jaad.spi.javasound.AACAudioFileReader"
+    },
+    {
       "type": "org.jaudiotagger.audio.asf.io.ContentBrandingReader",
       "methods": [
         {
@@ -2158,6 +3199,18 @@
     },
     {
       "glob": "META-INF/services/java.util.spi.ResourceBundleControlProvider"
+    },
+    {
+      "glob": "META-INF/services/javax.sound.midi.spi.MidiFileReader"
+    },
+    {
+      "glob": "META-INF/services/javax.sound.sampled.spi.AudioFileReader"
+    },
+    {
+      "glob": "META-INF/services/javax.sound.sampled.spi.AudioFileWriter"
+    },
+    {
+      "glob": "META-INF/services/javax.sound.sampled.spi.FormatConversionProvider"
     },
     {
       "glob": "META-INF/services/org.apache.maven.surefire.spi.MasterProcessChannelProcessorFactory"
@@ -6708,6 +7761,5 @@
     {
       "bundle": "sun.util.logging.resources.logging"
     }
-  ],
-  "jni": []
+  ]
 }

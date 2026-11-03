@@ -335,6 +335,20 @@ public class LibraryManagerViewModel {
         }
     }
 
+    /**
+     * Selects the given row of the album list as
+     * {@link #selectListItem(AlbumListItem)} does, and plays the first of the
+     * shown tracks from the beginning.
+     *
+     * @param item row to play
+     * @throws NullPointerException if item is null
+     */
+    public void playListItem(AlbumListItem item) {
+        Objects.requireNonNull(item, "item must not be null");
+        selectListItem(item);
+        playTrack(selectedTracks.getFirst());
+    }
+
     private @Nullable Album albumOf(MusicFile track) {
         return new AlbumDetector(appModel.getFiles()).detect().stream()
             .filter(album -> album.files().contains(track))

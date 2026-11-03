@@ -126,7 +126,8 @@ public class PlayerPanel {
             .build();
         // Not bound. The user moves the value by dragging the thumb.
         position.addListener((_, _, current) -> {
-            if (current == null) { return; }
+            // While pressed, the value is where the user moves the thumb.
+            if (current == null || seekBar.isPressed()) { return; }
             seekBar.setMax(seconds(current.length()));
             seekBar.setValue(seconds(current.position()));
         });

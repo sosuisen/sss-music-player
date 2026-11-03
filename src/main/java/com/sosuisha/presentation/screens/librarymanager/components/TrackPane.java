@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
+import com.sosuisha.presentation.screens.librarymanager.AlbumListItem.TrackItem;
 import com.sosuisha.presentation.screens.librarymanager.LibraryManagerViewModel;
 
 import io.github.sosuisen.jfxbuilder.controls.ButtonBuilder;
@@ -13,6 +14,7 @@ import io.github.sosuisen.jfxbuilder.graphics.HBoxBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
@@ -94,7 +96,16 @@ public class TrackPane {
                 @Override
                 protected void updateItem(@Nullable MusicFile item, boolean empty) {
                     super.updateItem(item, empty);
-                    setText(empty || item == null ? null : viewModel.trackRowText(item));
+                    if (empty || item == null) {
+                        setText(null);
+                        setGraphic(null);
+                        return;
+                    }
+                    setText(viewModel.trackRowText(item));
+                    var star = new Label("☆");
+                    star.getStyleClass().add("favorite-star");
+                    star.setOnMouseClicked(_ -> viewModel.toggleFavorite(new TrackItem(item)));
+                    setGraphic(star);
                 }
             })
             .apply(listView -> {

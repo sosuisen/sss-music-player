@@ -1,15 +1,20 @@
 package com.sosuisha.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import javafx.scene.media.Media;
+import org.jspecify.annotations.Nullable;
 
 // The tests create Media only. A MediaPlayer needs the JavaFX toolkit and
 // plays real audio, which is too unstable for the unit tests.
@@ -30,5 +35,18 @@ class MediaMusicPlayerTest {
         Files.copy(Path.of("src/test/resources/id3/tagged.mp3"), track);
 
         assertDoesNotThrow(() -> new Media(MediaMusicPlayer.mediaUri(track)));
+    }
+
+    @Test
+    @DisplayName("存在しないファイルを再生すると、例外を投げずに失敗を通知し、何も読み込んでいない状態になる")
+    void playing_a_missing_file_reports_the_failure_and_loads_nothing() {
+        var player = new MediaMusicPlayer();
+        var reason = new AtomicReference<@Nullable String>();
+        player.setOnError(reason::set);
+
+        player.play(Path.of("target/media-test/missing.mp3"));
+
+        assertNotNull(reason.get());
+        assertEquals(Optional.empty(), player.playingPath());
     }
 }

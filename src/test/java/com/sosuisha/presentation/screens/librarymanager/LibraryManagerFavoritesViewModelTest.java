@@ -111,6 +111,16 @@ class LibraryManagerFavoritesViewModelTest {
         assertEquals(ALBUM_A, viewModel.selectedAlbumProperty().get());
     }
 
+    @Test
+    @DisplayName("曲の項目の行は曲名で表示し、曲名が空ならファイル名で表示する")
+    void a_track_row_shows_the_title_or_the_file_name_when_the_title_is_empty() {
+        var viewModel = createViewModel(List.of());
+        var untitled = new MusicFile(Path.of("c", "untitled.mp3"), 400);
+
+        assertEquals("Song", viewModel.listItemText(new TrackItem(SONG)));
+        assertEquals("untitled.mp3", viewModel.listItemText(new TrackItem(untitled)));
+    }
+
     private static LibraryManagerViewModel createViewModel(List<Favorite> favorites) {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()), new SimpleObjectProperty<>()

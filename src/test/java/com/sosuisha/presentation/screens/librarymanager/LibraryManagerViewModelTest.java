@@ -426,6 +426,31 @@ class LibraryManagerViewModelTest {
         );
     }
 
+    @Test
+    @DisplayName("停止すると、再生位置はなくなる")
+    void stopping_clears_the_playback_position() {
+        var onProgress = new AtomicReference<@Nullable Consumer<PlaybackPosition>>();
+        var viewModel = viewModelWith(reportingPlayer(onProgress));
+        viewModel.playTrack(new MusicFile(Path.of("a/one.mp3"), 100));
+        Objects.requireNonNull(onProgress.get())
+            .accept(new PlaybackPosition(Duration.ofSeconds(83), Duration.ofSeconds(245)));
+
+        viewModel.stopPlayback();
+
+        assertNull(viewModel.playbackPositionProperty().get());
+    }
+
+    // A player that hands its progress callback to the test.
+    private static MusicPlayer reportingPlayer(
+        AtomicReference<@Nullable Consumer<PlaybackPosition>> onProgress) {
+        return new NullMusicPlayer() {
+            @Override
+            public void setOnProgress(Consumer<PlaybackPosition> callback) {
+                onProgress.set(callback);
+            }
+        };
+    }
+
     private static LibraryManagerViewModel viewModelWith(MusicPlayer musicPlayer) {
         return new LibraryManagerViewModel(
             new WindowManager(),

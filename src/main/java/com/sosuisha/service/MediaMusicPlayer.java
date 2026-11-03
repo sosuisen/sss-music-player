@@ -27,8 +27,14 @@ public class MediaMusicPlayer implements MusicPlayer {
     private record Playing(MediaPlayer player, Path path) {
     }
 
+    /** An m4a file and the temporary WAV file converted from it. */
+    private record Converted(Path source, Path wav) {
+    }
+
     // Null while nothing is loaded.
     private @Nullable Playing playing;
+    // The last m4a converted and its temporary WAV. Null before the first m4a.
+    private @Nullable Converted converted;
     // The initial callback does nothing.
     private Runnable onFinished = () -> {
     };
@@ -50,7 +56,10 @@ public class MediaMusicPlayer implements MusicPlayer {
         var file = path;
         if (path.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".m4a")) {
             try {
-                file = wavConverter.toWav(path);
+                if (converted == null || !converted.source().equals(path)) {
+                    converted = new Converted(path, wavConverter.toWav(path));
+                }
+                file = converted.wav();
             } catch (IOException e) {
                 onError.accept(e.getMessage());
                 return;

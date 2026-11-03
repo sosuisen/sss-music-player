@@ -15,6 +15,17 @@ public class FavoriteStar {
     private FavoriteStar() {}
 
     /**
+     * Returns the star glyph for the given state: a filled star for a
+     * favorite, and a hollow star otherwise.
+     *
+     * @param favorite whether the row is a favorite
+     * @return star glyph
+     */
+    public static String glyph(boolean favorite) {
+        return favorite ? "★" : "☆";
+    }
+
+    /**
      * Creates the star of a list row.
      *
      * @param onClick action that toggles the favorite of the row
@@ -23,7 +34,7 @@ public class FavoriteStar {
      */
     public static Label create(Runnable onClick) {
         Objects.requireNonNull(onClick, "onClick must not be null");
-        var star = new Label("☆");
+        var star = new Label(glyph(false));
         star.getStyleClass().add(STYLE_CLASS);
         star.setCursor(Cursor.HAND);
         star.setOnMouseClicked(_ -> onClick.run());

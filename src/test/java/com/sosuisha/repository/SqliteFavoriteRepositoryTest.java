@@ -44,4 +44,18 @@ class SqliteFavoriteRepositoryTest {
             reopened.findAll()
         );
     }
+
+    @Test
+    @DisplayName("削除したお気に入りは一覧から消え、他のお気に入りは残る")
+    void a_removed_favorite_disappears_from_the_list_and_the_others_remain() {
+        var repository = new SqliteFavoriteRepository(folder.resolve("library.db"));
+        repository.add(new FavoriteAlbum("Album A", "Artist X"));
+        repository.add(new FavoriteTrack(Path.of("a", "song.mp3")));
+        repository.add(new FavoriteAlbum("Album B", "Artist Y"));
+
+        repository.remove(new FavoriteAlbum("Album A", "Artist X"));
+        repository.remove(new FavoriteTrack(Path.of("a", "song.mp3")));
+
+        assertEquals(List.of(new FavoriteAlbum("Album B", "Artist Y")), repository.findAll());
+    }
 }

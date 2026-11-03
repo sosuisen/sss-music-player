@@ -66,10 +66,17 @@ public class DuplicateListViewModel {
         this.duplicateFileMover =
             Objects.requireNonNull(duplicateFileMover, "duplicateFileMover must not be null");
         this.folderOpener = Objects.requireNonNull(folderOpener, "folderOpener must not be null");
+        musicPlayer.setOnError(this::stopWhenPlaybackFails);
         selectedItem.subscribe(
             item -> selectedFiles.setAll(item == null ? List.of() : item.files())
         );
         appModel.getFiles().subscribe(() -> detect(lastDetector));
+    }
+
+    private void stopWhenPlaybackFails(String reason) {
+        var file = playingFile.get();
+        playingFile.set(null);
+        errorMessage.set("Cannot play " + file.path().getFileName() + ": " + reason);
     }
 
     /**

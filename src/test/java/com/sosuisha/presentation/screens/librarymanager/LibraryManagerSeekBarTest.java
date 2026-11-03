@@ -77,6 +77,29 @@ class LibraryManagerSeekBarTest extends LibraryManagerViewTestBase {
         assertEquals(Duration.ofSeconds(100), seekedPosition.get());
     }
 
+    @Test
+    @DisplayName("つまみをドラッグしている間は、通知を受けてもつまみは動かない")
+    void the_dragged_thumb_does_not_follow_a_reported_position(FxRobot robot) {
+        var seekBar = robot.lookup("#seekBar").queryAs(Slider.class);
+        robot.interact(
+            () -> reportProgress(new PlaybackPosition(Duration.ZERO, Duration.ofSeconds(100)))
+        );
+        var bounds = seekBar.localToScreen(seekBar.getBoundsInLocal());
+        robot.drag("#seekBar .thumb", MouseButton.PRIMARY)
+            .moveTo(new Point2D(bounds.getCenterX(), bounds.getCenterY()));
+        var draggedValue = seekBar.getValue();
+
+        robot.interact(
+            () -> reportProgress(
+                new PlaybackPosition(Duration.ofSeconds(1), Duration.ofSeconds(100))
+            )
+        );
+
+        var valueAfterReport = seekBar.getValue();
+        robot.release(MouseButton.PRIMARY);
+        assertEquals(draggedValue, valueAfterReport);
+    }
+
     private static String label(FxRobot robot, String query) {
         return robot.lookup(query).queryAs(Label.class).getText();
     }

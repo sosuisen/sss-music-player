@@ -6,17 +6,25 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
+
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,6 +33,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
 import org.testfx.util.WaitForAsyncUtils;
+
+import com.sosuisha.domain.model.PlaybackPosition;
 
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
@@ -244,6 +254,107 @@ class MediaMusicPlayerTest {
         var result = new CompletableFuture<T>();
         robot.interact(() -> result.complete(query.get()));
         return result.get(10, TimeUnit.SECONDS);
+    }
+
+    @Test
+    @DisabledIfEnvironmentVariable(
+        named = "CI", matches = "true",
+        disabledReason = "A MediaPlayer ends the test JVM on the Windows Server runner")
+    @DisplayName("再生中は、再生位置と曲の長さを通知する")
+    void the_position_and_the_length_are_reported_while_playing(FxRobot robot)
+        throws Exception {
+        var wav = writeSilentWav(createFolderInTarget("progress"), 3);
+        var player = new MediaMusicPlayer();
+        var reports = new CopyOnWriteArrayList<PlaybackPosition>();
+        robot.interact(() -> {
+            player.setOnProgress(reports::add);
+            player.play(wav);
+        });
+
+        WaitForAsyncUtils.waitFor(
+            10, TimeUnit.SECONDS,
+            () -> reports.stream().anyMatch(report -> report.position().isPositive())
+        );
+
+        var last = reports.getLast();
+        assertEquals(3, Math.round(last.length().toMillis() / 1000.0), last.toString());
+        robot.interact(player::stop);
+    }
+
+    @Test
+    @DisabledIfEnvironmentVariable(
+        named = "CI", matches = "true",
+        disabledReason = "A MediaPlayer ends the test JVM on the Windows Server runner")
+    @DisplayName("シークすると、その位置から再生を続ける")
+    void seeking_continues_the_playback_from_that_position(FxRobot robot) throws Exception {
+        var wav = writeSilentWav(createFolderInTarget("seek"), 10);
+        var player = new MediaMusicPlayer();
+        var reports = new CopyOnWriteArrayList<PlaybackPosition>();
+        robot.interact(() -> {
+            player.setOnProgress(reports::add);
+            player.play(wav);
+        });
+        WaitForAsyncUtils.waitFor(
+            10, TimeUnit.SECONDS,
+            () -> reports.stream().anyMatch(report -> report.position().isPositive())
+        );
+
+        robot.interact(() -> player.seek(Duration.ofSeconds(8)));
+
+        // The playback from the start cannot reach 8 seconds in 3 seconds.
+        WaitForAsyncUtils.waitFor(
+            3, TimeUnit.SECONDS,
+            () -> reports.getLast().position().compareTo(Duration.ofMillis(8100)) > 0
+        );
+        robot.interact(player::stop);
+    }
+
+    @Test
+    @DisabledIfEnvironmentVariable(
+        named = "CI", matches = "true",
+        disabledReason = "A MediaPlayer ends the test JVM on the Windows Server runner")
+    @DisplayName("一時停止中にシークすると、その位置で一時停止したままである")
+    void seeking_while_paused_stays_paused_at_that_position(FxRobot robot) throws Exception {
+        var wav = writeSilentWav(createFolderInTarget("seek-paused"), 10);
+        var player = new MediaMusicPlayer();
+        var reports = new CopyOnWriteArrayList<PlaybackPosition>();
+        robot.interact(() -> {
+            player.setOnProgress(reports::add);
+            player.play(wav);
+        });
+        WaitForAsyncUtils.waitFor(
+            10, TimeUnit.SECONDS,
+            () -> status(robot, player).equals(Optional.of(MediaPlayer.Status.PLAYING))
+        );
+        robot.interact(player::pause);
+        WaitForAsyncUtils.waitFor(
+            10, TimeUnit.SECONDS,
+            () -> status(robot, player).equals(Optional.of(MediaPlayer.Status.PAUSED))
+        );
+
+        robot.interact(() -> player.seek(Duration.ofSeconds(8)));
+
+        WaitForAsyncUtils.waitFor(
+            3, TimeUnit.SECONDS,
+            () -> reports.getLast().position().compareTo(Duration.ofSeconds(7)) > 0
+        );
+        // A playback that went on would leave the paused status.
+        Thread.sleep(500);
+        assertEquals(Optional.of(MediaPlayer.Status.PAUSED), status(robot, player));
+        robot.interact(player::stop);
+    }
+
+    // 16-bit stereo silence at 44100Hz. The fixtures in src/test/resources
+    // are too short to watch the position move.
+    private static Path writeSilentWav(Path folder, int seconds) throws IOException {
+        var format = new AudioFormat(44100, 16, 2, true, false);
+        var frames = 44100L * seconds;
+        var data = new byte[(int) (frames * format.getFrameSize())];
+        var wav = folder.resolve("silent.wav");
+        try (var stream = new AudioInputStream(new ByteArrayInputStream(data), format, frames)) {
+            AudioSystem.write(stream, AudioFileFormat.Type.WAVE, wav.toFile());
+        }
+        return wav;
     }
 
     // Not @TempDir. Media keeps the file open, and Windows then refuses to

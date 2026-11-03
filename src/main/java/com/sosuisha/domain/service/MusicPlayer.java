@@ -1,8 +1,11 @@
 package com.sosuisha.domain.service;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Consumer;
+
+import com.sosuisha.domain.model.PlaybackPosition;
 
 /**
  * Plays audio files.
@@ -34,6 +37,16 @@ public interface MusicPlayer {
     void resume();
 
     /**
+     * Moves the playback of the loaded audio file to the given position. The
+     * playback stays paused when it is paused. Does nothing when nothing is
+     * loaded.
+     *
+     * @param position time from the start of the file
+     * @throws NullPointerException if position is null
+     */
+    void seek(Duration position);
+
+    /**
      * Sets the callback that is invoked when the playing audio file reaches
      * its end.
      *
@@ -50,6 +63,16 @@ public interface MusicPlayer {
      * @throws NullPointerException if onError is null
      */
     void setOnError(Consumer<String> onError);
+
+    /**
+     * Sets the callback that is invoked while the loaded audio file plays.
+     * The callback receives the position of the playback and the length of
+     * the file.
+     *
+     * @param onProgress callback invoked with the playback position
+     * @throws NullPointerException if onProgress is null
+     */
+    void setOnProgress(Consumer<PlaybackPosition> onProgress);
 
     /**
      * Returns the path of the audio file loaded in the player, whether it is

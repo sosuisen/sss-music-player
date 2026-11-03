@@ -1,8 +1,11 @@
 package com.sosuisha.domain.service;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Optional;
 import java.util.function.Consumer;
+
+import com.sosuisha.domain.model.PlaybackPosition;
 
 /**
  * A music player that does nothing. For tests that need a {@link MusicPlayer}
@@ -22,10 +25,16 @@ public class NullMusicPlayer implements MusicPlayer {
     public void resume() {}
 
     @Override
+    public void seek(Duration position) {}
+
+    @Override
     public void setOnFinished(Runnable onFinished) {}
 
     @Override
     public void setOnError(Consumer<String> onError) {}
+
+    @Override
+    public void setOnProgress(Consumer<PlaybackPosition> onProgress) {}
 
     @Override
     public Optional<Path> playingPath() {

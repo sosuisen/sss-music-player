@@ -3,6 +3,7 @@ package com.sosuisha.service;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HexFormat;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 
+import com.sosuisha.domain.model.PlaybackPosition;
 import com.sosuisha.domain.service.MusicPlayer;
 
 import javafx.application.Platform;
@@ -56,6 +58,9 @@ public class MediaMusicPlayer implements MusicPlayer {
     };
     // The initial callback does nothing.
     private Consumer<String> onError = _ -> {
+    };
+    // The initial callback does nothing.
+    private Consumer<PlaybackPosition> onProgress = _ -> {
     };
     private final WavConverter wavConverter;
     // Runs the conversions off the JavaFX application thread. A conversion
@@ -161,6 +166,8 @@ public class MediaMusicPlayer implements MusicPlayer {
             return;
         }
         player.setOnEndOfMedia(onFinished);
+        player.setOnReady(() -> reportProgress(player));
+        player.currentTimeProperty().addListener((_, _, _) -> reportProgress(player));
         player.setOnError(() -> {
             // getError() is set whenever onError runs.
             var reason = player.getError().getMessage();
@@ -173,6 +180,18 @@ public class MediaMusicPlayer implements MusicPlayer {
             player.play();
         }
         request.player = player;
+    }
+
+    // The length is unknown until the player is ready.
+    private void reportProgress(MediaPlayer player) {
+        var length = player.getTotalDuration();
+        if (length == null || length.isUnknown() || length.isIndefinite()) { return; }
+        onProgress.accept(
+            new PlaybackPosition(
+                Duration.ofMillis((long) player.getCurrentTime().toMillis()),
+                Duration.ofMillis((long) length.toMillis())
+            )
+        );
     }
 
     // Media converts the URI with URI.toASCIIString(), which normalizes the
@@ -232,6 +251,19 @@ public class MediaMusicPlayer implements MusicPlayer {
     }
 
     /**
+     * Moves the playback of the loaded audio file to the given position.
+     *
+     * @param position time from the start of the file
+     * @throws NullPointerException if position is null
+     */
+    @Override
+    public void seek(Duration position) {
+        Objects.requireNonNull(position, "position must not be null");
+        if (loaded == null || loaded.player == null) { return; }
+        loaded.player.seek(javafx.util.Duration.millis(position.toMillis()));
+    }
+
+    /**
      * Sets the callback that is invoked when the playing audio file reaches
      * its end. It applies to files played after this call.
      *
@@ -253,6 +285,17 @@ public class MediaMusicPlayer implements MusicPlayer {
     @Override
     public void setOnError(Consumer<String> onError) {
         this.onError = Objects.requireNonNull(onError, "onError must not be null");
+    }
+
+    /**
+     * Sets the callback that is invoked while the loaded audio file plays.
+     *
+     * @param onProgress callback invoked with the playback position
+     * @throws NullPointerException if onProgress is null
+     */
+    @Override
+    public void setOnProgress(Consumer<PlaybackPosition> onProgress) {
+        this.onProgress = Objects.requireNonNull(onProgress, "onProgress must not be null");
     }
 
     /**

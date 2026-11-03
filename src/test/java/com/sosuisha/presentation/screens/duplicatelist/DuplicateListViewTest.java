@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.testfx.api.FxAssert.verifyThat;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -30,6 +31,7 @@ import org.testfx.matcher.control.ListViewMatchers;
 
 import com.sosuisha.domain.model.DuplicatedItems;
 import com.sosuisha.domain.model.MusicFile;
+import com.sosuisha.domain.model.PlaybackPosition;
 import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.domain.repository.NullLibraryRepository;
@@ -86,10 +88,16 @@ class DuplicateListViewTest {
             public void resume() {}
 
             @Override
+            public void seek(Duration position) {}
+
+            @Override
             public void setOnFinished(Runnable onFinished) {}
 
             @Override
             public void setOnError(Consumer<String> onError) {}
+
+            @Override
+            public void setOnProgress(Consumer<PlaybackPosition> onProgress) {}
 
             @Override
             public Optional<Path> playingPath() {

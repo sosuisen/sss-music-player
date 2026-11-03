@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -19,6 +20,7 @@ import com.sosuisha.domain.exception.FolderOpenException;
 import com.sosuisha.domain.model.Album;
 import com.sosuisha.presentation.screens.librarymanager.AlbumListItem.AlbumItem;
 import com.sosuisha.domain.model.MusicFile;
+import com.sosuisha.domain.model.PlaybackPosition;
 import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.repository.NullLibraryRepository;
@@ -400,6 +402,122 @@ class LibraryManagerViewModelTest {
         viewModel.playTrack(new MusicFile(Path.of("a/two.mp3"), 100));
 
         assertNull(viewModel.errorMessageProperty().get());
+    }
+
+    @Test
+    @DisplayName("再生位置の通知を受けると、再生位置と曲の長さを公開する")
+    void a_progress_report_publishes_the_position_and_the_length() {
+        var onProgress = new AtomicReference<@Nullable Consumer<PlaybackPosition>>();
+        var viewModel = viewModelWith(reportingPlayer(onProgress));
+        viewModel.playTrack(new MusicFile(Path.of("a/one.mp3"), 100));
+
+        Objects.requireNonNull(onProgress.get())
+            .accept(new PlaybackPosition(Duration.ofSeconds(83), Duration.ofSeconds(245)));
+
+        assertEquals(
+            new PlaybackPosition(Duration.ofSeconds(83), Duration.ofSeconds(245)),
+            viewModel.playbackPositionProperty().get()
+        );
+    }
+
+    @Test
+    @DisplayName("停止すると、再生位置はなくなる")
+    void stopping_clears_the_playback_position() {
+        var onProgress = new AtomicReference<@Nullable Consumer<PlaybackPosition>>();
+        var viewModel = viewModelWith(reportingPlayer(onProgress));
+        viewModel.playTrack(new MusicFile(Path.of("a/one.mp3"), 100));
+        Objects.requireNonNull(onProgress.get())
+            .accept(new PlaybackPosition(Duration.ofSeconds(83), Duration.ofSeconds(245)));
+
+        viewModel.stopPlayback();
+
+        assertNull(viewModel.playbackPositionProperty().get());
+    }
+
+    @Test
+    @DisplayName("別の曲を再生し始めると、新しい曲の通知が来るまで、再生位置はなくなる")
+    void starting_another_track_clears_the_playback_position() {
+        var onProgress = new AtomicReference<@Nullable Consumer<PlaybackPosition>>();
+        var viewModel = viewModelWith(reportingPlayer(onProgress));
+        viewModel.playTrack(new MusicFile(Path.of("a/one.mp3"), 100));
+        Objects.requireNonNull(onProgress.get())
+            .accept(new PlaybackPosition(Duration.ofSeconds(83), Duration.ofSeconds(245)));
+
+        viewModel.playTrack(new MusicFile(Path.of("a/two.mp3"), 100));
+
+        assertNull(viewModel.playbackPositionProperty().get());
+    }
+
+    @Test
+    @DisplayName("再生中に次の曲・前の曲へ移ると、再生位置はなくなる")
+    void moving_to_another_track_while_playing_clears_the_playback_position() {
+        var onProgress = new AtomicReference<@Nullable Consumer<PlaybackPosition>>();
+        var viewModel = viewModelWith(reportingPlayer(onProgress));
+        var trackOne = new MusicFile(Path.of("a/one.mp3"), 200);
+        var trackTwo = new MusicFile(Path.of("a/two.mp3"), 300);
+        viewModel.selectAlbum(new Album("Album A", "Artist X", List.of(trackOne, trackTwo)));
+        viewModel.playTrack(trackOne);
+        Objects.requireNonNull(onProgress.get())
+            .accept(new PlaybackPosition(Duration.ofSeconds(83), Duration.ofSeconds(245)));
+
+        viewModel.nextTrack();
+
+        assertNull(viewModel.playbackPositionProperty().get());
+    }
+
+    @Test
+    @DisplayName("再生に失敗すると、再生位置はなくなる")
+    void a_playback_failure_clears_the_playback_position() {
+        var onProgress = new AtomicReference<@Nullable Consumer<PlaybackPosition>>();
+        var onError = new AtomicReference<@Nullable Consumer<String>>();
+        MusicPlayer failingPlayer = new NullMusicPlayer() {
+            @Override
+            public void setOnProgress(Consumer<PlaybackPosition> callback) {
+                onProgress.set(callback);
+            }
+
+            @Override
+            public void setOnError(Consumer<String> callback) {
+                onError.set(callback);
+            }
+        };
+        var viewModel = viewModelWith(failingPlayer);
+        viewModel.playTrack(new MusicFile(Path.of("a/one.mp3"), 100));
+        Objects.requireNonNull(onProgress.get())
+            .accept(new PlaybackPosition(Duration.ofSeconds(83), Duration.ofSeconds(245)));
+
+        Objects.requireNonNull(onError.get()).accept("ERROR_MEDIA_INVALID");
+
+        assertNull(viewModel.playbackPositionProperty().get());
+    }
+
+    @Test
+    @DisplayName("シークすると、プレイヤーにその位置への移動を頼む")
+    void seeking_asks_the_player_to_move_to_the_position() {
+        var sought = new AtomicReference<@Nullable Duration>();
+        MusicPlayer seekingPlayer = new NullMusicPlayer() {
+            @Override
+            public void seek(Duration position) {
+                sought.set(position);
+            }
+        };
+        var viewModel = viewModelWith(seekingPlayer);
+        viewModel.playTrack(new MusicFile(Path.of("a/one.mp3"), 100));
+
+        viewModel.seek(Duration.ofSeconds(90));
+
+        assertEquals(Duration.ofSeconds(90), sought.get());
+    }
+
+    // A player that hands its progress callback to the test.
+    private static MusicPlayer reportingPlayer(
+        AtomicReference<@Nullable Consumer<PlaybackPosition>> onProgress) {
+        return new NullMusicPlayer() {
+            @Override
+            public void setOnProgress(Consumer<PlaybackPosition> callback) {
+                onProgress.set(callback);
+            }
+        };
     }
 
     private static LibraryManagerViewModel viewModelWith(MusicPlayer musicPlayer) {

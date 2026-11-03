@@ -1,6 +1,7 @@
 package com.sosuisha.presentation.screens.librarymanager;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -12,6 +13,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.testfx.framework.junit5.ApplicationExtension;
 import com.uber.nullaway.annotations.Initializer;
 
+import com.sosuisha.domain.model.PlaybackPosition;
 import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.domain.repository.NullLibraryRepository;
 import com.sosuisha.domain.service.NullMusicPlayer;
@@ -58,6 +60,8 @@ abstract class LibraryManagerViewTestBase {
     AtomicReference<@Nullable Runnable> trackFinishedCallback;
     AtomicReference<@Nullable Path> loadedPath;
     AtomicReference<@Nullable Path> openedFolder;
+    AtomicReference<@Nullable Consumer<PlaybackPosition>> progressCallback;
+    AtomicReference<@Nullable Duration> seekedPosition;
 
     // TestFX's ApplicationExtension looks up @Start with getDeclaredMethods(),
     // which does not see inherited methods, so each subclass declares a
@@ -93,6 +97,8 @@ abstract class LibraryManagerViewTestBase {
         trackFinishedCallback = new AtomicReference<>();
         loadedPath = new AtomicReference<>();
         openedFolder = new AtomicReference<>();
+        progressCallback = new AtomicReference<>();
+        seekedPosition = new AtomicReference<>();
         settingsAppModel = new SettingsAppModel(new NullSettingsRepository());
         favoritesAppModel = new FavoritesAppModel(new InMemoryFavoriteRepository());
         viewModel = new LibraryManagerViewModel(
@@ -121,12 +127,22 @@ abstract class LibraryManagerViewTestBase {
                 }
 
                 @Override
+                public void seek(Duration position) {
+                    seekedPosition.set(position);
+                }
+
+                @Override
                 public void setOnFinished(Runnable onFinished) {
                     trackFinishedCallback.set(onFinished);
                 }
 
                 @Override
                 public void setOnError(Consumer<String> onError) {}
+
+                @Override
+                public void setOnProgress(Consumer<PlaybackPosition> onProgress) {
+                    progressCallback.set(onProgress);
+                }
 
                 @Override
                 public Optional<Path> playingPath() {
@@ -156,6 +172,11 @@ abstract class LibraryManagerViewTestBase {
         stage.setScene(view.getScene());
         stage.setTitle(view.getTitle());
         stage.show();
+    }
+
+    // The fake music player stores the callback that receives the position.
+    void reportProgress(PlaybackPosition position) {
+        Objects.requireNonNull(progressCallback.get(), "no progress callback").accept(position);
     }
 
     // The fake music player stores the callback that runs when a track ends.

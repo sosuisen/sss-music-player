@@ -1,6 +1,7 @@
 package com.sosuisha.presentation.screens.librarymanager;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -13,6 +14,7 @@ import com.sosuisha.domain.model.Favorite;
 import com.sosuisha.domain.model.FavoriteAlbum;
 import com.sosuisha.domain.model.FavoriteTrack;
 import com.sosuisha.domain.model.MusicFile;
+import com.sosuisha.domain.model.PlaybackPosition;
 import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.domain.service.FolderOpener;
 import com.sosuisha.domain.service.MusicPlayer;
@@ -58,6 +60,9 @@ public class LibraryManagerViewModel {
     private final ObjectProperty<SortKey> sortKey = new SimpleObjectProperty<>(SortKey.ALBUM);
     private final StringProperty albumFilter = new SimpleStringProperty("");
     private final StringProperty errorMessage = new SimpleStringProperty();
+    // Null while the position is not known, such as while stopped.
+    private final ObjectProperty<@Nullable PlaybackPosition> playbackPosition =
+        new SimpleObjectProperty<>();
 
     /**
      * Creates the view model.
@@ -85,6 +90,7 @@ public class LibraryManagerViewModel {
         this.folderOpener = Objects.requireNonNull(folderOpener, "folderOpener must not be null");
         musicPlayer.setOnFinished(this::continuePlaybackWhenTrackFinishes);
         musicPlayer.setOnError(this::stopWhenPlaybackFails);
+        musicPlayer.setOnProgress(playbackPosition::set);
         appModel.getFiles().subscribe(this::updateAlbums);
         // subscribe(Consumer) also fires with the current value, which
         // computes the initial album list here.
@@ -95,6 +101,7 @@ public class LibraryManagerViewModel {
     private void stopWhenPlaybackFails(String reason) {
         var track = selectedTrack.get();
         playerState.set(PlayerState.STOPPED);
+        playbackPosition.set(null);
         errorMessage.set("Cannot play " + track.path().getFileName() + ": " + reason);
     }
 
@@ -480,7 +487,7 @@ public class LibraryManagerViewModel {
         var movedTo = selectedTracks.get((index + offset + size) % size);
         selectedTrack.set(movedTo);
         if (playerState.get() == PlayerState.PLAYING) {
-            musicPlayer.play(movedTo.path());
+            startPlaying(movedTo.path());
         }
     }
 
@@ -532,6 +539,7 @@ public class LibraryManagerViewModel {
     // a failure inside play() and the failure sets the state to STOPPED.
     private void startPlaying(Path path) {
         errorMessage.set(null);
+        playbackPosition.set(null);
         playerState.set(PlayerState.PLAYING);
         musicPlayer.play(path);
     }
@@ -563,6 +571,29 @@ public class LibraryManagerViewModel {
         } catch (FolderOpenException e) {
             errorMessage.set(e.getMessage());
         }
+    }
+
+    /**
+     * Moves the playback of the playing or paused track to the given
+     * position.
+     *
+     * @param position time from the start of the track
+     * @throws NullPointerException if position is null
+     */
+    public void seek(Duration position) {
+        Objects.requireNonNull(position, "position must not be null");
+        musicPlayer.seek(position);
+    }
+
+    /**
+     * Returns the position of the playback and the length of the playing
+     * track.
+     *
+     * @return read-only property of the playback position, which holds null
+     *     while the position is not known
+     */
+    public ReadOnlyObjectProperty<@Nullable PlaybackPosition> playbackPositionProperty() {
+        return playbackPosition;
     }
 
     /**
@@ -600,6 +631,7 @@ public class LibraryManagerViewModel {
     public void stopPlayback() {
         musicPlayer.stop();
         playerState.set(PlayerState.STOPPED);
+        playbackPosition.set(null);
     }
 
     private static List<MusicFile> orderByTrackNumber(List<MusicFile> files) {

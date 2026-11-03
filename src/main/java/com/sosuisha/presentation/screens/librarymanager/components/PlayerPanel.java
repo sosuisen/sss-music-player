@@ -1,11 +1,14 @@
 package com.sosuisha.presentation.screens.librarymanager.components;
 
+import java.time.Duration;
 import java.util.Objects;
+import java.util.function.Function;
 
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2MZ;
 
 import com.sosuisha.presentation.screens.librarymanager.LibraryManagerViewModel;
+import com.sosuisha.domain.model.PlaybackPosition;
 import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.presentation.screens.librarymanager.PlayerState;
 
@@ -13,14 +16,20 @@ import atlantafx.base.theme.Styles;
 
 import io.github.sosuisen.jfxbuilder.controls.ButtonBuilder;
 import io.github.sosuisen.jfxbuilder.controls.LabelBuilder;
+import io.github.sosuisen.jfxbuilder.controls.SliderBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.HBoxBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.RegionBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Component that shows the playback buttons and the playing track.
@@ -38,7 +47,9 @@ public class PlayerPanel {
     public static VBox getRoot(LibraryManagerViewModel viewModel) {
         Objects.requireNonNull(viewModel, "viewModel must not be null");
         return VBoxBuilder
-            .withChildren(buildButtonRow(viewModel), buildNowPlayingRow(viewModel))
+            .withChildren(
+                buildButtonRow(viewModel), buildSeekRow(viewModel), buildNowPlayingRow(viewModel)
+            )
             .id("playerPanel")
             .spacing(5)
             .padding(new Insets(10))
@@ -106,6 +117,66 @@ public class PlayerPanel {
             .spacing(10)
             .alignment(Pos.CENTER_LEFT)
             .build();
+    }
+
+    private static HBox buildSeekRow(LibraryManagerViewModel viewModel) {
+        var position = viewModel.playbackPositionProperty();
+        return HBoxBuilder
+            .withChildren(
+                LabelBuilder.create()
+                    .id("elapsedTime")
+                    .textPropertyApply(
+                        prop -> prop.bind(timeOf(position, PlaybackPosition::position))
+                    )
+                    .build(),
+                buildSeekBar(viewModel, position),
+                LabelBuilder.create()
+                    .id("trackLength")
+                    .textPropertyApply(
+                        prop -> prop.bind(timeOf(position, PlaybackPosition::length))
+                    )
+                    .build()
+            )
+            .spacing(10)
+            .alignment(Pos.CENTER_LEFT)
+            .build();
+    }
+
+    private static Slider buildSeekBar(
+        LibraryManagerViewModel viewModel,
+        ReadOnlyObjectProperty<@Nullable PlaybackPosition> position) {
+        var seekBar = SliderBuilder.create()
+            .id("seekBar")
+            .hGrowInHBox(Priority.ALWAYS)
+            .disablePropertyApply(prop -> prop.bind(position.isNull()))
+            .build();
+        // Not bound, because the user moves the value. While the bar is
+        // pressed, the value stays where the user moves the thumb.
+        position.addListener((_, _, current) -> {
+            if (current == null || seekBar.isPressed()) { return; }
+            seekBar.setMax(seconds(current.length()));
+            seekBar.setValue(seconds(current.position()));
+        });
+        // Not valueChanging. The skin changes the value without it when the
+        // track is pressed. A release ends both a drag and a click.
+        seekBar.setOnMouseReleased(
+            _ -> viewModel.seek(Duration.ofMillis(Math.round(seekBar.getValue() * 1000)))
+        );
+        return seekBar;
+    }
+
+    private static double seconds(Duration time) {
+        return time.toMillis() / 1000.0;
+    }
+
+    // The time is 0:00 while the position is not known.
+    private static ObservableValue<String> timeOf(
+        ObservableValue<@Nullable PlaybackPosition> position,
+        Function<PlaybackPosition, Duration> part) {
+        return Bindings.createStringBinding(() -> {
+            var current = position.getValue();
+            return PlaybackTime.format(current == null ? Duration.ZERO : part.apply(current));
+        }, position);
     }
 
     private static HBox buildNowPlayingRow(LibraryManagerViewModel viewModel) {

@@ -8,8 +8,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,6 +29,7 @@ import com.sosuisha.service.LibraryIndexer;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
+import org.jspecify.annotations.Nullable;
 
 class DuplicateListViewModelTest {
     @Test
@@ -288,6 +291,35 @@ class DuplicateListViewModelTest {
 
         assertEquals(
             "Could not open the folder: " + Path.of("a"), viewModel.errorMessageProperty().get()
+        );
+    }
+
+    @Test
+    @DisplayName("試聴の失敗が通知されると、試聴中のファイルはなくなり、エラーメッセージにファイル名と理由を出す")
+    void a_playback_failure_clears_the_playing_file_and_shows_the_file_name_and_the_reason() {
+        var onError = new AtomicReference<@Nullable Consumer<String>>();
+        var viewModel = new DuplicateListViewModel(
+            new MusicLibraryAppModel(
+                new LibraryIndexer(new NullLibraryRepository()),
+                new SimpleObjectProperty<>()
+            ),
+            new NullMusicPlayer() {
+                @Override
+                public void setOnError(Consumer<String> callback) {
+                    onError.set(callback);
+                }
+            },
+            new DuplicateFileMover(Path.of("duplicates"), Path.of("duplicates.log")),
+            _ -> {
+            }
+        );
+        viewModel.play(new MusicFile(Path.of("a/one.m4a"), 100));
+
+        Objects.requireNonNull(onError.get()).accept("ERROR_MEDIA_INVALID");
+
+        assertNull(viewModel.playingFileProperty().get());
+        assertEquals(
+            "Cannot play one.m4a: ERROR_MEDIA_INVALID", viewModel.errorMessageProperty().get()
         );
     }
 }

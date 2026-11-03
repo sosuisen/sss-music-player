@@ -5,6 +5,15 @@
       "jniAccessible": true
     },
     {
+      "type": "com.sosuisha.db.tables.records.FavoriteRecord",
+      "methods": [
+        {
+          "name": "<init>",
+          "parameterTypes": []
+        }
+      ]
+    },
+    {
       "type": "com.sosuisha.db.tables.records.TrackRecord",
       "methods": [
         {

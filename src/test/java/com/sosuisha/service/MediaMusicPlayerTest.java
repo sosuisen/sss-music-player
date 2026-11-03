@@ -151,15 +151,22 @@ class MediaMusicPlayerTest {
     @DisabledIfEnvironmentVariable(
         named = "CI", matches = "true",
         disabledReason = "A MediaPlayer ends the test JVM on the Windows Server runner")
-    @DisplayName("別の曲を再生すると、前の一時WAVを消す")
-    void playing_another_track_deletes_the_previous_temporary_wav(FxRobot robot)
-        throws Exception {
+    @DisplayName("別の曲を再生すると、前の一時WAVは、JavaFXが手放したあとの再生で消える")
+    void the_previous_temporary_wav_is_deleted_by_a_later_play_after_javafx_releases_it(
+        FxRobot robot) throws Exception {
+        var mp3 = Path.of("src/test/resources/id3/tagged.mp3");
         var player = new MediaMusicPlayer();
         robot.interact(() -> player.play(Path.of("src/test/resources/id3/tagged.m4a")));
         var wav = Path.of(URI.create(waitForMediaSource(robot, player)));
+        robot.interact(() -> player.play(mp3));
 
-        robot.interact(() -> player.play(Path.of("src/test/resources/id3/tagged.mp3")));
-        waitForMediaSource(robot, player);
+        // JavaFX keeps the file open until its Media is garbage collected.
+        // The test asks for a collection, which the app itself never does.
+        WaitForAsyncUtils.waitFor(10, TimeUnit.SECONDS, () -> {
+            System.gc();
+            robot.interact(() -> player.play(mp3));
+            return !Files.exists(wav);
+        });
 
         assertFalse(Files.exists(wav), wav.toString());
         robot.interact(player::stop);

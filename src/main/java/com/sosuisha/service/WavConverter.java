@@ -66,18 +66,28 @@ public class WavConverter {
 
     /**
      * Deletes the temporary WAV files left in the folder. Call it at startup,
-     * before any file is converted. See ADR 006.
+     * before any file is converted. A file that another program keeps open
+     * stays. See ADR 006.
      *
-     * @throws IOException if the folder cannot be read or a file cannot be
-     *     deleted
+     * @throws IOException if the folder cannot be read
      */
     public void deleteLeftovers() throws IOException {
         // The folder is created by the first conversion.
         if (!Files.isDirectory(folder)) { return; }
         try (var files = Files.list(folder)) {
             for (var file : files.toList()) {
-                Files.delete(file);
+                deleteUnlessOpen(file);
             }
+        }
+    }
+
+    // Another running copy of the app may be playing the file. Windows does
+    // not let us delete it then, and it is left for a later startup.
+    private static void deleteUnlessOpen(Path file) {
+        try {
+            Files.delete(file);
+        } catch (IOException _) {
+            // Ignored on purpose. See the comment above.
         }
     }
 }

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import javax.sound.sampled.AudioFileFormat;
@@ -33,5 +34,17 @@ class WavConverterTest {
             // exactly 44100 frames.
             () -> assertTrue(file.getFrameLength() >= 44100, "frames: " + file.getFrameLength())
         );
+    }
+
+    @Test
+    @DisplayName("一時WAVを、指定した専用フォルダに作る")
+    void creates_the_temporary_wav_in_the_given_folder() throws Exception {
+        var folder = Files.createTempDirectory(
+            Files.createDirectories(Path.of("target/wav-test")), "folder"
+        ).resolve("sss-music-player");
+
+        var wav = new WavConverter(folder).toWav(Path.of("src/test/resources/id3/tagged.m4a"));
+
+        assertEquals(folder, wav.getParent());
     }
 }

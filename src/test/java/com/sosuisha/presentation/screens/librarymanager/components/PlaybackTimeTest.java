@@ -18,4 +18,13 @@ class PlaybackTimeTest {
             () -> assertEquals("59:59", PlaybackTime.format(Duration.ofSeconds(3599)))
         );
     }
+
+    @Test
+    @DisplayName("1時間以上の再生時間は「時:分:秒」で表す（1:02:03）")
+    void a_playback_time_of_an_hour_or_more_is_shown_as_hours_minutes_and_seconds() {
+        assertAll(
+            () -> assertEquals("1:00:00", PlaybackTime.format(Duration.ofHours(1))),
+            () -> assertEquals("1:02:03", PlaybackTime.format(Duration.ofSeconds(3723)))
+        );
+    }
 }

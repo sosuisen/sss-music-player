@@ -20,10 +20,17 @@ public class WavConverter {
 
     /**
      * Creates a converter that writes into the folder {@code sss-music-player}
-     * in the temporary folder of the OS.
+     * in the temporary folder of the OS. The system property
+     * {@code sss.wav.folder} takes precedence.
      */
     public WavConverter() {
-        this(Path.of(System.getProperty("java.io.tmpdir"), "sss-music-player"));
+        this(defaultFolder());
+    }
+
+    private static Path defaultFolder() {
+        var override = System.getProperty("sss.wav.folder");
+        if (override != null) { return Path.of(override); }
+        return Path.of(System.getProperty("java.io.tmpdir"), "sss-music-player");
     }
 
     /**

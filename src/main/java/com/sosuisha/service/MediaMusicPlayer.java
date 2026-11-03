@@ -43,10 +43,28 @@ public class MediaMusicPlayer implements MusicPlayer {
     // The initial callback does nothing.
     private Consumer<String> onError = _ -> {
     };
-    private final WavConverter wavConverter = new WavConverter();
+    private final WavConverter wavConverter;
     // Temporary WAVs that are no longer played but not deleted yet. They are
     // tried again at each play. See ADR 006.
     private final List<Path> unusedWavs = new ArrayList<>();
+
+    /**
+     * Creates a player that converts m4a files into the default folder of
+     * {@link WavConverter}.
+     */
+    public MediaMusicPlayer() {
+        this(new WavConverter());
+    }
+
+    /**
+     * Creates a player that converts m4a files with the given converter.
+     *
+     * @param wavConverter converter of m4a files into temporary WAV files
+     * @throws NullPointerException if wavConverter is null
+     */
+    public MediaMusicPlayer(WavConverter wavConverter) {
+        this.wavConverter = Objects.requireNonNull(wavConverter, "wavConverter must not be null");
+    }
 
     /**
      * Plays the audio file at the given path.

@@ -86,12 +86,16 @@ public class AlbumPane {
                         return;
                     }
                     setText(viewModel.listItemText(item));
-                    setGraphic(FavoriteStar.create(() -> viewModel.toggleFavorite(item)));
+                    setGraphic(FavoriteStar.create(viewModel.isFavorite(item), () -> viewModel.toggleFavorite(item)));
                 }
             })
             .apply(
-                listView -> listView.getSelectionModel().selectedItemProperty()
-                    .subscribe(viewModel::selectListItem)
+                listView -> {
+                    listView.getSelectionModel().selectedItemProperty()
+                        .subscribe(viewModel::selectListItem);
+                    // The stars of the rows follow the favorites.
+                    viewModel.getFavorites().subscribe(listView::refresh);
+                }
             )
             .build();
     }

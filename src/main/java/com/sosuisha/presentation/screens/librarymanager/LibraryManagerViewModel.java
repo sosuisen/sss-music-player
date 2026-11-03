@@ -368,6 +368,15 @@ public class LibraryManagerViewModel {
         return favoritesAppModel.getFavorites().contains(toFavorite(item));
     }
 
+    /**
+     * Returns the favorites shared through the favorites app model.
+     *
+     * @return observable list of the favorites in the order they were added
+     */
+    public ObservableList<Favorite> getFavorites() {
+        return favoritesAppModel.getFavorites();
+    }
+
     private static Favorite toFavorite(AlbumListItem item) {
         return switch (item) {
             case AlbumItem(Album album) -> new FavoriteAlbum(album.name(), album.artist());

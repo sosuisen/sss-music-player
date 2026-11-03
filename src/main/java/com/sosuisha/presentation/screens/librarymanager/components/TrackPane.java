@@ -101,7 +101,10 @@ public class TrackPane {
                         return;
                     }
                     setText(viewModel.trackRowText(item));
-                    setGraphic(FavoriteStar.create(() -> viewModel.toggleFavorite(new TrackItem(item))));
+                    setGraphic(FavoriteStar.create(
+                            viewModel.isFavorite(new TrackItem(item)),
+                            () -> viewModel.toggleFavorite(new TrackItem(item))
+                        ));
                 }
             })
             .apply(listView -> {
@@ -110,6 +113,8 @@ public class TrackPane {
                 // Follows selection changes made by the view model (next/prev).
                 viewModel.selectedTrackProperty()
                     .subscribe(track -> listView.getSelectionModel().select(track));
+                // The stars of the rows follow the favorites.
+                viewModel.getFavorites().subscribe(listView::refresh);
             })
             .build();
     }

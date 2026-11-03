@@ -28,13 +28,14 @@ public class FavoriteStar {
     /**
      * Creates the star of a list row.
      *
+     * @param favorite whether the row is a favorite
      * @param onClick action that toggles the favorite of the row
      * @return label that shows the star
      * @throws NullPointerException if onClick is null
      */
-    public static Label create(Runnable onClick) {
+    public static Label create(boolean favorite, Runnable onClick) {
         Objects.requireNonNull(onClick, "onClick must not be null");
-        var star = new Label(glyph(false));
+        var star = new Label(glyph(favorite));
         star.getStyleClass().add(STYLE_CLASS);
         star.setCursor(Cursor.HAND);
         star.setOnMouseClicked(_ -> onClick.run());

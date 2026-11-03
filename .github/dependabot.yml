@@ -9,6 +9,12 @@ updates:
     groups:
       maven-minor-and-patch:
         update-types: [minor, patch]
+    # The JavaFX jars must match the static JavaFX libraries of the native exe.
+    # They are updated by hand, together. See ADR 4.
+    ignore:
+      - dependency-name: org.openjfx:javafx-controls
+      - dependency-name: org.openjfx:javafx-media
+      - dependency-name: us.hebi.graalvm:jfx-static-libs
 
   - package-ecosystem: github-actions
     directory: /

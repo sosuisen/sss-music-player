@@ -1,7 +1,6 @@
 package com.sosuisha.service;
 
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HexFormat;
@@ -53,7 +52,8 @@ public class MediaMusicPlayer implements MusicPlayer {
             try {
                 file = wavConverter.toWav(path);
             } catch (IOException e) {
-                throw new UncheckedIOException(e);
+                onError.accept(e.getMessage());
+                return;
             }
         }
         MediaPlayer player;

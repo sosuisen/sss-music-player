@@ -23,6 +23,16 @@ public class SqliteFavoriteRepository implements FavoriteRepository {
     private final SqliteDatabase database;
 
     /**
+     * Creates the repository on the library database file, the same file as
+     * {@link SqliteLibraryRepository#SqliteLibraryRepository()} uses.
+     *
+     * @throws RepositoryException if the database cannot be opened
+     */
+    public SqliteFavoriteRepository() {
+        this(SqliteLibraryRepository.resolveFile());
+    }
+
+    /**
      * Creates the repository on the given SQLite file. The file, its parent
      * folder, and the schema are created when they do not exist.
      *

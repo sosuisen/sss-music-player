@@ -6,7 +6,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
 
-import com.sosuisha.domain.model.Album;
+import com.sosuisha.presentation.screens.librarymanager.AlbumListItem;
 import com.sosuisha.presentation.screens.librarymanager.LibraryManagerViewModel;
 import com.sosuisha.presentation.screens.librarymanager.SortKey;
 
@@ -73,19 +73,19 @@ public class AlbumPane {
         return field;
     }
 
-    private static ListView<Album> buildAlbumList(LibraryManagerViewModel viewModel) {
-        return ListViewBuilder.create(viewModel.getAlbums())
+    private static ListView<AlbumListItem> buildAlbumList(LibraryManagerViewModel viewModel) {
+        return ListViewBuilder.create(viewModel.getListItems())
             .id("albumList")
             .cellFactory(_ -> new ListCell<>() {
                 @Override
-                protected void updateItem(@Nullable Album item, boolean empty) {
+                protected void updateItem(@Nullable AlbumListItem item, boolean empty) {
                     super.updateItem(item, empty);
-                    setText(empty || item == null ? null : viewModel.albumRowText(item));
+                    setText(empty || item == null ? null : viewModel.listItemText(item));
                 }
             })
             .apply(
                 listView -> listView.getSelectionModel().selectedItemProperty()
-                    .subscribe(viewModel::selectAlbum)
+                    .subscribe(viewModel::selectListItem)
             )
             .build();
     }

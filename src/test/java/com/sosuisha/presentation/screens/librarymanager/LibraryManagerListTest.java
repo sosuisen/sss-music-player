@@ -15,6 +15,7 @@ import org.testfx.matcher.control.LabeledMatchers;
 import org.testfx.matcher.control.ListViewMatchers;
 
 import com.sosuisha.domain.model.Album;
+import com.sosuisha.presentation.screens.librarymanager.AlbumListItem.AlbumItem;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
 
@@ -66,9 +67,9 @@ class LibraryManagerListTest extends LibraryManagerViewTestBase {
         var albumList = robot.lookup("#albumList").queryListView();
         assertEquals(
             List.of(
-                new Album("Apple", "X", List.of(apple)),
-                new Album("banana", "X", List.of(banana)),
-                new Album("Cherry", "X", List.of(cherry))
+                new AlbumItem(new Album("Apple", "X", List.of(apple))),
+                new AlbumItem(new Album("banana", "X", List.of(banana))),
+                new AlbumItem(new Album("Cherry", "X", List.of(cherry)))
             ),
             albumList.getItems()
         );
@@ -88,9 +89,9 @@ class LibraryManagerListTest extends LibraryManagerViewTestBase {
         var albumList = robot.lookup("#albumList").queryListView();
         assertEquals(
             List.of(
-                new Album("Beer", "apple", List.of(beer)),
-                new Album("Ale", "Banana", List.of(ale)),
-                new Album("Cider", "cherry", List.of(cider))
+                new AlbumItem(new Album("Beer", "apple", List.of(beer))),
+                new AlbumItem(new Album("Ale", "Banana", List.of(ale))),
+                new AlbumItem(new Album("Cider", "cherry", List.of(cider)))
             ),
             albumList.getItems()
         );
@@ -226,7 +227,7 @@ class LibraryManagerListTest extends LibraryManagerViewTestBase {
         robot.clickOn("#albumFilter").write("app");
 
         var albumList = robot.lookup("#albumList").queryListView();
-        assertEquals(List.of(new Album("Apple", "X", List.of(apple))), albumList.getItems());
+        assertEquals(List.of(new AlbumItem(new Album("Apple", "X", List.of(apple)))), albumList.getItems());
     }
 
     @Test
@@ -245,8 +246,8 @@ class LibraryManagerListTest extends LibraryManagerViewTestBase {
         var albumList = robot.lookup("#albumList").queryListView();
         assertEquals(
             List.of(
-                new Album("Apple", "X", List.of(apple)),
-                new Album("Banana", "X", List.of(banana))
+                new AlbumItem(new Album("Apple", "X", List.of(apple))),
+                new AlbumItem(new Album("Banana", "X", List.of(banana)))
             ),
             albumList.getItems()
         );

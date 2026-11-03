@@ -24,6 +24,8 @@ import com.sosuisha.domain.repository.NullLibraryRepository;
 import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.domain.repository.NullSettingsRepository;
 import com.sosuisha.presentation.WindowManager;
+import com.sosuisha.domain.repository.InMemoryFavoriteRepository;
+import com.sosuisha.presentation.appmodel.FavoritesAppModel;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.service.LibraryIndexer;
@@ -148,7 +150,7 @@ class LibraryManagerWindowTest extends LibraryManagerViewTestBase {
         var blockingAppModel = new MusicLibraryAppModel(blockingScanner, blockingLibraryPath);
         var blockingViewModel = new LibraryManagerViewModel(
             new WindowManager(), blockingAppModel,
-            new SettingsAppModel(new NullSettingsRepository()), new NullMusicPlayer(), _ -> {
+            new SettingsAppModel(new NullSettingsRepository()), new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(), _ -> {
             }
         );
         try {

@@ -12,6 +12,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.testfx.framework.junit5.ApplicationExtension;
 import com.uber.nullaway.annotations.Initializer;
 
+import com.sosuisha.domain.model.PlaybackPosition;
 import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.domain.repository.NullLibraryRepository;
 import com.sosuisha.domain.service.NullMusicPlayer;
@@ -127,6 +128,9 @@ abstract class LibraryManagerViewTestBase {
 
                 @Override
                 public void setOnError(Consumer<String> onError) {}
+
+                @Override
+                public void setOnProgress(Consumer<PlaybackPosition> onProgress) {}
 
                 @Override
                 public Optional<Path> playingPath() {

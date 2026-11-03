@@ -30,6 +30,7 @@ import org.testfx.matcher.control.ListViewMatchers;
 
 import com.sosuisha.domain.model.DuplicatedItems;
 import com.sosuisha.domain.model.MusicFile;
+import com.sosuisha.domain.model.PlaybackPosition;
 import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.domain.repository.NullLibraryRepository;
@@ -90,6 +91,9 @@ class DuplicateListViewTest {
 
             @Override
             public void setOnError(Consumer<String> onError) {}
+
+            @Override
+            public void setOnProgress(Consumer<PlaybackPosition> onProgress) {}
 
             @Override
             public Optional<Path> playingPath() {

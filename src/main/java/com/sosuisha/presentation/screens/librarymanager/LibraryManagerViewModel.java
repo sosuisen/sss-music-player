@@ -13,6 +13,7 @@ import com.sosuisha.domain.model.Favorite;
 import com.sosuisha.domain.model.FavoriteAlbum;
 import com.sosuisha.domain.model.FavoriteTrack;
 import com.sosuisha.domain.model.MusicFile;
+import com.sosuisha.domain.model.PlaybackPosition;
 import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.domain.service.FolderOpener;
 import com.sosuisha.domain.service.MusicPlayer;
@@ -58,6 +59,9 @@ public class LibraryManagerViewModel {
     private final ObjectProperty<SortKey> sortKey = new SimpleObjectProperty<>(SortKey.ALBUM);
     private final StringProperty albumFilter = new SimpleStringProperty("");
     private final StringProperty errorMessage = new SimpleStringProperty();
+    // Null while the position is not known, such as while stopped.
+    private final ObjectProperty<@Nullable PlaybackPosition> playbackPosition =
+        new SimpleObjectProperty<>();
 
     /**
      * Creates the view model.
@@ -85,6 +89,7 @@ public class LibraryManagerViewModel {
         this.folderOpener = Objects.requireNonNull(folderOpener, "folderOpener must not be null");
         musicPlayer.setOnFinished(this::continuePlaybackWhenTrackFinishes);
         musicPlayer.setOnError(this::stopWhenPlaybackFails);
+        musicPlayer.setOnProgress(playbackPosition::set);
         appModel.getFiles().subscribe(this::updateAlbums);
         // subscribe(Consumer) also fires with the current value, which
         // computes the initial album list here.
@@ -563,6 +568,17 @@ public class LibraryManagerViewModel {
         } catch (FolderOpenException e) {
             errorMessage.set(e.getMessage());
         }
+    }
+
+    /**
+     * Returns the position of the playback and the length of the playing
+     * track.
+     *
+     * @return read-only property of the playback position, which holds null
+     *     while the position is not known
+     */
+    public ReadOnlyObjectProperty<@Nullable PlaybackPosition> playbackPositionProperty() {
+        return playbackPosition;
     }
 
     /**

@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 
+import com.sosuisha.domain.model.PlaybackPosition;
 import com.sosuisha.domain.service.MusicPlayer;
 
 import javafx.application.Platform;
@@ -253,6 +254,17 @@ public class MediaMusicPlayer implements MusicPlayer {
     @Override
     public void setOnError(Consumer<String> onError) {
         this.onError = Objects.requireNonNull(onError, "onError must not be null");
+    }
+
+    /**
+     * Sets the callback that is invoked while the loaded audio file plays.
+     *
+     * @param onProgress callback invoked with the playback position
+     * @throws NullPointerException if onProgress is null
+     */
+    @Override
+    public void setOnProgress(Consumer<PlaybackPosition> onProgress) {
+        Objects.requireNonNull(onProgress, "onProgress must not be null");
     }
 
     /**

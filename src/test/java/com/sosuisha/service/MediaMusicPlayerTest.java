@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Supplier;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.ApplicationExtension;
+import org.testfx.util.WaitForAsyncUtils;
 
 import javafx.scene.media.Media;
 import org.jspecify.annotations.Nullable;
@@ -81,6 +83,44 @@ class MediaMusicPlayerTest {
         var loaded = new CompletableFuture<Optional<Path>>();
         robot.interact(() -> loaded.complete(player.playingPath()));
         assertEquals(Optional.empty(), loaded.get());
+    }
+
+    @Test
+    @DisabledIfEnvironmentVariable(
+        named = "CI", matches = "true",
+        disabledReason = "A MediaPlayer ends the test JVM on the Windows Server runner")
+    @DisplayName("m4aを再生すると、変換したWAVをJavaFXで再生する")
+    void playing_an_m4a_plays_the_converted_wav_with_javafx(FxRobot robot) throws Exception {
+        var m4a = Path.of("src/test/resources/id3/tagged.m4a");
+        var player = new MediaMusicPlayer();
+        var reason = new AtomicReference<@Nullable String>();
+        robot.interact(() -> {
+            player.setOnError(reason::set);
+            player.play(m4a);
+        });
+
+        var source = waitForMediaSource(robot, player);
+
+        assertTrue(source.endsWith(".wav"), source);
+        assertEquals(Optional.of(m4a), onFxThread(robot, player::playingPath));
+        assertEquals(null, reason.get());
+        robot.interact(player::stop);
+    }
+
+    // The conversion runs in the background, so the MediaPlayer appears later.
+    private static String waitForMediaSource(FxRobot robot, MediaMusicPlayer player)
+        throws Exception {
+        WaitForAsyncUtils.waitFor(
+            10, TimeUnit.SECONDS,
+            () -> onFxThread(robot, player::mediaPlayer).isPresent()
+        );
+        return onFxThread(robot, player::mediaPlayer).orElseThrow().getMedia().getSource();
+    }
+
+    private static <T> T onFxThread(FxRobot robot, Supplier<T> query) throws Exception {
+        var result = new CompletableFuture<T>();
+        robot.interact(() -> result.complete(query.get()));
+        return result.get(10, TimeUnit.SECONDS);
     }
 
     // Not @TempDir. Media keeps the file open, and Windows then refuses to

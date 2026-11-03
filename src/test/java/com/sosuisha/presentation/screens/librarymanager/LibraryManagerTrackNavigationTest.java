@@ -176,4 +176,23 @@ class LibraryManagerTrackNavigationTest extends LibraryManagerViewTestBase {
         assertEquals(Path.of("a/two.mp3"), playedPath.get());
         assertEquals(PlayerState.PLAYING, viewModel.playerStateProperty().get());
     }
+
+    @Test
+    @DisplayName("アルバム一覧の行をダブルクリックすると、先頭の曲の再生が始まる")
+    void double_clicking_an_album_row_starts_playing_its_first_track(FxRobot robot) {
+        var trackOne = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("Song One", "", "Album A", "Artist X", "1", "")
+        );
+        var trackTwo = new MusicFile(
+            Path.of("a/two.mp3"), 200,
+            new TrackMetadata("Song Two", "", "Album A", "Artist X", "2", "")
+        );
+        robot.interact(() -> viewModel.setFiles(List.of(trackTwo, trackOne)));
+
+        robot.doubleClickOn("Album A - Artist X");
+
+        assertEquals(Path.of("a/one.mp3"), playedPath.get());
+        assertEquals(PlayerState.PLAYING, viewModel.playerStateProperty().get());
+    }
 }

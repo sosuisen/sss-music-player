@@ -44,4 +44,22 @@ class FavoritesAppModelTest {
         assertEquals(expected, appModel.getFavorites());
         assertEquals(expected, repository.findAll());
     }
+
+    @Test
+    @DisplayName("登録済みのお気に入りをトグルすると、解除され、リポジトリからも消える")
+    void toggling_a_registered_favorite_removes_it_and_deletes_it_from_the_repository() {
+        var repository = new InMemoryFavoriteRepository(
+            List.of(
+                new FavoriteAlbum("Album A", "Artist X"),
+                new FavoriteTrack(Path.of("a", "song.mp3"))
+            )
+        );
+        var appModel = new FavoritesAppModel(repository);
+
+        appModel.toggle(new FavoriteAlbum("Album A", "Artist X"));
+
+        var expected = List.of(new FavoriteTrack(Path.of("a", "song.mp3")));
+        assertEquals(expected, appModel.getFavorites());
+        assertEquals(expected, repository.findAll());
+    }
 }

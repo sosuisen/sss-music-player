@@ -485,7 +485,7 @@ public class LibraryManagerViewModel {
         var movedTo = selectedTracks.get((index + offset + size) % size);
         selectedTrack.set(movedTo);
         if (playerState.get() == PlayerState.PLAYING) {
-            musicPlayer.play(movedTo.path());
+            startPlaying(movedTo.path());
         }
     }
 

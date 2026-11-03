@@ -227,7 +227,9 @@ class LibraryManagerListTest extends LibraryManagerViewTestBase {
         robot.clickOn("#albumFilter").write("app");
 
         var albumList = robot.lookup("#albumList").queryListView();
-        assertEquals(List.of(new AlbumItem(new Album("Apple", "X", List.of(apple)))), albumList.getItems());
+        assertEquals(
+            List.of(new AlbumItem(new Album("Apple", "X", List.of(apple)))), albumList.getItems()
+        );
     }
 
     @Test

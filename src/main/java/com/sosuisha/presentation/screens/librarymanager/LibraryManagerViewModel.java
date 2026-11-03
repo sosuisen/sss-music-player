@@ -157,7 +157,9 @@ public class LibraryManagerViewModel {
     private boolean matchesFilter(AlbumListItem item) {
         return switch (item) {
             case AlbumItem(Album album) -> matchesFilter(album);
-            case TrackItem(MusicFile track) -> containsIgnoringCase(titleOf(track), albumFilter.get())
+            case TrackItem(MusicFile track) -> containsIgnoringCase(
+                titleOf(track), albumFilter.get()
+            )
                 || containsIgnoringCase(track.tag().artist(), albumFilter.get());
         };
     }
@@ -173,7 +175,8 @@ public class LibraryManagerViewModel {
 
     private Comparator<Album> albumComparator() {
         return switch (sortKey.get()) {
-            case ALBUM, FAVORITES -> Comparator.comparing(Album::name, String.CASE_INSENSITIVE_ORDER);
+            case ALBUM, FAVORITES -> Comparator
+                .comparing(Album::name, String.CASE_INSENSITIVE_ORDER);
             case ARTIST -> Comparator.comparing(Album::artist, String.CASE_INSENSITIVE_ORDER);
         };
     }

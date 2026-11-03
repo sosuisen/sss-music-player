@@ -65,7 +65,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new SettingsAppModel(new NullSettingsRepository()), new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
+                ), new SettingsAppModel(new NullSettingsRepository()),
+                new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
                 _ -> {
                 }
             );
@@ -89,7 +90,8 @@ class LibraryManagerViewModelTest {
         );
         var viewModel =
             new LibraryManagerViewModel(
-                new WindowManager(), appModel, new SettingsAppModel(new NullSettingsRepository()), new FavoritesAppModel(new InMemoryFavoriteRepository()),
+                new WindowManager(), appModel, new SettingsAppModel(new NullSettingsRepository()),
+                new FavoritesAppModel(new InMemoryFavoriteRepository()),
                 new NullMusicPlayer(), _ -> {
                 }
             );
@@ -105,7 +107,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new SettingsAppModel(new NullSettingsRepository()), new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
+                ), new SettingsAppModel(new NullSettingsRepository()),
+                new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
                 _ -> {
                 }
             );
@@ -119,7 +122,10 @@ class LibraryManagerViewModelTest {
 
         viewModel.albumFilterProperty().set("App");
 
-        assertEquals(List.of(new AlbumItem(new Album("Apple", "X", List.of(apple)))), viewModel.getListItems());
+        assertEquals(
+            List.of(new AlbumItem(new Album("Apple", "X", List.of(apple)))),
+            viewModel.getListItems()
+        );
     }
 
     @Test
@@ -130,7 +136,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new SettingsAppModel(new NullSettingsRepository()), new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
+                ), new SettingsAppModel(new NullSettingsRepository()),
+                new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
                 _ -> {
                 }
             );
@@ -144,7 +151,10 @@ class LibraryManagerViewModelTest {
 
         viewModel.albumFilterProperty().set("aPP");
 
-        assertEquals(List.of(new AlbumItem(new Album("Apple", "X", List.of(apple)))), viewModel.getListItems());
+        assertEquals(
+            List.of(new AlbumItem(new Album("Apple", "X", List.of(apple)))),
+            viewModel.getListItems()
+        );
     }
 
     @Test
@@ -155,7 +165,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new SettingsAppModel(new NullSettingsRepository()), new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
+                ), new SettingsAppModel(new NullSettingsRepository()),
+                new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
                 _ -> {
                 }
             );
@@ -169,7 +180,10 @@ class LibraryManagerViewModelTest {
 
         viewModel.albumFilterProperty().set("zeb");
 
-        assertEquals(List.of(new AlbumItem(new Album("Banana", "Zebra", List.of(banana)))), viewModel.getListItems());
+        assertEquals(
+            List.of(new AlbumItem(new Album("Banana", "Zebra", List.of(banana)))),
+            viewModel.getListItems()
+        );
     }
 
     @Test
@@ -180,7 +194,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new SettingsAppModel(new NullSettingsRepository()), new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
+                ), new SettingsAppModel(new NullSettingsRepository()),
+                new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
                 _ -> {
                 }
             );
@@ -199,7 +214,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new SettingsAppModel(new NullSettingsRepository()), new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
+                ), new SettingsAppModel(new NullSettingsRepository()),
+                new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
                 _ -> {
                 }
             );
@@ -219,7 +235,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new SettingsAppModel(new NullSettingsRepository()), new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
+                ), new SettingsAppModel(new NullSettingsRepository()),
+                new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
                 _ -> {
                 }
             );
@@ -240,7 +257,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new SettingsAppModel(new NullSettingsRepository()), new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
+                ), new SettingsAppModel(new NullSettingsRepository()),
+                new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
                 _ -> {
                 }
             );
@@ -263,7 +281,8 @@ class LibraryManagerViewModelTest {
                 new LibraryIndexer(new NullLibraryRepository()),
                 new SimpleObjectProperty<>()
             ),
-            new SettingsAppModel(new NullSettingsRepository()), new FavoritesAppModel(new InMemoryFavoriteRepository()),
+            new SettingsAppModel(new NullSettingsRepository()),
+            new FavoritesAppModel(new InMemoryFavoriteRepository()),
             new NullMusicPlayer(),
             folder -> {
                 throw new FolderOpenException("Could not open the folder: " + folder, null);

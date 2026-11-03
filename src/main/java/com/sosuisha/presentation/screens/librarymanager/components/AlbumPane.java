@@ -86,7 +86,11 @@ public class AlbumPane {
                         return;
                     }
                     setText(viewModel.listItemText(item));
-                    setGraphic(FavoriteStar.create(viewModel.isFavorite(item), () -> viewModel.toggleFavorite(item)));
+                    setGraphic(
+                        FavoriteStar.create(
+                            viewModel.isFavorite(item), () -> viewModel.toggleFavorite(item)
+                        )
+                    );
                 }
             })
             .apply(

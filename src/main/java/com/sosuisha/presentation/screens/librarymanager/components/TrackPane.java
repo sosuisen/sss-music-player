@@ -101,10 +101,12 @@ public class TrackPane {
                         return;
                     }
                     setText(viewModel.trackRowText(item));
-                    setGraphic(FavoriteStar.create(
+                    setGraphic(
+                        FavoriteStar.create(
                             viewModel.isFavorite(new TrackItem(item)),
                             () -> viewModel.toggleFavorite(new TrackItem(item))
-                        ));
+                        )
+                    );
                 }
             })
             .apply(listView -> {

@@ -150,7 +150,8 @@ class LibraryManagerWindowTest extends LibraryManagerViewTestBase {
         var blockingAppModel = new MusicLibraryAppModel(blockingScanner, blockingLibraryPath);
         var blockingViewModel = new LibraryManagerViewModel(
             new WindowManager(), blockingAppModel,
-            new SettingsAppModel(new NullSettingsRepository()), new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(), _ -> {
+            new SettingsAppModel(new NullSettingsRepository()),
+            new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(), _ -> {
             }
         );
         try {

@@ -3,8 +3,10 @@ package com.sosuisha.service;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -15,6 +17,8 @@ import javax.sound.sampled.AudioSystem;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 class WavConverterTest {
     @Test
@@ -74,5 +78,27 @@ class WavConverterTest {
         ).resolve("sss-music-player");
 
         assertDoesNotThrow(() -> new WavConverter(folder).deleteLeftovers());
+    }
+
+    // Another running copy of the app may be playing a WAV in the folder.
+    @Test
+    @EnabledOnOs(OS.WINDOWS)
+    @DisplayName("開かれていて消せない一時WAVは残し、ほかの一時WAVを消す（アプリの同時起動）")
+    void keeps_an_open_wav_and_deletes_the_others() throws Exception {
+        var folder = Files.createTempDirectory(
+            Files.createDirectories(Path.of("target/wav-test")), "open"
+        );
+        var open = Files.write(folder.resolve("1.wav"), new byte[16]);
+        var closed = Files.write(folder.resolve("2.wav"), new byte[16]);
+
+        // On Windows, a FileInputStream does not let others delete the file.
+        try (var _ = new FileInputStream(open.toFile())) {
+            new WavConverter(folder).deleteLeftovers();
+        }
+
+        assertAll(
+            () -> assertTrue(Files.exists(open)),
+            () -> assertFalse(Files.exists(closed))
+        );
     }
 }

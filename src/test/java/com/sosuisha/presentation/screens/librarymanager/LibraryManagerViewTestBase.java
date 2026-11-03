@@ -60,6 +60,8 @@ abstract class LibraryManagerViewTestBase {
     AtomicReference<@Nullable Runnable> trackFinishedCallback;
     AtomicReference<@Nullable Path> loadedPath;
     AtomicReference<@Nullable Path> openedFolder;
+    AtomicReference<@Nullable Consumer<PlaybackPosition>> progressCallback;
+    AtomicReference<@Nullable Duration> seekedPosition;
 
     // TestFX's ApplicationExtension looks up @Start with getDeclaredMethods(),
     // which does not see inherited methods, so each subclass declares a
@@ -95,6 +97,8 @@ abstract class LibraryManagerViewTestBase {
         trackFinishedCallback = new AtomicReference<>();
         loadedPath = new AtomicReference<>();
         openedFolder = new AtomicReference<>();
+        progressCallback = new AtomicReference<>();
+        seekedPosition = new AtomicReference<>();
         settingsAppModel = new SettingsAppModel(new NullSettingsRepository());
         favoritesAppModel = new FavoritesAppModel(new InMemoryFavoriteRepository());
         viewModel = new LibraryManagerViewModel(
@@ -123,7 +127,9 @@ abstract class LibraryManagerViewTestBase {
                 }
 
                 @Override
-                public void seek(Duration position) {}
+                public void seek(Duration position) {
+                    seekedPosition.set(position);
+                }
 
                 @Override
                 public void setOnFinished(Runnable onFinished) {
@@ -134,7 +140,9 @@ abstract class LibraryManagerViewTestBase {
                 public void setOnError(Consumer<String> onError) {}
 
                 @Override
-                public void setOnProgress(Consumer<PlaybackPosition> onProgress) {}
+                public void setOnProgress(Consumer<PlaybackPosition> onProgress) {
+                    progressCallback.set(onProgress);
+                }
 
                 @Override
                 public Optional<Path> playingPath() {
@@ -164,6 +172,11 @@ abstract class LibraryManagerViewTestBase {
         stage.setScene(view.getScene());
         stage.setTitle(view.getTitle());
         stage.show();
+    }
+
+    // The fake music player stores the callback that receives the position.
+    void reportProgress(PlaybackPosition position) {
+        Objects.requireNonNull(progressCallback.get(), "no progress callback").accept(position);
     }
 
     // The fake music player stores the callback that runs when a track ends.

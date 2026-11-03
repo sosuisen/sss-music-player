@@ -17,6 +17,8 @@ import org.jspecify.annotations.Nullable;
  * the file that is currently playing.
  */
 public class MediaMusicPlayer implements MusicPlayer {
+    private static final HexFormat HEX = HexFormat.of().withUpperCase();
+
     /** The player of the loaded audio file and the path of that file. */
     private record Playing(MediaPlayer player, Path path) {
     }
@@ -52,7 +54,7 @@ public class MediaMusicPlayer implements MusicPlayer {
             if (b >= 0) {
                 ascii.append((char) b);
             } else {
-                ascii.append('%').append(HexFormat.of().withUpperCase().toHexDigits(b));
+                ascii.append('%').append(HEX.toHexDigits(b));
             }
         }
         return ascii.toString();

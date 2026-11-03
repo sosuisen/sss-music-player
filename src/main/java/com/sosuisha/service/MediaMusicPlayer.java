@@ -1,8 +1,11 @@
 package com.sosuisha.service;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.HexFormat;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -33,6 +36,7 @@ public class MediaMusicPlayer implements MusicPlayer {
     // The initial callback does nothing.
     private Consumer<String> onError = _ -> {
     };
+    private final WavConverter wavConverter = new WavConverter();
 
     /**
      * Plays the audio file at the given path.
@@ -44,9 +48,17 @@ public class MediaMusicPlayer implements MusicPlayer {
     public void play(Path path) {
         Objects.requireNonNull(path, "path must not be null");
         stop();
+        var file = path;
+        if (path.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".m4a")) {
+            try {
+                file = wavConverter.toWav(path);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
         MediaPlayer player;
         try {
-            player = new MediaPlayer(new Media(mediaUri(path)));
+            player = new MediaPlayer(new Media(mediaUri(file)));
         } catch (MediaException e) {
             onError.accept(e.getMessage());
             return;
@@ -143,5 +155,10 @@ public class MediaMusicPlayer implements MusicPlayer {
     @Override
     public Optional<Path> playingPath() {
         return Optional.ofNullable(playing).map(Playing::path);
+    }
+
+    // For the tests. It shows which file JavaFX plays.
+    Optional<MediaPlayer> mediaPlayer() {
+        return Optional.ofNullable(playing).map(Playing::player);
     }
 }

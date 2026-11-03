@@ -320,6 +320,39 @@ public class LibraryManagerViewModel {
     }
 
     /**
+     * Toggles the favorite of the album or the track shown in the given row.
+     * The rows of the album list are not rebuilt, so a row unregistered
+     * while the favorites are shown stays until the list is rebuilt.
+     *
+     * @param item row whose album or track is toggled
+     * @throws NullPointerException if item is null
+     */
+    public void toggleFavorite(AlbumListItem item) {
+        Objects.requireNonNull(item, "item must not be null");
+        favoritesAppModel.toggle(toFavorite(item));
+    }
+
+    /**
+     * Returns whether the album or the track shown in the given row is a
+     * favorite.
+     *
+     * @param item row of the album list or the track list
+     * @return true if the album or the track is a favorite
+     * @throws NullPointerException if item is null
+     */
+    public boolean isFavorite(AlbumListItem item) {
+        Objects.requireNonNull(item, "item must not be null");
+        return favoritesAppModel.getFavorites().contains(toFavorite(item));
+    }
+
+    private static Favorite toFavorite(AlbumListItem item) {
+        return switch (item) {
+            case AlbumItem(Album album) -> new FavoriteAlbum(album.name(), album.artist());
+            case TrackItem(MusicFile track) -> new FavoriteTrack(track.path());
+        };
+    }
+
+    /**
      * Selects the given album. The tracks of the album are published through
      * {@link #getSelectedTracks()} in track number order, and the first track
      * becomes the selected track. While a track is playing, the selected track

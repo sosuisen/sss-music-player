@@ -115,8 +115,10 @@ public class DuplicateListViewModel {
      */
     public void play(MusicFile file) {
         Objects.requireNonNull(file, "file must not be null");
-        musicPlayer.play(file.path());
+        // The file is set before play(), because the player may report a
+        // failure inside play() and the failure clears the playing file.
         playingFile.set(file);
+        musicPlayer.play(file.path());
     }
 
     /**

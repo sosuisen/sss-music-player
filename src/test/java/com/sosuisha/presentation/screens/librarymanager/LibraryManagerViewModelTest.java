@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import com.sosuisha.domain.exception.FolderOpenException;
 import com.sosuisha.domain.model.Album;
 import com.sosuisha.presentation.screens.librarymanager.AlbumListItem.AlbumItem;
+import com.sosuisha.presentation.screens.librarymanager.AlbumListItem.TrackItem;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.PlaybackPosition;
 import com.sosuisha.domain.model.RepeatMode;
@@ -532,6 +533,35 @@ class LibraryManagerViewModelTest {
             () -> assertEquals(List.of(Path.of("a/one.mp3")), playedPaths),
             () -> assertEquals(trackOne, viewModel.selectedTrackProperty().get())
         );
+    }
+
+    @Test
+    @DisplayName("別の曲を再生中に、アルバムの行で再生すると、そのアルバムの先頭の曲を再生し、その曲を選ぶ")
+    void playing_an_album_row_while_another_track_plays_plays_and_selects_its_first_track() {
+        var playedPaths = new ArrayList<Path>();
+        var viewModel = viewModelWith(recordingPlayer(playedPaths));
+        viewModel.playTrack(new MusicFile(Path.of("p/playing.mp3"), 100));
+        var trackOne = new MusicFile(Path.of("a/one.mp3"), 100);
+
+        viewModel.playListItem(new AlbumItem(new Album("Album A", "Artist X", List.of(trackOne))));
+
+        assertAll(
+            () -> assertEquals(
+                List.of(Path.of("p/playing.mp3"), Path.of("a/one.mp3")), playedPaths
+            ),
+            () -> assertEquals(trackOne, viewModel.selectedTrackProperty().get())
+        );
+    }
+
+    @Test
+    @DisplayName("曲の行で再生すると、その曲を再生する")
+    void playing_a_track_row_plays_that_track() {
+        var playedPaths = new ArrayList<Path>();
+        var viewModel = viewModelWith(recordingPlayer(playedPaths));
+
+        viewModel.playListItem(new TrackItem(new MusicFile(Path.of("a/two.mp3"), 100)));
+
+        assertEquals(List.of(Path.of("a/two.mp3")), playedPaths);
     }
 
     // A player that records the paths it is asked to play.

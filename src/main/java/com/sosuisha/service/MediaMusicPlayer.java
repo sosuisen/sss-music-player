@@ -59,6 +59,9 @@ public class MediaMusicPlayer implements MusicPlayer {
     // The initial callback does nothing.
     private Consumer<String> onError = _ -> {
     };
+    // The initial callback does nothing.
+    private Consumer<PlaybackPosition> onProgress = _ -> {
+    };
     private final WavConverter wavConverter;
     // Runs the conversions off the JavaFX application thread. A conversion
     // takes about 1.4 seconds for a 4-minute track. See ADR 005.
@@ -163,6 +166,8 @@ public class MediaMusicPlayer implements MusicPlayer {
             return;
         }
         player.setOnEndOfMedia(onFinished);
+        player.setOnReady(() -> reportProgress(player));
+        player.currentTimeProperty().addListener((_, _, _) -> reportProgress(player));
         player.setOnError(() -> {
             // getError() is set whenever onError runs.
             var reason = player.getError().getMessage();
@@ -175,6 +180,18 @@ public class MediaMusicPlayer implements MusicPlayer {
             player.play();
         }
         request.player = player;
+    }
+
+    // The length is unknown until the player is ready.
+    private void reportProgress(MediaPlayer player) {
+        var length = player.getTotalDuration();
+        if (length == null || length.isUnknown() || length.isIndefinite()) { return; }
+        onProgress.accept(
+            new PlaybackPosition(
+                Duration.ofMillis((long) player.getCurrentTime().toMillis()),
+                Duration.ofMillis((long) length.toMillis())
+            )
+        );
     }
 
     // Media converts the URI with URI.toASCIIString(), which normalizes the
@@ -276,7 +293,7 @@ public class MediaMusicPlayer implements MusicPlayer {
      */
     @Override
     public void setOnProgress(Consumer<PlaybackPosition> onProgress) {
-        Objects.requireNonNull(onProgress, "onProgress must not be null");
+        this.onProgress = Objects.requireNonNull(onProgress, "onProgress must not be null");
     }
 
     /**

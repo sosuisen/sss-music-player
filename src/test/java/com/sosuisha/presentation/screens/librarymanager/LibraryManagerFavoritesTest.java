@@ -14,6 +14,7 @@ import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.presentation.screens.librarymanager.AlbumListItem.AlbumItem;
+import com.sosuisha.presentation.screens.librarymanager.AlbumListItem.TrackItem;
 
 import javafx.scene.Node;
 import javafx.stage.Stage;
@@ -37,5 +38,19 @@ class LibraryManagerFavoritesTest extends LibraryManagerViewTestBase {
         robot.clickOn(star);
 
         assertTrue(viewModel.isFavorite(new AlbumItem(new Album("Album A", "X", List.of(ONE)))));
+    }
+
+    @Test
+    @DisplayName("曲行の☆をクリックすると、その曲がお気に入りに登録される")
+    void clicking_the_star_of_a_track_row_registers_the_track_as_a_favorite(FxRobot robot) {
+        robot.interact(() -> {
+            viewModel.setFiles(List.of(ONE));
+            viewModel.selectAlbum(new Album("Album A", "X", List.of(ONE)));
+        });
+
+        Node star = robot.lookup("#trackList .favorite-star").query();
+        robot.clickOn(star);
+
+        assertTrue(viewModel.isFavorite(new TrackItem(ONE)));
     }
 }

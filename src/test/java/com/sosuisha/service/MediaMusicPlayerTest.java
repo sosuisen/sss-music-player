@@ -201,8 +201,8 @@ class MediaMusicPlayerTest {
     @DisabledIfEnvironmentVariable(
         named = "CI", matches = "true",
         disabledReason = "A MediaPlayer ends the test JVM on the Windows Server runner")
-    @DisplayName("変換中に一時停止すると、変換が終わっても一時停止のままである")
-    void pausing_during_the_conversion_keeps_the_track_paused(FxRobot robot) throws Exception {
+    @DisplayName("変換中に一時停止すると、変換が終わっても再生を始めない")
+    void pausing_during_the_conversion_does_not_start_the_track(FxRobot robot) throws Exception {
         var m4a = Path.of("src/test/resources/id3/tagged.m4a");
         // The conversion waits here until the test runs it.
         var conversions = new ArrayList<Runnable>();
@@ -215,13 +215,19 @@ class MediaMusicPlayerTest {
         conversions.forEach(Runnable::run);
 
         WaitForAsyncUtils.waitFor(
-            10, TimeUnit.SECONDS, () -> onFxThread(
-                robot,
-                () -> player.mediaPlayer().map(MediaPlayer::getStatus)
-            ).equals(Optional.of(MediaPlayer.Status.PAUSED))
+            10, TimeUnit.SECONDS,
+            () -> status(robot, player).equals(Optional.of(MediaPlayer.Status.READY))
         );
+        // A player that was told to play leaves READY soon after it is ready.
+        WaitForAsyncUtils.sleep(500, TimeUnit.MILLISECONDS);
+        assertEquals(Optional.of(MediaPlayer.Status.READY), status(robot, player));
         assertEquals(Optional.of(m4a), onFxThread(robot, player::playingPath));
         robot.interact(player::stop);
+    }
+
+    private static Optional<MediaPlayer.Status> status(FxRobot robot, MediaMusicPlayer player)
+        throws Exception {
+        return onFxThread(robot, () -> player.mediaPlayer().map(MediaPlayer::getStatus));
     }
 
     // The conversion runs in the background, so the MediaPlayer appears later.

@@ -121,6 +121,26 @@ class LibraryManagerFavoritesViewModelTest {
         assertEquals("untitled.mp3", viewModel.listItemText(new TrackItem(untitled)));
     }
 
+    @Test
+    @DisplayName("Favorites表示でも絞り込みが効き、曲は曲名かアーティストで絞り込まれる")
+    void the_filter_narrows_the_favorites_and_matches_tracks_by_title_or_artist() {
+        var viewModel = createViewModel(
+            List.of(new FavoriteAlbum("Album A", "X"), new FavoriteTrack(SONG.path()))
+        );
+        viewModel.sortKeyProperty().set(SortKey.FAVORITES);
+
+        viewModel.albumFilterProperty().set("song");
+        var byTitle = List.copyOf(viewModel.getListItems());
+        viewModel.albumFilterProperty().set("y");
+        var byArtist = List.copyOf(viewModel.getListItems());
+        viewModel.albumFilterProperty().set("album a");
+        var byAlbumName = List.copyOf(viewModel.getListItems());
+
+        assertEquals(List.of(new TrackItem(SONG)), byTitle);
+        assertEquals(List.of(new TrackItem(SONG)), byArtist);
+        assertEquals(List.of(new AlbumItem(ALBUM_A)), byAlbumName);
+    }
+
     private static LibraryManagerViewModel createViewModel(List<Favorite> favorites) {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()), new SimpleObjectProperty<>()

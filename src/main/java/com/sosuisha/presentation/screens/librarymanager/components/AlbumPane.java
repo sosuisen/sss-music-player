@@ -77,6 +77,14 @@ public class AlbumPane {
         return ListViewBuilder.create(viewModel.getListItems())
             .id("albumList")
             .cellFactory(_ -> new ListCell<>() {
+                {
+                    setOnMouseClicked(event -> {
+                        if (event.getClickCount() == 2 && getItem() != null) {
+                            viewModel.playListItem(getItem());
+                        }
+                    });
+                }
+
                 @Override
                 protected void updateItem(@Nullable AlbumListItem item, boolean empty) {
                     super.updateItem(item, empty);

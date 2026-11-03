@@ -100,6 +100,7 @@ public class LibraryManagerViewModel {
     private void stopWhenPlaybackFails(String reason) {
         var track = selectedTrack.get();
         playerState.set(PlayerState.STOPPED);
+        playbackPosition.set(null);
         errorMessage.set("Cannot play " + track.path().getFileName() + ": " + reason);
     }
 

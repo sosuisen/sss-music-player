@@ -107,6 +107,7 @@ public class LibraryManagerViewModel {
                 favoritesAppModel.getFavorites().stream()
                     .map(favorite -> toListItem(favorite, albums))
                     .flatMap(Optional::stream)
+                    .filter(this::matchesFilter)
                     .toList()
             );
             return;
@@ -136,7 +137,8 @@ public class LibraryManagerViewModel {
     /**
      * Returns the filter text of the album list. The albums are narrowed to
      * the ones whose name or artist contains the text, ignoring case,
-     * whenever the text changes.
+     * whenever the text changes. Among the favorites, the tracks are narrowed
+     * in the same way by their title or artist.
      *
      * @return string property of the filter text
      */
@@ -150,6 +152,14 @@ public class LibraryManagerViewModel {
      */
     public void clearAlbumFilter() {
         albumFilter.set("");
+    }
+
+    private boolean matchesFilter(AlbumListItem item) {
+        return switch (item) {
+            case AlbumItem(Album album) -> matchesFilter(album);
+            case TrackItem(MusicFile track) -> containsIgnoringCase(titleOf(track), albumFilter.get())
+                || containsIgnoringCase(track.tag().artist(), albumFilter.get());
+        };
     }
 
     private boolean matchesFilter(Album album) {

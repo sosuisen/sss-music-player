@@ -465,6 +465,32 @@ class LibraryManagerViewModelTest {
         assertNull(viewModel.playbackPositionProperty().get());
     }
 
+    @Test
+    @DisplayName("再生に失敗すると、再生位置はなくなる")
+    void a_playback_failure_clears_the_playback_position() {
+        var onProgress = new AtomicReference<@Nullable Consumer<PlaybackPosition>>();
+        var onError = new AtomicReference<@Nullable Consumer<String>>();
+        MusicPlayer failingPlayer = new NullMusicPlayer() {
+            @Override
+            public void setOnProgress(Consumer<PlaybackPosition> callback) {
+                onProgress.set(callback);
+            }
+
+            @Override
+            public void setOnError(Consumer<String> callback) {
+                onError.set(callback);
+            }
+        };
+        var viewModel = viewModelWith(failingPlayer);
+        viewModel.playTrack(new MusicFile(Path.of("a/one.mp3"), 100));
+        Objects.requireNonNull(onProgress.get())
+            .accept(new PlaybackPosition(Duration.ofSeconds(83), Duration.ofSeconds(245)));
+
+        Objects.requireNonNull(onError.get()).accept("ERROR_MEDIA_INVALID");
+
+        assertNull(viewModel.playbackPositionProperty().get());
+    }
+
     // A player that hands its progress callback to the test.
     private static MusicPlayer reportingPlayer(
         AtomicReference<@Nullable Consumer<PlaybackPosition>> onProgress) {

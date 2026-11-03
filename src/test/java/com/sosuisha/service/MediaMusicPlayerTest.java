@@ -57,6 +57,25 @@ class MediaMusicPlayerTest {
         assertEquals(Optional.empty(), player.playingPath());
     }
 
+    // No MediaPlayer is created, so this test also runs on the CI runner.
+    @Test
+    @DisplayName("変換できないm4aを再生すると、失敗を通知し、何も読み込んでいない状態になる")
+    void playing_an_m4a_that_cannot_be_converted_reports_the_failure_and_loads_nothing(
+        FxRobot robot) throws Exception {
+        var broken = Files.write(
+            createFolderInTarget("broken").resolve("broken.m4a"), new byte[4096]
+        );
+        var player = new MediaMusicPlayer();
+        var reported = new CompletableFuture<String>();
+        robot.interact(() -> {
+            player.setOnError(reported::complete);
+            player.play(broken);
+        });
+
+        assertNotNull(reported.get(10, TimeUnit.SECONDS));
+        assertEquals(Optional.empty(), onFxThread(robot, player::playingPath));
+    }
+
     // On the CI runner, which is Windows Server, the test JVM exits with code 1
     // once a MediaPlayer is created. Windows Server has no Media Foundation by
     // default, which is the likely cause. GitHub Actions sets CI=true.

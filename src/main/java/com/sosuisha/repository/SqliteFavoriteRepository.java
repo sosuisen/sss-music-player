@@ -11,11 +11,12 @@ import com.sosuisha.domain.exception.RepositoryException;
 import com.sosuisha.domain.model.Favorite;
 import com.sosuisha.domain.model.FavoriteAlbum;
 import com.sosuisha.domain.model.FavoriteTrack;
+import com.sosuisha.domain.repository.FavoriteRepository;
 
 /**
  * Favorites stored in the SQLite library database.
  */
-public class SqliteFavoriteRepository {
+public class SqliteFavoriteRepository implements FavoriteRepository {
     private static final String ALBUM_KIND = "album";
     private static final String TRACK_KIND = "track";
 
@@ -41,6 +42,7 @@ public class SqliteFavoriteRepository {
      * @return list of the favorites
      * @throws RepositoryException if the database cannot be read
      */
+    @Override
     public List<Favorite> findAll() {
         return database.query(
             "Could not read the library database",
@@ -64,6 +66,7 @@ public class SqliteFavoriteRepository {
      * @throws NullPointerException if favorite is null
      * @throws RepositoryException if the database cannot be written
      */
+    @Override
     public void add(Favorite favorite) {
         Objects.requireNonNull(favorite, "favorite must not be null");
         var row = Row.of(favorite);
@@ -84,6 +87,7 @@ public class SqliteFavoriteRepository {
      * @throws NullPointerException if favorite is null
      * @throws RepositoryException if the database cannot be written
      */
+    @Override
     public void remove(Favorite favorite) {
         Objects.requireNonNull(favorite, "favorite must not be null");
         var row = Row.of(favorite);

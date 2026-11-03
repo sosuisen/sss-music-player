@@ -368,4 +368,39 @@ class LibraryManagerViewModelTest {
             "Cannot play one.m4a: ERROR_MEDIA_INVALID", viewModel.errorMessageProperty().get()
         );
     }
+
+    @Test
+    @DisplayName("再生を始めた時点で失敗が通知されても、プレイヤーの状態は停止になる")
+    void a_failure_reported_when_playback_starts_leaves_the_player_stopped() {
+        MusicPlayer failingPlayer = new NullMusicPlayer() {
+            private Consumer<String> onError = _ -> {
+            };
+
+            @Override
+            public void play(Path path) {
+                onError.accept("MEDIA_UNAVAILABLE");
+            }
+
+            @Override
+            public void setOnError(Consumer<String> callback) {
+                onError = callback;
+            }
+        };
+        var viewModel = new LibraryManagerViewModel(
+            new WindowManager(),
+            new MusicLibraryAppModel(
+                new LibraryIndexer(new NullLibraryRepository()),
+                new SimpleObjectProperty<>()
+            ),
+            new SettingsAppModel(new NullSettingsRepository()),
+            new FavoritesAppModel(new InMemoryFavoriteRepository()),
+            failingPlayer,
+            _ -> {
+            }
+        );
+
+        viewModel.playTrack(new MusicFile(Path.of("a/missing.mp3"), 100));
+
+        assertEquals(PlayerState.STOPPED, viewModel.playerStateProperty().get());
+    }
 }

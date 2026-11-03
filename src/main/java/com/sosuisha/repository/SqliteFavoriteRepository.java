@@ -66,22 +66,13 @@ public class SqliteFavoriteRepository {
      */
     public void add(Favorite favorite) {
         Objects.requireNonNull(favorite, "favorite must not be null");
+        var row = Row.of(favorite);
         database.run("Could not write to the library database", dsl -> {
             var record = dsl.newRecord(FAVORITE);
-            switch (favorite) {
-                case FavoriteAlbum album -> {
-                    record.setKind(ALBUM_KIND);
-                    record.setAlbumName(album.name());
-                    record.setAlbumArtist(album.artist());
-                    record.setTrackPath("");
-                }
-                case FavoriteTrack track -> {
-                    record.setKind(TRACK_KIND);
-                    record.setAlbumName("");
-                    record.setAlbumArtist("");
-                    record.setTrackPath(track.path().toString());
-                }
-            }
+            record.setKind(row.kind());
+            record.setAlbumName(row.albumName());
+            record.setAlbumArtist(row.albumArtist());
+            record.setTrackPath(row.trackPath());
             record.insert();
         });
     }
@@ -95,22 +86,27 @@ public class SqliteFavoriteRepository {
      */
     public void remove(Favorite favorite) {
         Objects.requireNonNull(favorite, "favorite must not be null");
-        database.run("Could not write to the library database", dsl -> {
-            switch (favorite) {
-                case FavoriteAlbum album -> dsl.deleteFrom(FAVORITE)
-                    .where(
-                        FAVORITE.KIND.eq(ALBUM_KIND)
-                            .and(FAVORITE.ALBUM_NAME.eq(album.name()))
-                            .and(FAVORITE.ALBUM_ARTIST.eq(album.artist()))
-                    )
-                    .execute();
-                case FavoriteTrack track -> dsl.deleteFrom(FAVORITE)
-                    .where(
-                        FAVORITE.KIND.eq(TRACK_KIND)
-                            .and(FAVORITE.TRACK_PATH.eq(track.path().toString()))
-                    )
-                    .execute();
-            }
-        });
+        var row = Row.of(favorite);
+        database.run(
+            "Could not write to the library database", dsl -> dsl.deleteFrom(FAVORITE)
+                .where(
+                    FAVORITE.KIND.eq(row.kind())
+                        .and(FAVORITE.ALBUM_NAME.eq(row.albumName()))
+                        .and(FAVORITE.ALBUM_ARTIST.eq(row.albumArtist()))
+                        .and(FAVORITE.TRACK_PATH.eq(row.trackPath()))
+                )
+                .execute()
+        );
+    }
+
+    // Column values of a favorite. Columns that do not apply to the kind
+    // hold an empty string, because the columns are NOT NULL.
+    private record Row(String kind, String albumName, String albumArtist, String trackPath) {
+        static Row of(Favorite favorite) {
+            return switch (favorite) {
+                case FavoriteAlbum album -> new Row(ALBUM_KIND, album.name(), album.artist(), "");
+                case FavoriteTrack track -> new Row(TRACK_KIND, "", "", track.path().toString());
+            };
+        }
     }
 }

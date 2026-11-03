@@ -52,6 +52,12 @@ public class MediaMusicPlayer implements MusicPlayer {
             return;
         }
         player.setOnEndOfMedia(onFinished);
+        player.setOnError(() -> {
+            // getError() is set whenever onError runs.
+            var reason = player.getError().getMessage();
+            stop();
+            onError.accept(reason);
+        });
         player.play();
         playing = new Playing(player, path);
     }

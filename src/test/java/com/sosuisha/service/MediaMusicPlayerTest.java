@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -76,6 +78,28 @@ class MediaMusicPlayerTest {
 
         assertNotNull(reported.get(10, TimeUnit.SECONDS));
         assertEquals(Optional.empty(), onFxThread(robot, player::playingPath));
+    }
+
+    // No MediaPlayer is created, so this test also runs on the CI runner.
+    @Test
+    @DisplayName("変換中に停止すると、変換が終わっても何も読み込まず、一時WAVを消す")
+    void stopping_during_the_conversion_loads_nothing_and_deletes_the_wav(FxRobot robot)
+        throws Exception {
+        var wavFolder = createFolderInTarget("stopped");
+        // The conversion waits here until the test runs it.
+        var conversions = new ArrayList<Runnable>();
+        var player = new MediaMusicPlayer(new WavConverter(wavFolder), conversions::add);
+        robot.interact(() -> player.play(Path.of("src/test/resources/id3/tagged.m4a")));
+        robot.interact(player::stop);
+
+        conversions.forEach(Runnable::run);
+        WaitForAsyncUtils.waitForFxEvents();
+
+        assertEquals(Optional.empty(), onFxThread(robot, player::playingPath));
+        assertEquals(Optional.empty(), onFxThread(robot, player::mediaPlayer));
+        try (var wavs = Files.list(wavFolder)) {
+            assertEquals(List.of(), wavs.toList());
+        }
     }
 
     // On the CI runner, which is Windows Server, the test JVM exits with code 1

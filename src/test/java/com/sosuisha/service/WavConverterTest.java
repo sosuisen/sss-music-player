@@ -1,6 +1,7 @@
 package com.sosuisha.service;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -63,5 +64,15 @@ class WavConverterTest {
         try (var left = Files.list(folder)) {
             assertEquals(List.of(), left.toList());
         }
+    }
+
+    @Test
+    @DisplayName("専用フォルダがまだなければ、何もしない（初回の起動）")
+    void does_nothing_when_the_folder_does_not_exist_yet() throws Exception {
+        var folder = Files.createTempDirectory(
+            Files.createDirectories(Path.of("target/wav-test")), "first"
+        ).resolve("sss-music-player");
+
+        assertDoesNotThrow(() -> new WavConverter(folder).deleteLeftovers());
     }
 }

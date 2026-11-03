@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
@@ -46,5 +47,21 @@ class WavConverterTest {
         var wav = new WavConverter(folder).toWav(Path.of("src/test/resources/id3/tagged.m4a"));
 
         assertEquals(folder, wav.getParent());
+    }
+
+    @Test
+    @DisplayName("専用フォルダに残った一時WAVをすべて消す")
+    void deletes_all_temporary_wavs_left_in_the_folder() throws Exception {
+        var folder = Files.createTempDirectory(
+            Files.createDirectories(Path.of("target/wav-test")), "leftovers"
+        );
+        Files.write(folder.resolve("1.wav"), new byte[16]);
+        Files.write(folder.resolve("2.wav"), new byte[16]);
+
+        new WavConverter(folder).deleteLeftovers();
+
+        try (var left = Files.list(folder)) {
+            assertEquals(List.of(), left.toList());
+        }
     }
 }

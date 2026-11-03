@@ -1,6 +1,7 @@
 package com.sosuisha.presentation.screens.librarymanager;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -52,6 +53,34 @@ class LibraryManagerFavoritesViewModelTest {
         assertEquals(
             List.of(new TrackItem(SONG), new AlbumItem(ALBUM_A)), viewModel.getListItems()
         );
+    }
+
+    @Test
+    @DisplayName("ライブラリに見つからないお気に入りは、左のリストに表示しない")
+    void favorites_not_found_in_the_library_are_not_listed() {
+        var viewModel = createViewModel(
+            List.of(
+                new FavoriteTrack(Path.of("gone", "song.mp3")),
+                new FavoriteAlbum("Gone Album", "Z"),
+                new FavoriteTrack(SONG.path())
+            )
+        );
+
+        viewModel.sortKeyProperty().set(SortKey.FAVORITES);
+
+        assertEquals(List.of(new TrackItem(SONG)), viewModel.getListItems());
+    }
+
+    @Test
+    @DisplayName("Favorites表示中にお気に入りを解除しても、行は未登録の状態で残る")
+    void a_row_unregistered_while_favorites_are_shown_stays_as_unregistered() {
+        var viewModel = createViewModel(List.of(new FavoriteAlbum("Album A", "X")));
+        viewModel.sortKeyProperty().set(SortKey.FAVORITES);
+
+        viewModel.toggleFavorite(new AlbumItem(ALBUM_A));
+
+        assertEquals(List.of(new AlbumItem(ALBUM_A)), viewModel.getListItems());
+        assertFalse(viewModel.isFavorite(new AlbumItem(ALBUM_A)));
     }
 
     private static LibraryManagerViewModel createViewModel(List<Favorite> favorites) {

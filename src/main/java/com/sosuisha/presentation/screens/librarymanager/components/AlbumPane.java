@@ -51,7 +51,7 @@ public class AlbumPane {
             .withChildren(
                 ComboBoxBuilder.<SortKey>create()
                     .id("sortKey")
-                    .apply(comboBox -> comboBox.getItems().addAll(SortKey.ALBUM, SortKey.ARTIST))
+                    .apply(comboBox -> comboBox.getItems().addAll(SortKey.values()))
                     .valuePropertyApply(prop -> prop.bindBidirectional(viewModel.sortKeyProperty()))
                     .build(),
                 buildFilterField(viewModel)

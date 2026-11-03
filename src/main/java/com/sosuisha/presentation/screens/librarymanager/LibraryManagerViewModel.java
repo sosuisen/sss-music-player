@@ -127,7 +127,7 @@ public class LibraryManagerViewModel {
 
     private Comparator<Album> albumComparator() {
         return switch (sortKey.get()) {
-            case ALBUM -> Comparator.comparing(Album::name, String.CASE_INSENSITIVE_ORDER);
+            case ALBUM, FAVORITES -> Comparator.comparing(Album::name, String.CASE_INSENSITIVE_ORDER);
             case ARTIST -> Comparator.comparing(Album::artist, String.CASE_INSENSITIVE_ORDER);
         };
     }
@@ -154,7 +154,7 @@ public class LibraryManagerViewModel {
     public String albumRowText(Album album) {
         Objects.requireNonNull(album, "album must not be null");
         return switch (sortKey.get()) {
-            case ALBUM -> album.name() + " - " + album.artist();
+            case ALBUM, FAVORITES -> album.name() + " - " + album.artist();
             case ARTIST -> album.artist() + " - " + album.name();
         };
     }

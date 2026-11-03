@@ -14,6 +14,7 @@ import javafx.collections.ObservableList;
  */
 public class FavoritesAppModel {
     private final ObservableList<Favorite> favorites = FXCollections.observableArrayList();
+    private final FavoriteRepository repository;
 
     /**
      * Creates the app model and loads the favorites from the repository.
@@ -23,7 +24,7 @@ public class FavoritesAppModel {
      * @throws RepositoryException if the favorites cannot be read
      */
     public FavoritesAppModel(FavoriteRepository repository) {
-        Objects.requireNonNull(repository, "repository must not be null");
+        this.repository = Objects.requireNonNull(repository, "repository must not be null");
         favorites.setAll(repository.findAll());
     }
 
@@ -34,5 +35,18 @@ public class FavoritesAppModel {
      */
     public ObservableList<Favorite> getFavorites() {
         return favorites;
+    }
+
+    /**
+     * Registers the given favorite at the end of the favorites and saves it.
+     *
+     * @param favorite favorite to toggle
+     * @throws NullPointerException if favorite is null
+     * @throws RepositoryException if the favorite cannot be saved
+     */
+    public void toggle(Favorite favorite) {
+        Objects.requireNonNull(favorite, "favorite must not be null");
+        repository.add(favorite);
+        favorites.add(favorite);
     }
 }

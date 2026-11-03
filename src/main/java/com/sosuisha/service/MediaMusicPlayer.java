@@ -34,6 +34,8 @@ public class MediaMusicPlayer implements MusicPlayer {
     private static final class Loaded {
         private final Path path;
         private @Nullable MediaPlayer player;
+        // Set by pause() and cleared by resume(), also during the conversion.
+        private boolean paused;
 
         private Loaded(Path path) {
             this.path = path;
@@ -158,7 +160,11 @@ public class MediaMusicPlayer implements MusicPlayer {
             stop();
             onError.accept(reason);
         });
-        player.play();
+        // A pause during the conversion leaves the player ready but not
+        // started. resume() starts it.
+        if (!request.paused) {
+            player.play();
+        }
         request.player = player;
     }
 
@@ -198,8 +204,11 @@ public class MediaMusicPlayer implements MusicPlayer {
      */
     @Override
     public void pause() {
-        if (loaded == null || loaded.player == null) { return; }
-        loaded.player.pause();
+        if (loaded == null) { return; }
+        loaded.paused = true;
+        if (loaded.player != null) {
+            loaded.player.pause();
+        }
     }
 
     /**
@@ -208,8 +217,11 @@ public class MediaMusicPlayer implements MusicPlayer {
      */
     @Override
     public void resume() {
-        if (loaded == null || loaded.player == null) { return; }
-        loaded.player.play();
+        if (loaded == null) { return; }
+        loaded.paused = false;
+        if (loaded.player != null) {
+            loaded.player.play();
+        }
     }
 
     /**

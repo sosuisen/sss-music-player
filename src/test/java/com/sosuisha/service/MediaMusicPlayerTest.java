@@ -309,6 +309,41 @@ class MediaMusicPlayerTest {
         robot.interact(player::stop);
     }
 
+    @Test
+    @DisabledIfEnvironmentVariable(
+        named = "CI", matches = "true",
+        disabledReason = "A MediaPlayer ends the test JVM on the Windows Server runner")
+    @DisplayName("一時停止中にシークすると、その位置で一時停止したままである")
+    void seeking_while_paused_stays_paused_at_that_position(FxRobot robot) throws Exception {
+        var wav = writeSilentWav(createFolderInTarget("seek-paused"), 10);
+        var player = new MediaMusicPlayer();
+        var reports = new CopyOnWriteArrayList<PlaybackPosition>();
+        robot.interact(() -> {
+            player.setOnProgress(reports::add);
+            player.play(wav);
+        });
+        WaitForAsyncUtils.waitFor(
+            10, TimeUnit.SECONDS,
+            () -> status(robot, player).equals(Optional.of(MediaPlayer.Status.PLAYING))
+        );
+        robot.interact(player::pause);
+        WaitForAsyncUtils.waitFor(
+            10, TimeUnit.SECONDS,
+            () -> status(robot, player).equals(Optional.of(MediaPlayer.Status.PAUSED))
+        );
+
+        robot.interact(() -> player.seek(Duration.ofSeconds(8)));
+
+        WaitForAsyncUtils.waitFor(
+            3, TimeUnit.SECONDS,
+            () -> reports.getLast().position().compareTo(Duration.ofSeconds(7)) > 0
+        );
+        // A playback that went on would leave the paused status.
+        Thread.sleep(500);
+        assertEquals(Optional.of(MediaPlayer.Status.PAUSED), status(robot, player));
+        robot.interact(player::stop);
+    }
+
     // 16-bit stereo silence at 44100Hz. The fixtures in src/test/resources
     // are too short to watch the position move.
     private static Path writeSilentWav(Path folder, int seconds) throws IOException {

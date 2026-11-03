@@ -22,7 +22,8 @@ import org.jspecify.annotations.Nullable;
 
 /**
  * Plays audio files with the JavaFX media framework. Starting a new file stops
- * the file that is currently playing.
+ * the file that is currently playing. An m4a file is converted into a
+ * temporary WAV file in the background, and the WAV file is played.
  */
 public class MediaMusicPlayer implements MusicPlayer {
     private static final HexFormat HEX = HexFormat.of().withUpperCase();
@@ -107,13 +108,19 @@ public class MediaMusicPlayer implements MusicPlayer {
         unusedWavs.removeIf(WavConverter::tryDelete);
         var request = new Loaded(path);
         loaded = request;
-        if (!path.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".m4a")) {
+        if (!isM4a(path)) {
             open(request, path);
         } else if (converted != null) {
             open(request, converted.wav());
         } else {
             converterExecutor.execute(() -> convert(request));
         }
+    }
+
+    // JavaFX cannot play m4a on some Windows PCs, so every m4a is converted
+    // into a WAV first. See ADR 005.
+    private static boolean isM4a(Path path) {
+        return path.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".m4a");
     }
 
     // Runs off the JavaFX application thread.

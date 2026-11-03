@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.nio.file.Path;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -19,6 +20,7 @@ import com.sosuisha.domain.exception.FolderOpenException;
 import com.sosuisha.domain.model.Album;
 import com.sosuisha.presentation.screens.librarymanager.AlbumListItem.AlbumItem;
 import com.sosuisha.domain.model.MusicFile;
+import com.sosuisha.domain.model.PlaybackPosition;
 import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.repository.NullLibraryRepository;
@@ -400,6 +402,28 @@ class LibraryManagerViewModelTest {
         viewModel.playTrack(new MusicFile(Path.of("a/two.mp3"), 100));
 
         assertNull(viewModel.errorMessageProperty().get());
+    }
+
+    @Test
+    @DisplayName("再生位置の通知を受けると、再生位置と曲の長さを公開する")
+    void a_progress_report_publishes_the_position_and_the_length() {
+        var onProgress = new AtomicReference<@Nullable Consumer<PlaybackPosition>>();
+        MusicPlayer reportingPlayer = new NullMusicPlayer() {
+            @Override
+            public void setOnProgress(Consumer<PlaybackPosition> callback) {
+                onProgress.set(callback);
+            }
+        };
+        var viewModel = viewModelWith(reportingPlayer);
+        viewModel.playTrack(new MusicFile(Path.of("a/one.mp3"), 100));
+
+        Objects.requireNonNull(onProgress.get())
+            .accept(new PlaybackPosition(Duration.ofSeconds(83), Duration.ofSeconds(245)));
+
+        assertEquals(
+            new PlaybackPosition(Duration.ofSeconds(83), Duration.ofSeconds(245)),
+            viewModel.playbackPositionProperty().get()
+        );
     }
 
     private static LibraryManagerViewModel viewModelWith(MusicPlayer musicPlayer) {

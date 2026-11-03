@@ -5,6 +5,10 @@
 
 TDDの作業用todoリスト（使い捨て）。
 
+## バグ修正：NFDのパスの曲を再生できない
+
+- [x] 濁点を結合文字で書いた（NFDの）フォルダー名にある曲のMediaを作れる
+
 ## お気に入り（Favorites）
 
 - [x] 空のDBでは、お気に入りの一覧は空である（SqliteFavoriteRepository）

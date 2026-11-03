@@ -1,6 +1,8 @@
 package com.sosuisha.service;
 
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.HexFormat;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -15,6 +17,8 @@ import org.jspecify.annotations.Nullable;
  * the file that is currently playing.
  */
 public class MediaMusicPlayer implements MusicPlayer {
+    private static final HexFormat HEX = HexFormat.of().withUpperCase();
+
     /** The player of the loaded audio file and the path of that file. */
     private record Playing(MediaPlayer player, Path path) {
     }
@@ -35,10 +39,25 @@ public class MediaMusicPlayer implements MusicPlayer {
     public void play(Path path) {
         Objects.requireNonNull(path, "path must not be null");
         stop();
-        var player = new MediaPlayer(new Media(path.toUri().toString()));
+        var player = new MediaPlayer(new Media(mediaUri(path)));
         player.setOnEndOfMedia(onFinished);
         player.play();
         playing = new Playing(player, path);
+    }
+
+    // Media converts the URI with URI.toASCIIString(), which normalizes the
+    // non-ASCII characters to NFC. A file whose path is in NFD is then not
+    // found, so the characters are percent-encoded here as they are.
+    static String mediaUri(Path path) {
+        var ascii = new StringBuilder();
+        for (byte b : path.toUri().toString().getBytes(StandardCharsets.UTF_8)) {
+            if (b >= 0) {
+                ascii.append((char) b);
+            } else {
+                ascii.append('%').append(HEX.toHexDigits(b));
+            }
+        }
+        return ascii.toString();
     }
 
     /**

@@ -9,10 +9,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 
 import com.sosuisha.domain.service.MusicPlayer;
 
+import javafx.application.Platform;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
@@ -25,8 +27,17 @@ import org.jspecify.annotations.Nullable;
 public class MediaMusicPlayer implements MusicPlayer {
     private static final HexFormat HEX = HexFormat.of().withUpperCase();
 
-    /** The player of the loaded audio file and the path of that file. */
-    private record Playing(MediaPlayer player, Path path) {
+    /**
+     * The loaded audio file. Its player is null while an m4a file is being
+     * converted.
+     */
+    private static final class Loaded {
+        private final Path path;
+        private @Nullable MediaPlayer player;
+
+        private Loaded(Path path) {
+            this.path = path;
+        }
     }
 
     /** An m4a file and the temporary WAV file converted from it. */
@@ -34,7 +45,7 @@ public class MediaMusicPlayer implements MusicPlayer {
     }
 
     // Null while nothing is loaded.
-    private @Nullable Playing playing;
+    private @Nullable Loaded loaded;
     // The last m4a converted and its temporary WAV. Null before the first m4a.
     private @Nullable Converted converted;
     // The initial callback does nothing.
@@ -44,6 +55,9 @@ public class MediaMusicPlayer implements MusicPlayer {
     private Consumer<String> onError = _ -> {
     };
     private final WavConverter wavConverter;
+    // Runs the conversions off the JavaFX application thread. A conversion
+    // takes about 1.4 seconds for a 4-minute track. See ADR 005.
+    private final Executor converterExecutor;
     // Temporary WAVs that are no longer played but not deleted yet. They are
     // tried again at each play. See ADR 006.
     private final List<Path> unusedWavs = new ArrayList<>();
@@ -63,7 +77,15 @@ public class MediaMusicPlayer implements MusicPlayer {
      * @throws NullPointerException if wavConverter is null
      */
     public MediaMusicPlayer(WavConverter wavConverter) {
+        this(wavConverter, task -> Thread.ofVirtual().start(task));
+    }
+
+    // The tests pass an executor that runs the conversion when they choose.
+    MediaMusicPlayer(WavConverter wavConverter, Executor converterExecutor) {
         this.wavConverter = Objects.requireNonNull(wavConverter, "wavConverter must not be null");
+        this.converterExecutor = Objects.requireNonNull(
+            converterExecutor, "converterExecutor must not be null"
+        );
     }
 
     /**
@@ -81,22 +103,51 @@ public class MediaMusicPlayer implements MusicPlayer {
             converted = null;
         }
         unusedWavs.removeIf(WavConverter::tryDelete);
-        var file = path;
-        if (path.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".m4a")) {
-            try {
-                if (converted == null) {
-                    converted = new Converted(path, wavConverter.toWav(path));
-                }
-                file = converted.wav();
-            } catch (IOException e) {
-                onError.accept(e.getMessage());
-                return;
-            }
+        var request = new Loaded(path);
+        loaded = request;
+        if (!path.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".m4a")) {
+            open(request, path);
+        } else if (converted != null) {
+            open(request, converted.wav());
+        } else {
+            converterExecutor.execute(() -> convert(request));
         }
+    }
+
+    // Runs off the JavaFX application thread.
+    private void convert(Loaded request) {
+        try {
+            var wav = wavConverter.toWav(request.path);
+            Platform.runLater(() -> finishConversion(request, wav));
+        } catch (IOException e) {
+            var reason = e.getMessage();
+            Platform.runLater(() -> failConversion(request, reason));
+        }
+    }
+
+    private void finishConversion(Loaded request, Path wav) {
+        if (loaded != request) {
+            // The player stopped or started another file during the conversion.
+            unusedWavs.add(wav);
+            unusedWavs.removeIf(WavConverter::tryDelete);
+            return;
+        }
+        converted = new Converted(request.path, wav);
+        open(request, wav);
+    }
+
+    private void failConversion(Loaded request, @Nullable String reason) {
+        if (loaded != request) { return; }
+        loaded = null;
+        onError.accept(reason);
+    }
+
+    private void open(Loaded request, Path file) {
         MediaPlayer player;
         try {
             player = new MediaPlayer(new Media(mediaUri(file)));
         } catch (MediaException e) {
+            loaded = null;
             onError.accept(e.getMessage());
             return;
         }
@@ -108,7 +159,7 @@ public class MediaMusicPlayer implements MusicPlayer {
             onError.accept(reason);
         });
         player.play();
-        playing = new Playing(player, path);
+        request.player = player;
     }
 
     // Media converts the URI with URI.toASCIIString(), which normalizes the
@@ -132,10 +183,13 @@ public class MediaMusicPlayer implements MusicPlayer {
      */
     @Override
     public void stop() {
-        if (playing == null) { return; }
-        playing.player().stop();
-        playing.player().dispose();
-        playing = null;
+        if (loaded == null) { return; }
+        var player = loaded.player;
+        if (player != null) {
+            player.stop();
+            player.dispose();
+        }
+        loaded = null;
     }
 
     /**
@@ -144,8 +198,8 @@ public class MediaMusicPlayer implements MusicPlayer {
      */
     @Override
     public void pause() {
-        if (playing == null) { return; }
-        playing.player().pause();
+        if (loaded == null || loaded.player == null) { return; }
+        loaded.player.pause();
     }
 
     /**
@@ -154,8 +208,8 @@ public class MediaMusicPlayer implements MusicPlayer {
      */
     @Override
     public void resume() {
-        if (playing == null) { return; }
-        playing.player().play();
+        if (loaded == null || loaded.player == null) { return; }
+        loaded.player.play();
     }
 
     /**
@@ -191,11 +245,12 @@ public class MediaMusicPlayer implements MusicPlayer {
      */
     @Override
     public Optional<Path> playingPath() {
-        return Optional.ofNullable(playing).map(Playing::path);
+        return Optional.ofNullable(loaded).map(current -> current.path);
     }
 
     // For the tests. It shows which file JavaFX plays.
     Optional<MediaPlayer> mediaPlayer() {
-        return Optional.ofNullable(playing).map(Playing::player);
+        var current = loaded;
+        return current == null ? Optional.empty() : Optional.ofNullable(current.player);
     }
 }

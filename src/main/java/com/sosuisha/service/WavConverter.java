@@ -63,4 +63,19 @@ public class WavConverter {
             throw new IOException(e.getMessage(), e);
         }
     }
+
+    /**
+     * Deletes the temporary WAV files left in the folder. Call it at startup,
+     * before any file is converted. See ADR 006.
+     *
+     * @throws IOException if the folder cannot be read or a file cannot be
+     *     deleted
+     */
+    public void deleteLeftovers() throws IOException {
+        try (var files = Files.list(folder)) {
+            for (var file : files.toList()) {
+                Files.delete(file);
+            }
+        }
+    }
 }

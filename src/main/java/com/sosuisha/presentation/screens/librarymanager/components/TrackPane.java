@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
+import com.sosuisha.presentation.screens.librarymanager.AlbumListItem.TrackItem;
 import com.sosuisha.presentation.screens.librarymanager.LibraryManagerViewModel;
 
 import io.github.sosuisen.jfxbuilder.controls.ButtonBuilder;
@@ -94,7 +95,18 @@ public class TrackPane {
                 @Override
                 protected void updateItem(@Nullable MusicFile item, boolean empty) {
                     super.updateItem(item, empty);
-                    setText(empty || item == null ? null : viewModel.trackRowText(item));
+                    if (empty || item == null) {
+                        setText(null);
+                        setGraphic(null);
+                        return;
+                    }
+                    setText(viewModel.trackRowText(item));
+                    setGraphic(
+                        FavoriteStar.create(
+                            viewModel.isFavorite(new TrackItem(item)),
+                            () -> viewModel.toggleFavorite(new TrackItem(item))
+                        )
+                    );
                 }
             })
             .apply(listView -> {
@@ -103,6 +115,8 @@ public class TrackPane {
                 // Follows selection changes made by the view model (next/prev).
                 viewModel.selectedTrackProperty()
                     .subscribe(track -> listView.getSelectionModel().select(track));
+                // The stars of the rows follow the favorites.
+                viewModel.getFavorites().subscribe(listView::refresh);
             })
             .build();
     }

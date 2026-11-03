@@ -1,12 +1,14 @@
 package com.sosuisha.main;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
 
 import com.sosuisha.presentation.View;
 import com.sosuisha.presentation.WindowManager;
+import com.sosuisha.presentation.appmodel.FavoritesAppModel;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.presentation.screens.alert.AlertDialog;
@@ -23,7 +25,9 @@ import com.sosuisha.service.JaudiotaggerTagWriter;
 import com.sosuisha.service.ShellFolderOpener;
 import com.sosuisha.service.LibraryIndexer;
 import com.sosuisha.service.MediaMusicPlayer;
+import com.sosuisha.service.WavConverter;
 import com.sosuisha.repository.SettingsRepositoryImpl;
+import com.sosuisha.repository.SqliteFavoriteRepository;
 import com.sosuisha.repository.SqliteLibraryRepository;
 
 import com.sosuisha.domain.exception.RepositoryException;
@@ -79,8 +83,10 @@ public class App extends Application {
         settingsAppModel.themeProperty()
             .subscribe(theme -> setUserAgentStylesheet(toStylesheet(theme)));
         SqliteLibraryRepository libraryRepository;
+        FavoritesAppModel favoritesAppModel;
         try {
             libraryRepository = new SqliteLibraryRepository();
+            favoritesAppModel = new FavoritesAppModel(new SqliteFavoriteRepository());
         } catch (RepositoryException e) {
             // The app cannot work without its database. No window is opened,
             // so the app exits when the dialog is closed.
@@ -93,9 +99,12 @@ public class App extends Application {
         );
 
         var folderOpener = new ShellFolderOpener();
+        var wavConverter = new WavConverter();
+        deleteLeftoverWavs(wavConverter);
         var libraryManagerViewModel =
             new LibraryManagerViewModel(
-                windowManager, musicLibAppModel, settingsAppModel, new MediaMusicPlayer(),
+                windowManager, musicLibAppModel, settingsAppModel, favoritesAppModel,
+                new MediaMusicPlayer(wavConverter),
                 folderOpener
             );
         windowManager.registerView(new LibraryManagerView(libraryManagerViewModel));
@@ -104,7 +113,7 @@ public class App extends Application {
             new DuplicateListView(
                 new DuplicateListViewModel(
                     musicLibAppModel,
-                    new MediaMusicPlayer(),
+                    new MediaMusicPlayer(wavConverter),
                     new DuplicateFileMover(
                         settingsFolder.resolve("duplicates"),
                         settingsFolder.resolve("duplicates.log")
@@ -142,6 +151,16 @@ public class App extends Application {
             case CUPERTINO_DARK -> new CupertinoDark().getUserAgentStylesheet();
             case DRACULA -> new Dracula().getUserAgentStylesheet();
         };
+    }
+
+    // The leftovers only take space in the temporary folder. The app works
+    // without deleting them, so a failure is ignored. See ADR 006.
+    private static void deleteLeftoverWavs(WavConverter wavConverter) {
+        try {
+            wavConverter.deleteLeftovers();
+        } catch (IOException _) {
+            // Ignored on purpose. See the comment above.
+        }
     }
 
     private static Optional<Path> chooseDirectory(Window ownerWindow) {

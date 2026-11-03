@@ -2,6 +2,7 @@ package com.sosuisha.domain.service;
 
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 /**
  * Plays audio files.
@@ -40,6 +41,15 @@ public interface MusicPlayer {
      * @throws NullPointerException if onFinished is null
      */
     void setOnFinished(Runnable onFinished);
+
+    /**
+     * Sets the callback that is invoked when an audio file cannot be played.
+     * The callback receives the reason of the failure.
+     *
+     * @param onError callback invoked with the reason of the failure
+     * @throws NullPointerException if onError is null
+     */
+    void setOnError(Consumer<String> onError);
 
     /**
      * Returns the path of the audio file loaded in the player, whether it is

@@ -2,6 +2,7 @@ package com.sosuisha.presentation.screens.librarymanager;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.nio.file.Path;
@@ -9,12 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import com.sosuisha.domain.exception.FolderOpenException;
 import com.sosuisha.domain.model.Album;
+import com.sosuisha.presentation.screens.librarymanager.AlbumListItem.AlbumItem;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.domain.model.TrackMetadata;
@@ -23,6 +26,8 @@ import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.domain.repository.NullSettingsRepository;
 import com.sosuisha.presentation.WindowManager;
+import com.sosuisha.domain.repository.InMemoryFavoriteRepository;
+import com.sosuisha.presentation.appmodel.FavoritesAppModel;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.service.LibraryIndexer;
@@ -43,6 +48,7 @@ class LibraryManagerViewModelTest {
                 new SimpleObjectProperty<>()
             ),
             settingsAppModel,
+            new FavoritesAppModel(new InMemoryFavoriteRepository()),
             new NullMusicPlayer(),
             _ -> {
             }
@@ -61,7 +67,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new SettingsAppModel(new NullSettingsRepository()), new NullMusicPlayer(),
+                ), new SettingsAppModel(new NullSettingsRepository()),
+                new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
                 _ -> {
                 }
             );
@@ -86,6 +93,7 @@ class LibraryManagerViewModelTest {
         var viewModel =
             new LibraryManagerViewModel(
                 new WindowManager(), appModel, new SettingsAppModel(new NullSettingsRepository()),
+                new FavoritesAppModel(new InMemoryFavoriteRepository()),
                 new NullMusicPlayer(), _ -> {
                 }
             );
@@ -101,7 +109,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new SettingsAppModel(new NullSettingsRepository()), new NullMusicPlayer(),
+                ), new SettingsAppModel(new NullSettingsRepository()),
+                new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
                 _ -> {
                 }
             );
@@ -115,7 +124,10 @@ class LibraryManagerViewModelTest {
 
         viewModel.albumFilterProperty().set("App");
 
-        assertEquals(List.of(new Album("Apple", "X", List.of(apple))), viewModel.getAlbums());
+        assertEquals(
+            List.of(new AlbumItem(new Album("Apple", "X", List.of(apple)))),
+            viewModel.getListItems()
+        );
     }
 
     @Test
@@ -126,7 +138,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new SettingsAppModel(new NullSettingsRepository()), new NullMusicPlayer(),
+                ), new SettingsAppModel(new NullSettingsRepository()),
+                new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
                 _ -> {
                 }
             );
@@ -140,7 +153,10 @@ class LibraryManagerViewModelTest {
 
         viewModel.albumFilterProperty().set("aPP");
 
-        assertEquals(List.of(new Album("Apple", "X", List.of(apple))), viewModel.getAlbums());
+        assertEquals(
+            List.of(new AlbumItem(new Album("Apple", "X", List.of(apple)))),
+            viewModel.getListItems()
+        );
     }
 
     @Test
@@ -151,7 +167,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new SettingsAppModel(new NullSettingsRepository()), new NullMusicPlayer(),
+                ), new SettingsAppModel(new NullSettingsRepository()),
+                new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
                 _ -> {
                 }
             );
@@ -165,7 +182,10 @@ class LibraryManagerViewModelTest {
 
         viewModel.albumFilterProperty().set("zeb");
 
-        assertEquals(List.of(new Album("Banana", "Zebra", List.of(banana))), viewModel.getAlbums());
+        assertEquals(
+            List.of(new AlbumItem(new Album("Banana", "Zebra", List.of(banana)))),
+            viewModel.getListItems()
+        );
     }
 
     @Test
@@ -176,7 +196,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new SettingsAppModel(new NullSettingsRepository()), new NullMusicPlayer(),
+                ), new SettingsAppModel(new NullSettingsRepository()),
+                new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
                 _ -> {
                 }
             );
@@ -195,7 +216,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new SettingsAppModel(new NullSettingsRepository()), new NullMusicPlayer(),
+                ), new SettingsAppModel(new NullSettingsRepository()),
+                new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
                 _ -> {
                 }
             );
@@ -215,7 +237,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new SettingsAppModel(new NullSettingsRepository()), new NullMusicPlayer(),
+                ), new SettingsAppModel(new NullSettingsRepository()),
+                new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
                 _ -> {
                 }
             );
@@ -236,7 +259,8 @@ class LibraryManagerViewModelTest {
                 new WindowManager(), new MusicLibraryAppModel(
                     new LibraryIndexer(new NullLibraryRepository()),
                     new SimpleObjectProperty<>()
-                ), new SettingsAppModel(new NullSettingsRepository()), new NullMusicPlayer(),
+                ), new SettingsAppModel(new NullSettingsRepository()),
+                new FavoritesAppModel(new InMemoryFavoriteRepository()), new NullMusicPlayer(),
                 _ -> {
                 }
             );
@@ -260,6 +284,7 @@ class LibraryManagerViewModelTest {
                 new SimpleObjectProperty<>()
             ),
             new SettingsAppModel(new NullSettingsRepository()),
+            new FavoritesAppModel(new InMemoryFavoriteRepository()),
             new NullMusicPlayer(),
             folder -> {
                 throw new FolderOpenException("Could not open the folder: " + folder, null);
@@ -298,6 +323,7 @@ class LibraryManagerViewModelTest {
                 new SimpleObjectProperty<>()
             ),
             settingsAppModel,
+            new FavoritesAppModel(new InMemoryFavoriteRepository()),
             recordingPlayer,
             _ -> {
             }
@@ -310,5 +336,84 @@ class LibraryManagerViewModelTest {
         Objects.requireNonNull(onFinished.get()).run();
 
         assertEquals(List.of(playing.path(), playing.path()), playedPaths);
+    }
+
+    @Test
+    @DisplayName("再生の失敗が通知されると、プレイヤーの状態は停止に戻り、エラーメッセージにファイル名と理由を出す")
+    void a_playback_failure_stops_the_player_and_shows_the_file_name_and_the_reason() {
+        var onError = new AtomicReference<@Nullable Consumer<String>>();
+        MusicPlayer failingPlayer = new NullMusicPlayer() {
+            @Override
+            public void setOnError(Consumer<String> callback) {
+                onError.set(callback);
+            }
+        };
+        var viewModel = viewModelWith(failingPlayer);
+        viewModel.playTrack(new MusicFile(Path.of("a/one.m4a"), 100));
+
+        Objects.requireNonNull(onError.get()).accept("ERROR_MEDIA_INVALID");
+
+        assertEquals(PlayerState.STOPPED, viewModel.playerStateProperty().get());
+        assertEquals(
+            "Cannot play one.m4a: ERROR_MEDIA_INVALID", viewModel.errorMessageProperty().get()
+        );
+    }
+
+    @Test
+    @DisplayName("再生を始めた時点で失敗が通知されても、プレイヤーの状態は停止になる")
+    void a_failure_reported_when_playback_starts_leaves_the_player_stopped() {
+        MusicPlayer failingPlayer = new NullMusicPlayer() {
+            private Consumer<String> onError = _ -> {
+            };
+
+            @Override
+            public void play(Path path) {
+                onError.accept("MEDIA_UNAVAILABLE");
+            }
+
+            @Override
+            public void setOnError(Consumer<String> callback) {
+                onError = callback;
+            }
+        };
+        var viewModel = viewModelWith(failingPlayer);
+
+        viewModel.playTrack(new MusicFile(Path.of("a/missing.mp3"), 100));
+
+        assertEquals(PlayerState.STOPPED, viewModel.playerStateProperty().get());
+    }
+
+    @Test
+    @DisplayName("次の再生が始まると、エラーメッセージは消える")
+    void the_error_message_is_cleared_when_the_next_playback_starts() {
+        var onError = new AtomicReference<@Nullable Consumer<String>>();
+        MusicPlayer failingPlayer = new NullMusicPlayer() {
+            @Override
+            public void setOnError(Consumer<String> callback) {
+                onError.set(callback);
+            }
+        };
+        var viewModel = viewModelWith(failingPlayer);
+        viewModel.playTrack(new MusicFile(Path.of("a/one.m4a"), 100));
+        Objects.requireNonNull(onError.get()).accept("ERROR_MEDIA_INVALID");
+
+        viewModel.playTrack(new MusicFile(Path.of("a/two.mp3"), 100));
+
+        assertNull(viewModel.errorMessageProperty().get());
+    }
+
+    private static LibraryManagerViewModel viewModelWith(MusicPlayer musicPlayer) {
+        return new LibraryManagerViewModel(
+            new WindowManager(),
+            new MusicLibraryAppModel(
+                new LibraryIndexer(new NullLibraryRepository()),
+                new SimpleObjectProperty<>()
+            ),
+            new SettingsAppModel(new NullSettingsRepository()),
+            new FavoritesAppModel(new InMemoryFavoriteRepository()),
+            musicPlayer,
+            _ -> {
+            }
+        );
     }
 }

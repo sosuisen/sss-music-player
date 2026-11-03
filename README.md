@@ -71,7 +71,7 @@ A missing entry does not break the build or the tests. It breaks the exe at run 
 
 - A new resource is read, such as a CSS file or an image.
 - A new JavaFX control is used.
-- JavaFX, AtlantaFX, Ikonli, jOOQ, sqlite-jdbc, or jaudiotagger is upgraded.
+- JavaFX, AtlantaFX, Ikonli, jOOQ, sqlite-jdbc, jaudiotagger, or JAAD is upgraded.
 - A new start route or error route is added.
 
 To rebuild it, run the app on the GraalVM JVM with the tracing agent. The agent writes what it sees into the output folder.
@@ -101,7 +101,13 @@ To rebuild it, run the app on the GraalVM JVM with the tracing agent. The agent 
 
    The filter excludes the test frameworks (`org.junit.**`, `org.testfx.**`, `org.hamcrest.**`, `org.opentest4j.**`, `org.apiguardian.**`, `org.assertj.**`, `org.apache.maven.**`, `com.uber.nullaway.**`).
 
-5. Merge all output folders into the metadata file, and remove the entries for test classes (`com.sosuisha.**Test*`, `Null*` test doubles).
+5. Write the entries for the JAAD box classes into one more folder. JAAD creates a class for each box of an m4a file by reflection. A trace only records the boxes of the traced files, so the script lists all of them.
+
+   ```bash
+   python -I .github/scripts/jaad-box-metadata.py <jaad jar> <output folder>
+   ```
+
+6. Merge all output folders into the metadata file, and remove the entries for test classes (`com.sosuisha.**Test*`, `Null*` test doubles).
 
    ```bash
    <GraalVM>/bin/native-image-configure generate --input-dir=<folder 1> --input-dir=<folder 2> ... --output-dir=src/main/resources/META-INF/native-image/com.sosuisha/sss-music-player

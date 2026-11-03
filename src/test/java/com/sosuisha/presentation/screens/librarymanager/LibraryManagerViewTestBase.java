@@ -3,6 +3,7 @@ package com.sosuisha.presentation.screens.librarymanager;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -15,6 +16,8 @@ import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.domain.repository.NullLibraryRepository;
 import com.sosuisha.domain.service.NullMusicPlayer;
 import com.sosuisha.presentation.WindowManager;
+import com.sosuisha.domain.repository.InMemoryFavoriteRepository;
+import com.sosuisha.presentation.appmodel.FavoritesAppModel;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.presentation.screens.albumedit.AlbumEditView;
@@ -46,6 +49,7 @@ abstract class LibraryManagerViewTestBase {
     SimpleObjectProperty<Path> musicLibraryPath;
     MusicLibraryAppModel appModel;
     SettingsAppModel settingsAppModel;
+    FavoritesAppModel favoritesAppModel;
     AtomicBoolean rescanned;
     AtomicReference<@Nullable Path> playedPath;
     AtomicBoolean playbackStopped;
@@ -90,8 +94,9 @@ abstract class LibraryManagerViewTestBase {
         loadedPath = new AtomicReference<>();
         openedFolder = new AtomicReference<>();
         settingsAppModel = new SettingsAppModel(new NullSettingsRepository());
+        favoritesAppModel = new FavoritesAppModel(new InMemoryFavoriteRepository());
         viewModel = new LibraryManagerViewModel(
-            windowManager, appModel, settingsAppModel,
+            windowManager, appModel, settingsAppModel, favoritesAppModel,
             new MusicPlayer() {
                 @Override
                 public void play(Path path) {
@@ -119,6 +124,9 @@ abstract class LibraryManagerViewTestBase {
                 public void setOnFinished(Runnable onFinished) {
                     trackFinishedCallback.set(onFinished);
                 }
+
+                @Override
+                public void setOnError(Consumer<String> onError) {}
 
                 @Override
                 public Optional<Path> playingPath() {

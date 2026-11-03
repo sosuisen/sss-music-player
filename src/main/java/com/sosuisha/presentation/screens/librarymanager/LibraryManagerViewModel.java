@@ -1,5 +1,6 @@
 package com.sosuisha.presentation.screens.librarymanager;
 
+import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -8,15 +9,21 @@ import java.util.Optional;
 
 import com.sosuisha.domain.exception.FolderOpenException;
 import com.sosuisha.domain.model.Album;
+import com.sosuisha.domain.model.Favorite;
+import com.sosuisha.domain.model.FavoriteAlbum;
+import com.sosuisha.domain.model.FavoriteTrack;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.RepeatMode;
 import com.sosuisha.domain.service.FolderOpener;
 import com.sosuisha.domain.service.MusicPlayer;
 import com.sosuisha.presentation.WindowManager;
+import com.sosuisha.presentation.appmodel.FavoritesAppModel;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.presentation.screens.albumedit.AlbumEditView;
 import com.sosuisha.presentation.screens.duplicatelist.DuplicateListView;
+import com.sosuisha.presentation.screens.librarymanager.AlbumListItem.AlbumItem;
+import com.sosuisha.presentation.screens.librarymanager.AlbumListItem.TrackItem;
 import com.sosuisha.presentation.screens.settings.SettingsView;
 import com.sosuisha.service.AlbumDetector;
 
@@ -40,9 +47,10 @@ public class LibraryManagerViewModel {
     private final WindowManager windowManager;
     private final MusicLibraryAppModel appModel;
     private final SettingsAppModel settingsAppModel;
+    private final FavoritesAppModel favoritesAppModel;
     private final MusicPlayer musicPlayer;
     private final FolderOpener folderOpener;
-    private final ObservableList<Album> albums = FXCollections.observableArrayList();
+    private final ObservableList<AlbumListItem> listItems = FXCollections.observableArrayList();
     private final ObservableList<MusicFile> selectedTracks = FXCollections.observableArrayList();
     private final ObjectProperty<PlayerState> playerState =
         new SimpleObjectProperty<>(PlayerState.STOPPED);
@@ -57,26 +65,37 @@ public class LibraryManagerViewModel {
      * @param windowManager window manager used to open other windows
      * @param appModel application-wide state of the music library
      * @param settingsAppModel application-wide state of the settings
+     * @param favoritesAppModel application-wide state of the favorites
      * @param musicPlayer player used to play audio files
      * @param folderOpener opener that shows a folder in the file manager
      * @throws NullPointerException if windowManager, appModel, settingsAppModel,
-     *             musicPlayer, or folderOpener is null
+     *             favoritesAppModel, musicPlayer, or folderOpener is null
      */
     public LibraryManagerViewModel(WindowManager windowManager, MusicLibraryAppModel appModel,
-        SettingsAppModel settingsAppModel, MusicPlayer musicPlayer, FolderOpener folderOpener) {
+        SettingsAppModel settingsAppModel, FavoritesAppModel favoritesAppModel,
+        MusicPlayer musicPlayer, FolderOpener folderOpener) {
         this.windowManager =
             Objects.requireNonNull(windowManager, "windowManager must not be null");
         this.appModel = Objects.requireNonNull(appModel, "appModel must not be null");
         this.settingsAppModel =
             Objects.requireNonNull(settingsAppModel, "settingsAppModel must not be null");
+        this.favoritesAppModel =
+            Objects.requireNonNull(favoritesAppModel, "favoritesAppModel must not be null");
         this.musicPlayer = Objects.requireNonNull(musicPlayer, "musicPlayer must not be null");
         this.folderOpener = Objects.requireNonNull(folderOpener, "folderOpener must not be null");
         musicPlayer.setOnFinished(this::continuePlaybackWhenTrackFinishes);
+        musicPlayer.setOnError(this::stopWhenPlaybackFails);
         appModel.getFiles().subscribe(this::updateAlbums);
         // subscribe(Consumer) also fires with the current value, which
         // computes the initial album list here.
         sortKey.subscribe(_ -> updateAlbums());
         albumFilter.subscribe(_ -> updateAlbums());
+    }
+
+    private void stopWhenPlaybackFails(String reason) {
+        var track = selectedTrack.get();
+        playerState.set(PlayerState.STOPPED);
+        errorMessage.set("Cannot play " + track.path().getFileName() + ": " + reason);
     }
 
     private void continuePlaybackWhenTrackFinishes() {
@@ -89,18 +108,44 @@ public class LibraryManagerViewModel {
     }
 
     private void updateAlbums() {
-        albums.setAll(
-            new AlbumDetector(appModel.getFiles()).detect().stream()
+        var albums = new AlbumDetector(appModel.getFiles()).detect();
+        if (sortKey.get() == SortKey.FAVORITES) {
+            listItems.setAll(
+                favoritesAppModel.getFavorites().stream()
+                    .map(favorite -> toListItem(favorite, albums))
+                    .flatMap(Optional::stream)
+                    .filter(this::matchesFilter)
+                    .toList()
+            );
+            return;
+        }
+        listItems.setAll(
+            albums.stream()
                 .filter(this::matchesFilter)
                 .sorted(albumComparator())
+                .<AlbumListItem>map(AlbumItem::new)
                 .toList()
         );
+    }
+
+    private Optional<AlbumListItem> toListItem(Favorite favorite, List<Album> albums) {
+        return switch (favorite) {
+            case FavoriteAlbum(String name, String artist) -> albums.stream()
+                .filter(album -> album.name().equals(name) && album.artist().equals(artist))
+                .findFirst()
+                .map(AlbumItem::new);
+            case FavoriteTrack(Path path) -> appModel.getFiles().stream()
+                .filter(file -> file.path().equals(path))
+                .findFirst()
+                .map(TrackItem::new);
+        };
     }
 
     /**
      * Returns the filter text of the album list. The albums are narrowed to
      * the ones whose name or artist contains the text, ignoring case,
-     * whenever the text changes.
+     * whenever the text changes. Among the favorites, the tracks are narrowed
+     * in the same way by their title or artist.
      *
      * @return string property of the filter text
      */
@@ -116,6 +161,16 @@ public class LibraryManagerViewModel {
         albumFilter.set("");
     }
 
+    private boolean matchesFilter(AlbumListItem item) {
+        return switch (item) {
+            case AlbumItem(Album album) -> matchesFilter(album);
+            case TrackItem(MusicFile track) -> containsIgnoringCase(
+                titleOf(track), albumFilter.get()
+            )
+                || containsIgnoringCase(track.tag().artist(), albumFilter.get());
+        };
+    }
+
     private boolean matchesFilter(Album album) {
         return containsIgnoringCase(album.name(), albumFilter.get())
             || containsIgnoringCase(album.artist(), albumFilter.get());
@@ -127,7 +182,8 @@ public class LibraryManagerViewModel {
 
     private Comparator<Album> albumComparator() {
         return switch (sortKey.get()) {
-            case ALBUM -> Comparator.comparing(Album::name, String.CASE_INSENSITIVE_ORDER);
+            case ALBUM, FAVORITES -> Comparator
+                .comparing(Album::name, String.CASE_INSENSITIVE_ORDER);
             case ARTIST -> Comparator.comparing(Album::artist, String.CASE_INSENSITIVE_ORDER);
         };
     }
@@ -154,7 +210,7 @@ public class LibraryManagerViewModel {
     public String albumRowText(Album album) {
         Objects.requireNonNull(album, "album must not be null");
         return switch (sortKey.get()) {
-            case ALBUM -> album.name() + " - " + album.artist();
+            case ALBUM, FAVORITES -> album.name() + " - " + album.artist();
             case ARTIST -> album.artist() + " - " + album.name();
         };
     }
@@ -171,14 +227,18 @@ public class LibraryManagerViewModel {
      */
     public String trackRowText(MusicFile file) {
         Objects.requireNonNull(file, "file must not be null");
-        var title = file.tag().title().isEmpty()
-            ? file.path().getFileName().toString()
-            : file.tag().title();
+        var title = titleOf(file);
         var number = file.tag().trackNumber();
         var text = number.isEmpty() ? title : number + ". " + title;
         var artist = file.tag().artist();
         if (artist.isEmpty() || artist.equals(selectedAlbumArtist())) { return text; }
         return text + " (" + artist + ")";
+    }
+
+    private static String titleOf(MusicFile file) {
+        return file.tag().title().isEmpty()
+            ? file.path().getFileName().toString()
+            : file.tag().title();
     }
 
     private String selectedAlbumArtist() {
@@ -239,13 +299,99 @@ public class LibraryManagerViewModel {
     }
 
     /**
-     * Returns the albums recognized in the music library. The list is updated
-     * whenever the files of the library change.
+     * Returns the rows of the album list. For the album and artist sort keys,
+     * the rows are the albums recognized in the music library. For
+     * {@link SortKey#FAVORITES}, the rows are the favorite albums and tracks
+     * found in the library, in the order they were added. The list is updated
+     * whenever the files of the library, the sort key, or the filter text
+     * change.
      *
-     * @return observable list of the albums
+     * @return observable list of the rows
      */
-    public ObservableList<Album> getAlbums() {
-        return albums;
+    public ObservableList<AlbumListItem> getListItems() {
+        return listItems;
+    }
+
+    /**
+     * Selects the given row of the album list. An album row selects the album
+     * as {@link #selectAlbum(Album)} does. A track row selects the album that
+     * holds the track, but publishes only that track through
+     * {@link #getSelectedTracks()}.
+     *
+     * @param item row to select, or null to clear the selection
+     */
+    public void selectListItem(@Nullable AlbumListItem item) {
+        switch (item) {
+            case null -> selectAlbum(null);
+            case AlbumItem(Album album) -> selectAlbum(album);
+            case TrackItem(MusicFile track) -> showTracks(albumOf(track), List.of(track));
+        }
+    }
+
+    private @Nullable Album albumOf(MusicFile track) {
+        return new AlbumDetector(appModel.getFiles()).detect().stream()
+            .filter(album -> album.files().contains(track))
+            .findFirst()
+            .orElse(null);
+    }
+
+    /**
+     * Returns the text of a row in the album list. An album row is shown as
+     * {@link #albumRowText(Album)} returns. A track row is shown by the title
+     * of the track, or by its file name when the title is empty.
+     *
+     * @param item row of the album list
+     * @return text of the row
+     * @throws NullPointerException if item is null
+     */
+    public String listItemText(AlbumListItem item) {
+        Objects.requireNonNull(item, "item must not be null");
+        return switch (item) {
+            case AlbumItem(Album album) -> albumRowText(album);
+            case TrackItem(MusicFile track) -> titleOf(track);
+        };
+    }
+
+    /**
+     * Toggles the favorite of the album or the track shown in the given row.
+     * The rows of the album list are not rebuilt, so a row unregistered
+     * while the favorites are shown stays until the list is rebuilt.
+     *
+     * @param item row whose album or track is toggled
+     * @throws NullPointerException if item is null
+     */
+    public void toggleFavorite(AlbumListItem item) {
+        Objects.requireNonNull(item, "item must not be null");
+        favoritesAppModel.toggle(toFavorite(item));
+    }
+
+    /**
+     * Returns whether the album or the track shown in the given row is a
+     * favorite.
+     *
+     * @param item row of the album list or the track list
+     * @return true if the album or the track is a favorite
+     * @throws NullPointerException if item is null
+     */
+    public boolean isFavorite(AlbumListItem item) {
+        Objects.requireNonNull(item, "item must not be null");
+        return favoritesAppModel.getFavorites().contains(toFavorite(item));
+    }
+
+    /**
+     * Returns the favorites shared through the favorites app model.
+     *
+     * @return observable list of the favorites in the order they were added
+     */
+    public ObservableList<Favorite> getFavorites() {
+        return favoritesAppModel.getFavorites();
+    }
+
+    private static Favorite toFavorite(AlbumListItem item) {
+        return switch (item) {
+            case AlbumItem(Album album) -> new FavoriteAlbum(album.name(), album.artist());
+            case TrackItem(MusicFile track) -> new FavoriteTrack(track.path());
+        };
     }
 
     /**
@@ -257,8 +403,12 @@ public class LibraryManagerViewModel {
      * @param album album to select, or null to clear the selection
      */
     public void selectAlbum(@Nullable Album album) {
+        showTracks(album, album == null ? List.of() : orderByTrackNumber(album.files()));
+    }
+
+    private void showTracks(@Nullable Album album, List<MusicFile> tracks) {
         appModel.selectAlbum(album);
-        selectedTracks.setAll(album == null ? List.of() : orderByTrackNumber(album.files()));
+        selectedTracks.setAll(tracks);
         if (playerState.get() == PlayerState.PLAYING) { return; }
         selectedTrack.set(selectedTracks.isEmpty() ? null : selectedTracks.getFirst());
     }
@@ -344,8 +494,7 @@ public class LibraryManagerViewModel {
     public void playTrack(MusicFile track) {
         Objects.requireNonNull(track, "track must not be null");
         selectedTrack.set(track);
-        musicPlayer.play(track.path());
-        playerState.set(PlayerState.PLAYING);
+        startPlaying(track.path());
     }
 
     /**
@@ -364,20 +513,27 @@ public class LibraryManagerViewModel {
                 if (selected == null
                     || musicPlayer.playingPath().equals(Optional.of(selected.path()))) {
                     musicPlayer.resume();
+                    playerState.set(PlayerState.PLAYING);
                 } else {
                     // The selection moved while paused; the selected track
                     // starts from the beginning.
-                    musicPlayer.play(selected.path());
+                    startPlaying(selected.path());
                 }
-                playerState.set(PlayerState.PLAYING);
             }
             case STOPPED -> {
                 if (selectedTrack.get() != null) {
-                    musicPlayer.play(selectedTrack.get().path());
-                    playerState.set(PlayerState.PLAYING);
+                    startPlaying(selectedTrack.get().path());
                 }
             }
         }
+    }
+
+    // The state becomes PLAYING before play(), because the player may report
+    // a failure inside play() and the failure sets the state to STOPPED.
+    private void startPlaying(Path path) {
+        errorMessage.set(null);
+        playerState.set(PlayerState.PLAYING);
+        musicPlayer.play(path);
     }
 
     /**

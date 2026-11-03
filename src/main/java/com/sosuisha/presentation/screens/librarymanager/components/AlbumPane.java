@@ -6,7 +6,7 @@ import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.material2.Material2AL;
 import org.kordamp.ikonli.material2.Material2MZ;
 
-import com.sosuisha.domain.model.Album;
+import com.sosuisha.presentation.screens.librarymanager.AlbumListItem;
 import com.sosuisha.presentation.screens.librarymanager.LibraryManagerViewModel;
 import com.sosuisha.presentation.screens.librarymanager.SortKey;
 
@@ -51,7 +51,7 @@ public class AlbumPane {
             .withChildren(
                 ComboBoxBuilder.<SortKey>create()
                     .id("sortKey")
-                    .apply(comboBox -> comboBox.getItems().addAll(SortKey.ALBUM, SortKey.ARTIST))
+                    .apply(comboBox -> comboBox.getItems().addAll(SortKey.values()))
                     .valuePropertyApply(prop -> prop.bindBidirectional(viewModel.sortKeyProperty()))
                     .build(),
                 buildFilterField(viewModel)
@@ -73,19 +73,33 @@ public class AlbumPane {
         return field;
     }
 
-    private static ListView<Album> buildAlbumList(LibraryManagerViewModel viewModel) {
-        return ListViewBuilder.create(viewModel.getAlbums())
+    private static ListView<AlbumListItem> buildAlbumList(LibraryManagerViewModel viewModel) {
+        return ListViewBuilder.create(viewModel.getListItems())
             .id("albumList")
             .cellFactory(_ -> new ListCell<>() {
                 @Override
-                protected void updateItem(@Nullable Album item, boolean empty) {
+                protected void updateItem(@Nullable AlbumListItem item, boolean empty) {
                     super.updateItem(item, empty);
-                    setText(empty || item == null ? null : viewModel.albumRowText(item));
+                    if (empty || item == null) {
+                        setText(null);
+                        setGraphic(null);
+                        return;
+                    }
+                    setText(viewModel.listItemText(item));
+                    setGraphic(
+                        FavoriteStar.create(
+                            viewModel.isFavorite(item), () -> viewModel.toggleFavorite(item)
+                        )
+                    );
                 }
             })
             .apply(
-                listView -> listView.getSelectionModel().selectedItemProperty()
-                    .subscribe(viewModel::selectAlbum)
+                listView -> {
+                    listView.getSelectionModel().selectedItemProperty()
+                        .subscribe(viewModel::selectListItem);
+                    // The stars of the rows follow the favorites.
+                    viewModel.getFavorites().subscribe(listView::refresh);
+                }
             )
             .build();
     }

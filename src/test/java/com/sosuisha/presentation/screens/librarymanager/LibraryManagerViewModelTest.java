@@ -448,6 +448,23 @@ class LibraryManagerViewModelTest {
         assertNull(viewModel.playbackPositionProperty().get());
     }
 
+    @Test
+    @DisplayName("再生中に次の曲・前の曲へ移ると、再生位置はなくなる")
+    void moving_to_another_track_while_playing_clears_the_playback_position() {
+        var onProgress = new AtomicReference<@Nullable Consumer<PlaybackPosition>>();
+        var viewModel = viewModelWith(reportingPlayer(onProgress));
+        var trackOne = new MusicFile(Path.of("a/one.mp3"), 200);
+        var trackTwo = new MusicFile(Path.of("a/two.mp3"), 300);
+        viewModel.selectAlbum(new Album("Album A", "Artist X", List.of(trackOne, trackTwo)));
+        viewModel.playTrack(trackOne);
+        Objects.requireNonNull(onProgress.get())
+            .accept(new PlaybackPosition(Duration.ofSeconds(83), Duration.ofSeconds(245)));
+
+        viewModel.nextTrack();
+
+        assertNull(viewModel.playbackPositionProperty().get());
+    }
+
     // A player that hands its progress callback to the test.
     private static MusicPlayer reportingPlayer(
         AtomicReference<@Nullable Consumer<PlaybackPosition>> onProgress) {

@@ -207,14 +207,18 @@ public class LibraryManagerViewModel {
      */
     public String trackRowText(MusicFile file) {
         Objects.requireNonNull(file, "file must not be null");
-        var title = file.tag().title().isEmpty()
-            ? file.path().getFileName().toString()
-            : file.tag().title();
+        var title = titleOf(file);
         var number = file.tag().trackNumber();
         var text = number.isEmpty() ? title : number + ". " + title;
         var artist = file.tag().artist();
         if (artist.isEmpty() || artist.equals(selectedAlbumArtist())) { return text; }
         return text + " (" + artist + ")";
+    }
+
+    private static String titleOf(MusicFile file) {
+        return file.tag().title().isEmpty()
+            ? file.path().getFileName().toString()
+            : file.tag().title();
     }
 
     private String selectedAlbumArtist() {
@@ -313,7 +317,8 @@ public class LibraryManagerViewModel {
 
     /**
      * Returns the text of a row in the album list. An album row is shown as
-     * {@link #albumRowText(Album)} returns.
+     * {@link #albumRowText(Album)} returns. A track row is shown by the title
+     * of the track, or by its file name when the title is empty.
      *
      * @param item row of the album list
      * @return text of the row
@@ -323,7 +328,7 @@ public class LibraryManagerViewModel {
         Objects.requireNonNull(item, "item must not be null");
         return switch (item) {
             case AlbumItem(Album album) -> albumRowText(album);
-            case TrackItem(MusicFile track) -> trackRowText(track);
+            case TrackItem(MusicFile track) -> titleOf(track);
         };
     }
 

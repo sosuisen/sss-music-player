@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -86,6 +87,9 @@ class DuplicateListViewTest {
 
             @Override
             public void setOnFinished(Runnable onFinished) {}
+
+            @Override
+            public void setOnError(Consumer<String> onError) {}
 
             @Override
             public Optional<Path> playingPath() {

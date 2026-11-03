@@ -84,11 +84,18 @@ public class LibraryManagerViewModel {
         this.musicPlayer = Objects.requireNonNull(musicPlayer, "musicPlayer must not be null");
         this.folderOpener = Objects.requireNonNull(folderOpener, "folderOpener must not be null");
         musicPlayer.setOnFinished(this::continuePlaybackWhenTrackFinishes);
+        musicPlayer.setOnError(this::stopWhenPlaybackFails);
         appModel.getFiles().subscribe(this::updateAlbums);
         // subscribe(Consumer) also fires with the current value, which
         // computes the initial album list here.
         sortKey.subscribe(_ -> updateAlbums());
         albumFilter.subscribe(_ -> updateAlbums());
+    }
+
+    private void stopWhenPlaybackFails(String reason) {
+        var track = selectedTrack.get();
+        playerState.set(PlayerState.STOPPED);
+        errorMessage.set("Cannot play " + track.path().getFileName() + ": " + reason);
     }
 
     private void continuePlaybackWhenTrackFinishes() {

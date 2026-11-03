@@ -3,6 +3,7 @@ package com.sosuisha.presentation.screens.librarymanager;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -123,6 +124,9 @@ abstract class LibraryManagerViewTestBase {
                 public void setOnFinished(Runnable onFinished) {
                     trackFinishedCallback.set(onFinished);
                 }
+
+                @Override
+                public void setOnError(Consumer<String> onError) {}
 
                 @Override
                 public Optional<Path> playingPath() {

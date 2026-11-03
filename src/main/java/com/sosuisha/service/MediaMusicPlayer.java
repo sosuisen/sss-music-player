@@ -5,6 +5,7 @@ import java.nio.file.Path;
 import java.util.HexFormat;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 
 import com.sosuisha.domain.service.MusicPlayer;
 
@@ -27,6 +28,9 @@ public class MediaMusicPlayer implements MusicPlayer {
     private @Nullable Playing playing;
     // The initial callback does nothing.
     private Runnable onFinished = () -> {
+    };
+    // The initial callback does nothing.
+    private Consumer<String> onError = _ -> {
     };
 
     /**
@@ -102,6 +106,18 @@ public class MediaMusicPlayer implements MusicPlayer {
     @Override
     public void setOnFinished(Runnable onFinished) {
         this.onFinished = Objects.requireNonNull(onFinished, "onFinished must not be null");
+    }
+
+    /**
+     * Sets the callback that is invoked when an audio file cannot be played.
+     * It applies to files played after this call.
+     *
+     * @param onError callback invoked with the reason of the failure
+     * @throws NullPointerException if onError is null
+     */
+    @Override
+    public void setOnError(Consumer<String> onError) {
+        this.onError = Objects.requireNonNull(onError, "onError must not be null");
     }
 
     /**

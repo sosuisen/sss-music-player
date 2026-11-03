@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -334,5 +335,37 @@ class LibraryManagerViewModelTest {
         Objects.requireNonNull(onFinished.get()).run();
 
         assertEquals(List.of(playing.path(), playing.path()), playedPaths);
+    }
+
+    @Test
+    @DisplayName("再生の失敗が通知されると、プレイヤーの状態は停止に戻り、エラーメッセージにファイル名と理由を出す")
+    void a_playback_failure_stops_the_player_and_shows_the_file_name_and_the_reason() {
+        var onError = new AtomicReference<@Nullable Consumer<String>>();
+        MusicPlayer failingPlayer = new NullMusicPlayer() {
+            @Override
+            public void setOnError(Consumer<String> callback) {
+                onError.set(callback);
+            }
+        };
+        var viewModel = new LibraryManagerViewModel(
+            new WindowManager(),
+            new MusicLibraryAppModel(
+                new LibraryIndexer(new NullLibraryRepository()),
+                new SimpleObjectProperty<>()
+            ),
+            new SettingsAppModel(new NullSettingsRepository()),
+            new FavoritesAppModel(new InMemoryFavoriteRepository()),
+            failingPlayer,
+            _ -> {
+            }
+        );
+        viewModel.playTrack(new MusicFile(Path.of("a/one.m4a"), 100));
+
+        Objects.requireNonNull(onError.get()).accept("ERROR_MEDIA_INVALID");
+
+        assertEquals(PlayerState.STOPPED, viewModel.playerStateProperty().get());
+        assertEquals(
+            "Cannot play one.m4a: ERROR_MEDIA_INVALID", viewModel.errorMessageProperty().get()
+        );
     }
 }

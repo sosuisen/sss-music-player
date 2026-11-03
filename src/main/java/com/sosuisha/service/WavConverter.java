@@ -76,18 +76,21 @@ public class WavConverter {
         if (!Files.isDirectory(folder)) { return; }
         try (var files = Files.list(folder)) {
             for (var file : files.toList()) {
-                deleteUnlessOpen(file);
+                tryDelete(file);
             }
         }
     }
 
-    // Another running copy of the app may be playing the file. Windows does
-    // not let us delete it then, and it is left for a later startup.
-    private static void deleteUnlessOpen(Path file) {
+    // Windows does not let us delete a WAV that is still open. JavaFX keeps
+    // a WAV open until its Media is garbage collected, and another running
+    // copy of the app may be playing a WAV. Such a WAV is left for a later
+    // try. See ADR 006.
+    static boolean tryDelete(Path wav) {
         try {
-            Files.delete(file);
+            Files.deleteIfExists(wav);
+            return true;
         } catch (IOException _) {
-            // Ignored on purpose. See the comment above.
+            return false;
         }
     }
 }

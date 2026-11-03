@@ -83,6 +83,21 @@ class LibraryManagerFavoritesViewModelTest {
         assertFalse(viewModel.isFavorite(new AlbumItem(ALBUM_A)));
     }
 
+    @Test
+    @DisplayName("解除した行は、Favoritesを選び直すと左のリストから消える")
+    void an_unregistered_row_disappears_when_favorites_is_chosen_again() {
+        var viewModel = createViewModel(
+            List.of(new FavoriteAlbum("Album A", "X"), new FavoriteTrack(SONG.path()))
+        );
+        viewModel.sortKeyProperty().set(SortKey.FAVORITES);
+        viewModel.toggleFavorite(new AlbumItem(ALBUM_A));
+
+        viewModel.sortKeyProperty().set(SortKey.ALBUM);
+        viewModel.sortKeyProperty().set(SortKey.FAVORITES);
+
+        assertEquals(List.of(new TrackItem(SONG)), viewModel.getListItems());
+    }
+
     private static LibraryManagerViewModel createViewModel(List<Favorite> favorites) {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()), new SimpleObjectProperty<>()

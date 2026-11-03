@@ -21,9 +21,11 @@ import io.github.sosuisen.jfxbuilder.graphics.HBoxBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.RegionBuilder;
 import io.github.sosuisen.jfxbuilder.graphics.VBoxBuilder;
 import javafx.beans.binding.Bindings;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Slider;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -119,23 +121,6 @@ public class PlayerPanel {
 
     private static HBox buildSeekRow(LibraryManagerViewModel viewModel) {
         var position = viewModel.playbackPositionProperty();
-        var seekBar = SliderBuilder.create()
-            .id("seekBar")
-            .hGrowInHBox(Priority.ALWAYS)
-            .disablePropertyApply(prop -> prop.bind(position.isNull()))
-            .build();
-        // Not bound. The user moves the value by dragging the thumb.
-        position.addListener((_, _, current) -> {
-            // While pressed, the value is where the user moves the thumb.
-            if (current == null || seekBar.isPressed()) { return; }
-            seekBar.setMax(seconds(current.length()));
-            seekBar.setValue(seconds(current.position()));
-        });
-        // Not valueChanging. The skin changes the value without it when the
-        // track is pressed. A release ends both a drag and a click.
-        seekBar.setOnMouseReleased(
-            _ -> viewModel.seek(Duration.ofMillis(Math.round(seekBar.getValue() * 1000)))
-        );
         return HBoxBuilder
             .withChildren(
                 LabelBuilder.create()
@@ -144,7 +129,7 @@ public class PlayerPanel {
                         prop -> prop.bind(timeOf(position, PlaybackPosition::position))
                     )
                     .build(),
-                seekBar,
+                buildSeekBar(viewModel, position),
                 LabelBuilder.create()
                     .id("trackLength")
                     .textPropertyApply(
@@ -155,6 +140,29 @@ public class PlayerPanel {
             .spacing(10)
             .alignment(Pos.CENTER_LEFT)
             .build();
+    }
+
+    private static Slider buildSeekBar(
+        LibraryManagerViewModel viewModel,
+        ReadOnlyObjectProperty<@Nullable PlaybackPosition> position) {
+        var seekBar = SliderBuilder.create()
+            .id("seekBar")
+            .hGrowInHBox(Priority.ALWAYS)
+            .disablePropertyApply(prop -> prop.bind(position.isNull()))
+            .build();
+        // Not bound, because the user moves the value. While the bar is
+        // pressed, the value stays where the user moves the thumb.
+        position.addListener((_, _, current) -> {
+            if (current == null || seekBar.isPressed()) { return; }
+            seekBar.setMax(seconds(current.length()));
+            seekBar.setValue(seconds(current.position()));
+        });
+        // Not valueChanging. The skin changes the value without it when the
+        // track is pressed. A release ends both a drag and a click.
+        seekBar.setOnMouseReleased(
+            _ -> viewModel.seek(Duration.ofMillis(Math.round(seekBar.getValue() * 1000)))
+        );
+        return seekBar;
     }
 
     private static double seconds(Duration time) {

@@ -126,6 +126,25 @@ class MediaMusicPlayerTest {
         robot.interact(player::stop);
     }
 
+    // Repeating one track plays the same file again each time it ends.
+    @Test
+    @DisabledIfEnvironmentVariable(
+        named = "CI", matches = "true",
+        disabledReason = "A MediaPlayer ends the test JVM on the Windows Server runner")
+    @DisplayName("同じm4aをもう一度再生すると、同じ一時WAVを使い回す")
+    void playing_the_same_m4a_again_reuses_the_temporary_wav(FxRobot robot) throws Exception {
+        var m4a = Path.of("src/test/resources/id3/tagged.m4a");
+        var player = new MediaMusicPlayer();
+        robot.interact(() -> player.play(m4a));
+        var first = waitForMediaSource(robot, player);
+
+        robot.interact(() -> player.play(m4a));
+        var second = waitForMediaSource(robot, player);
+
+        assertEquals(first, second);
+        robot.interact(player::stop);
+    }
+
     // The conversion runs in the background, so the MediaPlayer appears later.
     private static String waitForMediaSource(FxRobot robot, MediaMusicPlayer player)
         throws Exception {

@@ -408,13 +408,7 @@ class LibraryManagerViewModelTest {
     @DisplayName("再生位置の通知を受けると、再生位置と曲の長さを公開する")
     void a_progress_report_publishes_the_position_and_the_length() {
         var onProgress = new AtomicReference<@Nullable Consumer<PlaybackPosition>>();
-        MusicPlayer reportingPlayer = new NullMusicPlayer() {
-            @Override
-            public void setOnProgress(Consumer<PlaybackPosition> callback) {
-                onProgress.set(callback);
-            }
-        };
-        var viewModel = viewModelWith(reportingPlayer);
+        var viewModel = viewModelWith(reportingPlayer(onProgress));
         viewModel.playTrack(new MusicFile(Path.of("a/one.mp3"), 100));
 
         Objects.requireNonNull(onProgress.get())

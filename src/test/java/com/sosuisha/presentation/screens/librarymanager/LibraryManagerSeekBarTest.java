@@ -2,12 +2,17 @@ package com.sosuisha.presentation.screens.librarymanager;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.time.Duration;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.Start;
+
+import com.sosuisha.domain.model.PlaybackPosition;
 
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
@@ -29,6 +34,25 @@ class LibraryManagerSeekBarTest extends LibraryManagerViewTestBase {
             () -> assertTrue(seekBar.isDisabled()),
             () -> assertEquals("0:00", label(robot, "#elapsedTime")),
             () -> assertEquals("0:00", label(robot, "#trackLength"))
+        );
+    }
+
+    @Test
+    @DisplayName("再生位置の通知を受けると、シークバーと時間の表示が変わる")
+    void a_reported_position_moves_the_seek_bar_and_changes_the_times(FxRobot robot) {
+        var seekBar = robot.lookup("#seekBar").queryAs(Slider.class);
+
+        robot.interact(
+            () -> reportProgress(
+                new PlaybackPosition(Duration.ofSeconds(83), Duration.ofSeconds(245))
+            )
+        );
+
+        assertAll(
+            () -> assertFalse(seekBar.isDisabled()),
+            () -> assertEquals(83.0 / 245.0, seekBar.getValue() / seekBar.getMax(), 0.001),
+            () -> assertEquals("1:23", label(robot, "#elapsedTime")),
+            () -> assertEquals("4:05", label(robot, "#trackLength"))
         );
     }
 

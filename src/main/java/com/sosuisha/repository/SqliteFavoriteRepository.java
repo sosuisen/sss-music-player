@@ -85,4 +85,32 @@ public class SqliteFavoriteRepository {
             record.insert();
         });
     }
+
+    /**
+     * Removes the given favorite. Does nothing when it is not registered.
+     *
+     * @param favorite favorite to remove
+     * @throws NullPointerException if favorite is null
+     * @throws RepositoryException if the database cannot be written
+     */
+    public void remove(Favorite favorite) {
+        Objects.requireNonNull(favorite, "favorite must not be null");
+        database.run("Could not write to the library database", dsl -> {
+            switch (favorite) {
+                case FavoriteAlbum album -> dsl.deleteFrom(FAVORITE)
+                    .where(
+                        FAVORITE.KIND.eq(ALBUM_KIND)
+                            .and(FAVORITE.ALBUM_NAME.eq(album.name()))
+                            .and(FAVORITE.ALBUM_ARTIST.eq(album.artist()))
+                    )
+                    .execute();
+                case FavoriteTrack track -> dsl.deleteFrom(FAVORITE)
+                    .where(
+                        FAVORITE.KIND.eq(TRACK_KIND)
+                            .and(FAVORITE.TRACK_PATH.eq(track.path().toString()))
+                    )
+                    .execute();
+            }
+        });
+    }
 }

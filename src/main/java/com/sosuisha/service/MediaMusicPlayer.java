@@ -2,8 +2,11 @@ package com.sosuisha.service;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.HexFormat;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
@@ -42,6 +45,8 @@ public class MediaMusicPlayer implements MusicPlayer {
     private Consumer<String> onError = _ -> {
     };
     private final WavConverter wavConverter = new WavConverter();
+    // Temporary WAVs that are no longer played but not deleted yet.
+    private final List<Path> unusedWavs = new ArrayList<>();
 
     /**
      * Plays the audio file at the given path.
@@ -53,10 +58,15 @@ public class MediaMusicPlayer implements MusicPlayer {
     public void play(Path path) {
         Objects.requireNonNull(path, "path must not be null");
         stop();
+        if (converted != null && !converted.source().equals(path)) {
+            unusedWavs.add(converted.wav());
+            converted = null;
+        }
+        deleteUnusedWavs();
         var file = path;
         if (path.getFileName().toString().toLowerCase(Locale.ROOT).endsWith(".m4a")) {
             try {
-                if (converted == null || !converted.source().equals(path)) {
+                if (converted == null) {
                     converted = new Converted(path, wavConverter.toWav(path));
                 }
                 file = converted.wav();
@@ -81,6 +91,20 @@ public class MediaMusicPlayer implements MusicPlayer {
         });
         player.play();
         playing = new Playing(player, path);
+    }
+
+    // On Windows, a WAV cannot be deleted while JavaFX keeps it open. JavaFX
+    // keeps it open until its Media is garbage collected. So the WAVs that
+    // cannot be deleted yet are tried again at each play. See ADR 005.
+    private void deleteUnusedWavs() {
+        unusedWavs.removeIf(wav -> {
+            try {
+                Files.deleteIfExists(wav);
+                return true;
+            } catch (IOException _) {
+                return false;
+            }
+        });
     }
 
     // Media converts the URI with URI.toASCIIString(), which normalizes the

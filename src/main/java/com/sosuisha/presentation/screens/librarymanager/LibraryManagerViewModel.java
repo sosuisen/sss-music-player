@@ -290,7 +290,9 @@ public class LibraryManagerViewModel {
 
     /**
      * Selects the given row of the album list. An album row selects the album
-     * as {@link #selectAlbum(Album)} does.
+     * as {@link #selectAlbum(Album)} does. A track row selects the album that
+     * holds the track, but publishes only that track through
+     * {@link #getSelectedTracks()}.
      *
      * @param item row to select, or null to clear the selection
      */
@@ -298,9 +300,15 @@ public class LibraryManagerViewModel {
         switch (item) {
             case null -> selectAlbum(null);
             case AlbumItem(Album album) -> selectAlbum(album);
-            case TrackItem _ -> {
-            }
+            case TrackItem(MusicFile track) -> showTracks(albumOf(track), List.of(track));
         }
+    }
+
+    private @Nullable Album albumOf(MusicFile track) {
+        return new AlbumDetector(appModel.getFiles()).detect().stream()
+            .filter(album -> album.files().contains(track))
+            .findFirst()
+            .orElse(null);
     }
 
     /**
@@ -361,8 +369,12 @@ public class LibraryManagerViewModel {
      * @param album album to select, or null to clear the selection
      */
     public void selectAlbum(@Nullable Album album) {
+        showTracks(album, album == null ? List.of() : orderByTrackNumber(album.files()));
+    }
+
+    private void showTracks(@Nullable Album album, List<MusicFile> tracks) {
         appModel.selectAlbum(album);
-        selectedTracks.setAll(album == null ? List.of() : orderByTrackNumber(album.files()));
+        selectedTracks.setAll(tracks);
         if (playerState.get() == PlayerState.PLAYING) { return; }
         selectedTrack.set(selectedTracks.isEmpty() ? null : selectedTracks.getFirst());
     }

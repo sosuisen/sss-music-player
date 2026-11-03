@@ -26,4 +26,22 @@ class FavoritesAppModelTest {
 
         assertEquals(saved, appModel.getFavorites());
     }
+
+    @Test
+    @DisplayName("未登録のお気に入りをトグルすると、末尾に登録され、リポジトリに保存される")
+    void toggling_an_unregistered_favorite_adds_it_to_the_end_and_saves_it() {
+        var repository = new InMemoryFavoriteRepository(
+            List.of(new FavoriteAlbum("Album A", "Artist X"))
+        );
+        var appModel = new FavoritesAppModel(repository);
+
+        appModel.toggle(new FavoriteTrack(Path.of("a", "song.mp3")));
+
+        var expected = List.of(
+            new FavoriteAlbum("Album A", "Artist X"),
+            new FavoriteTrack(Path.of("a", "song.mp3"))
+        );
+        assertEquals(expected, appModel.getFavorites());
+        assertEquals(expected, repository.findAll());
+    }
 }

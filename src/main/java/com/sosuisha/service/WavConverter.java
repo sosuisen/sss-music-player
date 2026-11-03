@@ -72,6 +72,8 @@ public class WavConverter {
      *     deleted
      */
     public void deleteLeftovers() throws IOException {
+        // The folder is created by the first conversion.
+        if (!Files.isDirectory(folder)) { return; }
         try (var files = Files.list(folder)) {
             for (var file : files.toList()) {
                 Files.delete(file);

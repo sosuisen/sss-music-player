@@ -11,13 +11,35 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
 /**
- * Converts an audio file that Java Sound can read into a temporary WAV file.
+ * Converts an audio file that Java Sound can read into a temporary WAV file
+ * in a folder only for those files.
  * JAAD adds m4a (AAC) to the formats that Java Sound reads. See ADR 005.
  */
 public class WavConverter {
+    private final Path folder;
+
+    /**
+     * Creates a converter that writes into the folder {@code sss-music-player}
+     * in the temporary folder of the OS.
+     */
+    public WavConverter() {
+        this(Path.of(System.getProperty("java.io.tmpdir"), "sss-music-player"));
+    }
+
+    /**
+     * Creates a converter that writes into the given folder. The folder is
+     * created when it does not exist.
+     *
+     * @param folder folder for the temporary WAV files
+     * @throws NullPointerException if folder is null
+     */
+    public WavConverter(Path folder) {
+        this.folder = Objects.requireNonNull(folder, "folder must not be null");
+    }
+
     /**
      * Converts the audio file into 16-bit signed PCM and writes it to a new
-     * temporary WAV file. The sample rate and the channels stay the same.
+     * temporary WAV file in the folder. The sample rate and the channels stay the same.
      *
      * @param source path of the audio file to convert
      * @return path of the new temporary WAV file
@@ -33,7 +55,7 @@ public class WavConverter {
                 from.getChannels(), from.getChannels() * 2, from.getSampleRate(), false
             );
             try (var decoded = AudioSystem.getAudioInputStream(pcm, encoded)) {
-                var wav = Files.createTempFile("sss-music-player-", ".wav");
+                var wav = Files.createTempFile(Files.createDirectories(folder), "", ".wav");
                 AudioSystem.write(decoded, AudioFileFormat.Type.WAVE, wav.toFile());
                 return wav;
             }

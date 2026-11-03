@@ -14,6 +14,7 @@ import org.testfx.framework.junit5.Start;
 
 import com.sosuisha.domain.model.PlaybackPosition;
 
+import javafx.geometry.Point2D;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.input.MouseButton;
@@ -65,9 +66,12 @@ class LibraryManagerSeekBarTest extends LibraryManagerViewTestBase {
             () -> reportProgress(new PlaybackPosition(Duration.ZERO, Duration.ofSeconds(100)))
         );
 
-        // Past the right end of the bar, so the thumb stops at the end.
+        // The right edge of the bar is past the end of the track, so the thumb
+        // stops at the end. The mouse stays on the bar, because the test robot
+        // does not send the release to the bar when it is outside.
+        var bounds = seekBar.localToScreen(seekBar.getBoundsInLocal());
         robot.drag("#seekBar .thumb", MouseButton.PRIMARY)
-            .moveBy(seekBar.getWidth(), 0)
+            .moveTo(new Point2D(bounds.getMaxX() - 2, bounds.getCenterY()))
             .release(MouseButton.PRIMARY);
 
         assertEquals(Duration.ofSeconds(100), seekedPosition.get());

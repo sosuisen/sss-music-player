@@ -130,6 +130,11 @@ public class PlayerPanel {
             seekBar.setMax(seconds(current.length()));
             seekBar.setValue(seconds(current.position()));
         });
+        // Not valueChanging. The skin changes the value without it when the
+        // track is pressed. A release ends both a drag and a click.
+        seekBar.setOnMouseReleased(
+            _ -> viewModel.seek(Duration.ofMillis(Math.round(seekBar.getValue() * 1000)))
+        );
         return HBoxBuilder
             .withChildren(
                 LabelBuilder.create()

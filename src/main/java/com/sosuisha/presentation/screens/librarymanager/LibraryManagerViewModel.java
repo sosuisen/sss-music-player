@@ -490,8 +490,11 @@ public class LibraryManagerViewModel {
 
     /**
      * Moves the selection to the next track of the selected album, wrapping
-     * to the first track at the end. When a track is playing, the moved-to
-     * track is played immediately. Does nothing when the album has no tracks.
+     * to the first track at the end. While the favorites are shown, the end
+     * of the selected row moves instead to the first track of the next row,
+     * and the last row wraps to the first row. When a track is playing, the
+     * moved-to track is played immediately. Does nothing when the album has
+     * no tracks.
      */
     public void nextTrack() {
         moveSelection(1);
@@ -499,9 +502,11 @@ public class LibraryManagerViewModel {
 
     /**
      * Moves the selection to the previous track of the selected album,
-     * wrapping to the last track at the head. When a track is playing, the
-     * moved-to track is played immediately. Does nothing when the album has
-     * no tracks.
+     * wrapping to the last track at the head. While the favorites are shown,
+     * the head of the selected row moves instead to the last track of the
+     * previous row, and the first row wraps to the last row. When a track is
+     * playing, the moved-to track is played immediately. Does nothing when
+     * the album has no tracks.
      */
     public void previousTrack() {
         moveSelection(-1);
@@ -511,23 +516,28 @@ public class LibraryManagerViewModel {
         if (selectedTracks.isEmpty()) { return; }
         var index = selectedTracks.indexOf(selectedTrack.get());
         var size = selectedTracks.size();
-        var listIndex = listItems.indexOf(selectedListItem.get());
         var movedIndex = index + offset;
-        if (sortKey.get() == SortKey.FAVORITES && index >= 0
-            && (movedIndex < 0 || movedIndex >= size) && listIndex >= 0) {
-            var listSize = listItems.size();
-            selectListItem(listItems.get((listIndex + offset + listSize) % listSize));
-            var target = offset > 0 ? selectedTracks.getFirst() : selectedTracks.getLast();
-            selectedTrack.set(target);
-            if (playerState.get() == PlayerState.PLAYING) {
-                startPlaying(target.path());
-            }
-            return;
-        }
-        var movedTo = selectedTracks.get((index + offset + size) % size);
-        selectedTrack.set(movedTo);
+        var leavesRow = index >= 0 && (movedIndex < 0 || movedIndex >= size);
+        if (leavesRow && moveToAdjacentFavoriteRow(offset)) { return; }
+        moveSelectionTo(selectedTracks.get((movedIndex + size) % size));
+    }
+
+    // Among the favorites, the playback goes on through the rows of the list.
+    // Returns false when the selected row is not shown, so that the caller
+    // wraps inside the row as for an album.
+    private boolean moveToAdjacentFavoriteRow(int offset) {
+        var listIndex = listItems.indexOf(selectedListItem.get());
+        if (sortKey.get() != SortKey.FAVORITES || listIndex < 0) { return false; }
+        var listSize = listItems.size();
+        selectListItem(listItems.get((listIndex + offset + listSize) % listSize));
+        moveSelectionTo(offset > 0 ? selectedTracks.getFirst() : selectedTracks.getLast());
+        return true;
+    }
+
+    private void moveSelectionTo(MusicFile track) {
+        selectedTrack.set(track);
         if (playerState.get() == PlayerState.PLAYING) {
-            startPlaying(movedTo.path());
+            startPlaying(track.path());
         }
     }
 

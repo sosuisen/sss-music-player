@@ -54,6 +54,8 @@ public class LibraryManagerViewModel {
     private final FolderOpener folderOpener;
     private final ObservableList<AlbumListItem> listItems = FXCollections.observableArrayList();
     private final ObservableList<MusicFile> selectedTracks = FXCollections.observableArrayList();
+    private final ObjectProperty<@Nullable AlbumListItem> selectedListItem =
+        new SimpleObjectProperty<>();
     private final ObjectProperty<PlayerState> playerState =
         new SimpleObjectProperty<>(PlayerState.STOPPED);
     private final ObjectProperty<MusicFile> selectedTrack = new SimpleObjectProperty<>();
@@ -328,11 +330,22 @@ public class LibraryManagerViewModel {
      * @param item row to select, or null to clear the selection
      */
     public void selectListItem(@Nullable AlbumListItem item) {
+        selectedListItem.set(item);
         switch (item) {
             case null -> selectAlbum(null);
             case AlbumItem(Album album) -> selectAlbum(album);
             case TrackItem(MusicFile track) -> showTracks(albumOf(track), List.of(track));
         }
+    }
+
+    /**
+     * Returns the selected row of the album list.
+     *
+     * @return read-only property of the selected row, holding null when no
+     *     row is selected
+     */
+    public ReadOnlyObjectProperty<@Nullable AlbumListItem> selectedListItemProperty() {
+        return selectedListItem;
     }
 
     /**
@@ -477,8 +490,11 @@ public class LibraryManagerViewModel {
 
     /**
      * Moves the selection to the next track of the selected album, wrapping
-     * to the first track at the end. When a track is playing, the moved-to
-     * track is played immediately. Does nothing when the album has no tracks.
+     * to the first track at the end. While the favorites are shown, the end
+     * of the selected row moves instead to the first track of the next row,
+     * and the last row wraps to the first row. When a track is playing, the
+     * moved-to track is played immediately. Does nothing when the album has
+     * no tracks.
      */
     public void nextTrack() {
         moveSelection(1);
@@ -486,9 +502,11 @@ public class LibraryManagerViewModel {
 
     /**
      * Moves the selection to the previous track of the selected album,
-     * wrapping to the last track at the head. When a track is playing, the
-     * moved-to track is played immediately. Does nothing when the album has
-     * no tracks.
+     * wrapping to the last track at the head. While the favorites are shown,
+     * the head of the selected row moves instead to the last track of the
+     * previous row, and the first row wraps to the last row. When a track is
+     * playing, the moved-to track is played immediately. Does nothing when
+     * the album has no tracks.
      */
     public void previousTrack() {
         moveSelection(-1);
@@ -498,10 +516,28 @@ public class LibraryManagerViewModel {
         if (selectedTracks.isEmpty()) { return; }
         var index = selectedTracks.indexOf(selectedTrack.get());
         var size = selectedTracks.size();
-        var movedTo = selectedTracks.get((index + offset + size) % size);
-        selectedTrack.set(movedTo);
+        var movedIndex = index + offset;
+        var leavesRow = index >= 0 && (movedIndex < 0 || movedIndex >= size);
+        if (leavesRow && moveToAdjacentFavoriteRow(offset)) { return; }
+        moveSelectionTo(selectedTracks.get((movedIndex + size) % size));
+    }
+
+    // Among the favorites, the playback goes on through the rows of the list.
+    // Returns false when the selected row is not shown, so that the caller
+    // wraps inside the row as for an album.
+    private boolean moveToAdjacentFavoriteRow(int offset) {
+        var listIndex = listItems.indexOf(selectedListItem.get());
+        if (sortKey.get() != SortKey.FAVORITES || listIndex < 0) { return false; }
+        var listSize = listItems.size();
+        selectListItem(listItems.get((listIndex + offset + listSize) % listSize));
+        moveSelectionTo(offset > 0 ? selectedTracks.getFirst() : selectedTracks.getLast());
+        return true;
+    }
+
+    private void moveSelectionTo(MusicFile track) {
+        selectedTrack.set(track);
         if (playerState.get() == PlayerState.PLAYING) {
-            startPlaying(movedTo.path());
+            startPlaying(track.path());
         }
     }
 

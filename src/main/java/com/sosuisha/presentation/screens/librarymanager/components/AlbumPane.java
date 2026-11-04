@@ -105,6 +105,10 @@ public class AlbumPane {
                 listView -> {
                     listView.getSelectionModel().selectedItemProperty()
                         .subscribe(viewModel::selectListItem);
+                    // Follows the rows selected by the view model, such as
+                    // the next favorite row when a track ends.
+                    viewModel.selectedListItemProperty()
+                        .subscribe(item -> listView.getSelectionModel().select(item));
                     // The stars of the rows follow the favorites.
                     viewModel.getFavorites().subscribe(listView::refresh);
                 }

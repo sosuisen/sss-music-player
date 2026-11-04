@@ -12,6 +12,8 @@ import org.testfx.api.FxRobot;
 import org.testfx.framework.junit5.Start;
 
 import com.sosuisha.domain.model.Album;
+import com.sosuisha.domain.model.FavoriteAlbum;
+import com.sosuisha.domain.model.FavoriteTrack;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.presentation.screens.librarymanager.AlbumListItem.AlbumItem;
@@ -25,6 +27,9 @@ import javafx.stage.Stage;
 class LibraryManagerFavoritesTest extends LibraryManagerViewTestBase {
     private static final MusicFile ONE = new MusicFile(
         Path.of("a", "one.mp3"), 100, new TrackMetadata("One", "X", "Album A", "X", "1", "")
+    );
+    private static final MusicFile SONG = new MusicFile(
+        Path.of("b", "song.mp3"), 300, new TrackMetadata("Song", "Y", "Album B", "Y", "1", "")
     );
 
     @Start
@@ -66,5 +71,24 @@ class LibraryManagerFavoritesTest extends LibraryManagerViewTestBase {
         robot.clickOn(star);
 
         assertTrue(viewModel.isFavorite(new TrackItem(ONE)));
+    }
+
+    @Test
+    @DisplayName("曲が終わって次の項目へ進むと、左のリストの選択もその項目へ移る")
+    void moving_to_the_next_row_when_a_track_ends_moves_the_selection_of_the_album_list(
+        FxRobot robot
+    ) {
+        robot.interact(() -> {
+            favoritesAppModel.toggle(new FavoriteAlbum("Album A", "X"));
+            favoritesAppModel.toggle(new FavoriteTrack(SONG.path()));
+            viewModel.setFiles(List.of(ONE, SONG));
+            viewModel.sortKeyProperty().set(SortKey.FAVORITES);
+        });
+        robot.doubleClickOn("Album A - X");
+
+        robot.interact(this::fireTrackFinished);
+
+        var albumList = robot.lookup("#albumList").<AlbumListItem>queryListView();
+        assertEquals(new TrackItem(SONG), albumList.getSelectionModel().getSelectedItem());
     }
 }

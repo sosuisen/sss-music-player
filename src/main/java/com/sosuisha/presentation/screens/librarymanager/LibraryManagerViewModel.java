@@ -54,6 +54,8 @@ public class LibraryManagerViewModel {
     private final FolderOpener folderOpener;
     private final ObservableList<AlbumListItem> listItems = FXCollections.observableArrayList();
     private final ObservableList<MusicFile> selectedTracks = FXCollections.observableArrayList();
+    private final ObjectProperty<@Nullable AlbumListItem> selectedListItem =
+        new SimpleObjectProperty<>();
     private final ObjectProperty<PlayerState> playerState =
         new SimpleObjectProperty<>(PlayerState.STOPPED);
     private final ObjectProperty<MusicFile> selectedTrack = new SimpleObjectProperty<>();
@@ -328,11 +330,22 @@ public class LibraryManagerViewModel {
      * @param item row to select, or null to clear the selection
      */
     public void selectListItem(@Nullable AlbumListItem item) {
+        selectedListItem.set(item);
         switch (item) {
             case null -> selectAlbum(null);
             case AlbumItem(Album album) -> selectAlbum(album);
             case TrackItem(MusicFile track) -> showTracks(albumOf(track), List.of(track));
         }
+    }
+
+    /**
+     * Returns the selected row of the album list.
+     *
+     * @return read-only property of the selected row, holding null when no
+     *     row is selected
+     */
+    public ReadOnlyObjectProperty<@Nullable AlbumListItem> selectedListItemProperty() {
+        return selectedListItem;
     }
 
     /**
@@ -498,6 +511,13 @@ public class LibraryManagerViewModel {
         if (selectedTracks.isEmpty()) { return; }
         var index = selectedTracks.indexOf(selectedTrack.get());
         var size = selectedTracks.size();
+        var listIndex = listItems.indexOf(selectedListItem.get());
+        if (sortKey.get() == SortKey.FAVORITES && index == size - 1 && listIndex >= 0) {
+            var nextItem = listItems.get((listIndex + 1) % listItems.size());
+            selectListItem(nextItem);
+            playTrack(selectedTracks.getFirst());
+            return;
+        }
         var movedTo = selectedTracks.get((index + offset + size) % size);
         selectedTrack.set(movedTo);
         if (playerState.get() == PlayerState.PLAYING) {

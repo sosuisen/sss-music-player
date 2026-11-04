@@ -71,6 +71,23 @@ class LibraryManagerFavoritesPlaybackViewModelTest {
         assertEquals(SONG.path(), playedPaths.getLast());
     }
 
+    @Test
+    @DisplayName("停止中に項目の最後の曲で次の曲へ移ると、次の項目の先頭の曲を選ぶだけで再生しない")
+    void moving_to_the_next_track_at_the_end_of_a_row_while_stopped_only_selects_the_next_row() {
+        var viewModel = createViewModel(
+            List.of(new FavoriteAlbum("Album A", "X"), new FavoriteTrack(SONG.path()))
+        );
+        viewModel.sortKeyProperty().set(SortKey.FAVORITES);
+        viewModel.selectListItem(new AlbumItem(ALBUM_A));
+        viewModel.selectTrack(TWO);
+
+        viewModel.nextTrack();
+
+        assertEquals(new TrackItem(SONG), viewModel.selectedListItemProperty().get());
+        assertEquals(SONG, viewModel.selectedTrackProperty().get());
+        assertEquals(List.of(), playedPaths);
+    }
+
     private void finishTrack() {
         Objects.requireNonNull(onFinished.get(), "no track finished callback").run();
     }

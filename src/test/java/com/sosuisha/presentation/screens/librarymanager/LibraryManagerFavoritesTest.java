@@ -76,8 +76,7 @@ class LibraryManagerFavoritesTest extends LibraryManagerViewTestBase {
     @Test
     @DisplayName("曲が終わって次の項目へ進むと、左のリストの選択もその項目へ移る")
     void moving_to_the_next_row_when_a_track_ends_moves_the_selection_of_the_album_list(
-        FxRobot robot
-    ) {
+        FxRobot robot) {
         robot.interact(() -> {
             favoritesAppModel.toggle(new FavoriteAlbum("Album A", "X"));
             favoritesAppModel.toggle(new FavoriteTrack(SONG.path()));

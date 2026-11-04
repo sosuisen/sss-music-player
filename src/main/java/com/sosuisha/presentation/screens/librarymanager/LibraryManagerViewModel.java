@@ -512,13 +512,15 @@ public class LibraryManagerViewModel {
         var index = selectedTracks.indexOf(selectedTrack.get());
         var size = selectedTracks.size();
         var listIndex = listItems.indexOf(selectedListItem.get());
-        if (sortKey.get() == SortKey.FAVORITES && index == size - 1 && listIndex >= 0) {
-            var nextItem = listItems.get((listIndex + 1) % listItems.size());
-            selectListItem(nextItem);
-            var first = selectedTracks.getFirst();
-            selectedTrack.set(first);
+        var movedIndex = index + offset;
+        if (sortKey.get() == SortKey.FAVORITES && index >= 0
+            && (movedIndex < 0 || movedIndex >= size) && listIndex >= 0) {
+            var listSize = listItems.size();
+            selectListItem(listItems.get((listIndex + offset + listSize) % listSize));
+            var target = offset > 0 ? selectedTracks.getFirst() : selectedTracks.getLast();
+            selectedTrack.set(target);
             if (playerState.get() == PlayerState.PLAYING) {
-                startPlaying(first.path());
+                startPlaying(target.path());
             }
             return;
         }

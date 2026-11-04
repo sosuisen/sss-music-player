@@ -88,6 +88,22 @@ class LibraryManagerFavoritesPlaybackViewModelTest {
         assertEquals(List.of(), playedPaths);
     }
 
+    @Test
+    @DisplayName("項目の先頭の曲で前の曲へ移ると、前の項目を選び、その最後の曲を再生する")
+    void moving_to_the_previous_track_at_the_head_of_a_row_plays_the_last_track_of_the_previous_row() {
+        var viewModel = createViewModel(
+            List.of(new FavoriteAlbum("Album A", "X"), new FavoriteTrack(SONG.path()))
+        );
+        viewModel.sortKeyProperty().set(SortKey.FAVORITES);
+        viewModel.playListItem(new TrackItem(SONG));
+
+        viewModel.previousTrack();
+
+        assertEquals(new AlbumItem(ALBUM_A), viewModel.selectedListItemProperty().get());
+        assertEquals(TWO, viewModel.selectedTrackProperty().get());
+        assertEquals(TWO.path(), playedPaths.getLast());
+    }
+
     private void finishTrack() {
         Objects.requireNonNull(onFinished.get(), "no track finished callback").run();
     }

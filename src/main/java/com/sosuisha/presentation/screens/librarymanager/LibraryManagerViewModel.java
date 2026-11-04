@@ -515,7 +515,11 @@ public class LibraryManagerViewModel {
         if (sortKey.get() == SortKey.FAVORITES && index == size - 1 && listIndex >= 0) {
             var nextItem = listItems.get((listIndex + 1) % listItems.size());
             selectListItem(nextItem);
-            playTrack(selectedTracks.getFirst());
+            var first = selectedTracks.getFirst();
+            selectedTrack.set(first);
+            if (playerState.get() == PlayerState.PLAYING) {
+                startPlaying(first.path());
+            }
             return;
         }
         var movedTo = selectedTracks.get((index + offset + size) % size);

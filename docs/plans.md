@@ -133,7 +133,7 @@ TDDの作業用todoリスト（使い捨て）。
 ### pom.xml・ビルド
 
 - [ ] JaCoCoの導入（`prepare-agent`と`report`）。テストしないクラスは理由コメント付きで`<excludes>`へ
-- [ ] formatter-maven-plugin: 版を2.29.0へ、設定ファイル名を`java-formatter.xml`へ（`.vscode/settings.json`も）、`format`ゴールの`<executions>`を足す
+- [x] formatter-maven-plugin: 版を2.29.0へ、設定ファイル名を`java-formatter.xml`へ（`.vscode/settings.json`も）、`format`ゴールの`<executions>`を足す
 - [x] surefire: `forkCount=1C`に合わせて`javafx.cachedir`をフォークごとに分ける`<argLine>`（`${test.jvm.options}`で追加オプションを渡せる。JaCoCo導入時に`@{argLine}`を足す）
 - [x] jpackageの`appVersion`が`1.0.0`固定。仮の値だと分かるコメントを添える（jpackageごと撤去。ADR 004）
 - [ ] `maven.compiler.release`が25、READMEも「Java 25」。意図を確認して揃える

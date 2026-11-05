@@ -117,6 +117,20 @@ public class LibraryManagerViewModel {
     }
 
     private void updateAlbums() {
+        if (sortKey.get() == SortKey.TRACK) {
+            listItems.setAll(
+                appModel.getFiles().stream()
+                    .sorted(
+                        Comparator.comparing(
+                            LibraryManagerViewModel::titleOf, String.CASE_INSENSITIVE_ORDER
+                        )
+                    )
+                    .<AlbumListItem>map(TrackItem::new)
+                    .filter(this::matchesFilter)
+                    .toList()
+            );
+            return;
+        }
         var albums = new AlbumDetector(appModel.getFiles()).detect();
         if (sortKey.get() == SortKey.FAVORITES) {
             listItems.setAll(
@@ -152,9 +166,9 @@ public class LibraryManagerViewModel {
 
     /**
      * Returns the filter text of the album list. The albums are narrowed to
-     * the ones whose name or artist contains the text, ignoring case,
-     * whenever the text changes. Among the favorites, the tracks are narrowed
-     * in the same way by their title or artist.
+     * the ones whose name, artist, or track title contains the text, ignoring
+     * case, whenever the text changes. Among the favorites and in the track
+     * view, the tracks are narrowed in the same way by their title or artist.
      *
      * @return string property of the filter text
      */
@@ -182,7 +196,9 @@ public class LibraryManagerViewModel {
 
     private boolean matchesFilter(Album album) {
         return containsIgnoringCase(album.name(), albumFilter.get())
-            || containsIgnoringCase(album.artist(), albumFilter.get());
+            || containsIgnoringCase(album.artist(), albumFilter.get())
+            || album.files().stream()
+                .anyMatch(track -> containsIgnoringCase(titleOf(track), albumFilter.get()));
     }
 
     private static boolean containsIgnoringCase(String text, String query) {
@@ -191,7 +207,7 @@ public class LibraryManagerViewModel {
 
     private Comparator<Album> albumComparator() {
         return switch (sortKey.get()) {
-            case ALBUM, FAVORITES -> Comparator
+            case ALBUM, TRACK, FAVORITES -> Comparator
                 .comparing(Album::name, String.CASE_INSENSITIVE_ORDER);
             case ARTIST -> Comparator.comparing(Album::artist, String.CASE_INSENSITIVE_ORDER);
         };
@@ -219,7 +235,7 @@ public class LibraryManagerViewModel {
     public String albumRowText(Album album) {
         Objects.requireNonNull(album, "album must not be null");
         return switch (sortKey.get()) {
-            case ALBUM, FAVORITES -> album.name() + " - " + album.artist();
+            case ALBUM, TRACK, FAVORITES -> album.name() + " - " + album.artist();
             case ARTIST -> album.artist() + " - " + album.name();
         };
     }
@@ -310,8 +326,10 @@ public class LibraryManagerViewModel {
     /**
      * Returns the rows of the album list. For the album and artist sort keys,
      * the rows are the albums recognized in the music library. For
-     * {@link SortKey#FAVORITES}, the rows are the favorite albums and tracks
-     * found in the library, in the order they were added. The list is updated
+     * {@link SortKey#TRACK}, the rows are all tracks sorted by title, ignoring
+     * case. For {@link SortKey#FAVORITES}, the rows are the favorite albums and
+     * tracks found in the library, in the order they were added. The list is
+     * updated
      * whenever the files of the library, the sort key, or the filter text
      * change.
      *
@@ -372,7 +390,9 @@ public class LibraryManagerViewModel {
     /**
      * Returns the text of a row in the album list. An album row is shown as
      * {@link #albumRowText(Album)} returns. A track row is shown by the title
-     * of the track, or by its file name when the title is empty.
+     * of the track, or by its file name when the title is empty. While
+     * {@link SortKey#TRACK} is chosen, the artist follows the title as
+     * "title - artist", unless the artist is empty.
      *
      * @param item row of the album list
      * @return text of the row
@@ -382,8 +402,14 @@ public class LibraryManagerViewModel {
         Objects.requireNonNull(item, "item must not be null");
         return switch (item) {
             case AlbumItem(Album album) -> albumRowText(album);
-            case TrackItem(MusicFile track) -> titleOf(track);
+            case TrackItem(MusicFile track) -> trackListItemText(track);
         };
+    }
+
+    private String trackListItemText(MusicFile track) {
+        var artist = track.tag().artist();
+        if (sortKey.get() != SortKey.TRACK || artist.isEmpty()) { return titleOf(track); }
+        return titleOf(track) + " - " + artist;
     }
 
     /**
@@ -490,8 +516,9 @@ public class LibraryManagerViewModel {
 
     /**
      * Moves the selection to the next track of the selected album, wrapping
-     * to the first track at the end. While the favorites are shown, the end
-     * of the selected row moves instead to the first track of the next row,
+     * to the first track at the end. While the favorites or the tracks are
+     * shown, the end of the selected row moves instead to the first track of
+     * the next row,
      * and the last row wraps to the first row. When a track is playing, the
      * moved-to track is played immediately. Does nothing when the album has
      * no tracks.
@@ -502,8 +529,9 @@ public class LibraryManagerViewModel {
 
     /**
      * Moves the selection to the previous track of the selected album,
-     * wrapping to the last track at the head. While the favorites are shown,
-     * the head of the selected row moves instead to the last track of the
+     * wrapping to the last track at the head. While the favorites or the
+     * tracks are shown, the head of the selected row moves instead to the last
+     * track of the
      * previous row, and the first row wraps to the last row. When a track is
      * playing, the moved-to track is played immediately. Does nothing when
      * the album has no tracks.
@@ -518,16 +546,18 @@ public class LibraryManagerViewModel {
         var size = selectedTracks.size();
         var movedIndex = index + offset;
         var leavesRow = index >= 0 && (movedIndex < 0 || movedIndex >= size);
-        if (leavesRow && moveToAdjacentFavoriteRow(offset)) { return; }
+        if (leavesRow && moveToAdjacentRow(offset)) { return; }
         moveSelectionTo(selectedTracks.get((movedIndex + size) % size));
     }
 
-    // Among the favorites, the playback goes on through the rows of the list.
-    // Returns false when the selected row is not shown, so that the caller
-    // wraps inside the row as for an album.
-    private boolean moveToAdjacentFavoriteRow(int offset) {
+    // Among the favorites and the tracks, the playback goes on through the rows
+    // of the list. Returns false when the selected row is not shown, so that
+    // the caller wraps inside the row as for an album.
+    private boolean moveToAdjacentRow(int offset) {
         var listIndex = listItems.indexOf(selectedListItem.get());
-        if (sortKey.get() != SortKey.FAVORITES || listIndex < 0) { return false; }
+        var movesThroughRows =
+            sortKey.get() == SortKey.FAVORITES || sortKey.get() == SortKey.TRACK;
+        if (!movesThroughRows || listIndex < 0) { return false; }
         var listSize = listItems.size();
         selectListItem(listItems.get((listIndex + offset + listSize) % listSize));
         moveSelectionTo(offset > 0 ? selectedTracks.getFirst() : selectedTracks.getLast());

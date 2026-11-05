@@ -44,12 +44,13 @@ class LibraryManagerListTest extends LibraryManagerViewTestBase {
     }
 
     @Test
-    @DisplayName("ソートキーのComboBoxの項目は、Album・Artist・Favoritesである")
-    void the_items_of_the_sort_key_combo_box_are_album_artist_and_favorites(FxRobot robot) {
+    @DisplayName("ソートキーのComboBoxの項目は、Album・Artist・Track・Favoritesである")
+    void the_items_of_the_sort_key_combo_box_are_album_artist_track_and_favorites(FxRobot robot) {
         var sortKey = robot.lookup("#sortKey").queryComboBox();
 
         assertEquals(
-            List.of(SortKey.ALBUM, SortKey.ARTIST, SortKey.FAVORITES), sortKey.getItems()
+            List.of(SortKey.ALBUM, SortKey.ARTIST, SortKey.TRACK, SortKey.FAVORITES),
+            sortKey.getItems()
         );
     }
 

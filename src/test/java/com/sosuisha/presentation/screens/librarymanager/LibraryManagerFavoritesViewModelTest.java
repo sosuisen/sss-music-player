@@ -141,6 +141,17 @@ class LibraryManagerFavoritesViewModelTest {
         assertEquals(List.of(new AlbumItem(ALBUM_A)), byAlbumName);
     }
 
+    @Test
+    @DisplayName("Favorites表示の絞り込みは、曲名が一致する曲を含むアルバムの項目も残す")
+    void the_filter_of_the_favorites_keeps_album_rows_with_a_matching_track_title() {
+        var viewModel = createViewModel(List.of(new FavoriteAlbum("Album A", "X")));
+        viewModel.sortKeyProperty().set(SortKey.FAVORITES);
+
+        viewModel.albumFilterProperty().set("two");
+
+        assertEquals(List.of(new AlbumItem(ALBUM_A)), viewModel.getListItems());
+    }
+
     private static LibraryManagerViewModel createViewModel(List<Favorite> favorites) {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()), new SimpleObjectProperty<>()

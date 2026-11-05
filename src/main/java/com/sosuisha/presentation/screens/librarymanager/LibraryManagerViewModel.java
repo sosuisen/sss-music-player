@@ -166,9 +166,9 @@ public class LibraryManagerViewModel {
 
     /**
      * Returns the filter text of the album list. The albums are narrowed to
-     * the ones whose name or artist contains the text, ignoring case,
-     * whenever the text changes. Among the favorites, the tracks are narrowed
-     * in the same way by their title or artist.
+     * the ones whose name, artist, or track title contains the text, ignoring
+     * case, whenever the text changes. Among the favorites and in the track
+     * view, the tracks are narrowed in the same way by their title or artist.
      *
      * @return string property of the filter text
      */
@@ -196,7 +196,9 @@ public class LibraryManagerViewModel {
 
     private boolean matchesFilter(Album album) {
         return containsIgnoringCase(album.name(), albumFilter.get())
-            || containsIgnoringCase(album.artist(), albumFilter.get());
+            || containsIgnoringCase(album.artist(), albumFilter.get())
+            || album.files().stream()
+                .anyMatch(track -> containsIgnoringCase(titleOf(track), albumFilter.get()));
     }
 
     private static boolean containsIgnoringCase(String text, String query) {

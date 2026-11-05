@@ -98,6 +98,32 @@ class LibraryManagerTrackViewModelTest {
         assertEquals(CHERRY.path(), playedPaths.getLast());
     }
 
+    @Test
+    @DisplayName("Track表示では、最後の行の曲が終わると、先頭の行の曲を再生する")
+    void in_the_track_view_when_the_track_of_the_last_row_ends_the_first_row_plays() {
+        var viewModel = createViewModel(List.of(APPLE, CHERRY));
+        viewModel.sortKeyProperty().set(SortKey.TRACK);
+        viewModel.playListItem(new TrackItem(CHERRY));
+
+        finishTrack();
+
+        assertEquals(new TrackItem(APPLE), viewModel.selectedListItemProperty().get());
+        assertEquals(APPLE.path(), playedPaths.getLast());
+    }
+
+    @Test
+    @DisplayName("Track表示では、前の曲へ移ると、前の行を選び、その曲を再生する")
+    void in_the_track_view_moving_to_the_previous_track_plays_the_previous_row() {
+        var viewModel = createViewModel(List.of(APPLE, CHERRY));
+        viewModel.sortKeyProperty().set(SortKey.TRACK);
+        viewModel.playListItem(new TrackItem(CHERRY));
+
+        viewModel.previousTrack();
+
+        assertEquals(new TrackItem(APPLE), viewModel.selectedListItemProperty().get());
+        assertEquals(APPLE.path(), playedPaths.getLast());
+    }
+
     private void finishTrack() {
         Objects.requireNonNull(onFinished.get(), "no track finished callback").run();
     }

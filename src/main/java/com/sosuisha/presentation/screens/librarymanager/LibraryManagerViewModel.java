@@ -549,7 +549,9 @@ public class LibraryManagerViewModel {
     // wraps inside the row as for an album.
     private boolean moveToAdjacentFavoriteRow(int offset) {
         var listIndex = listItems.indexOf(selectedListItem.get());
-        if (sortKey.get() != SortKey.FAVORITES || listIndex < 0) { return false; }
+        var movesThroughRows =
+            sortKey.get() == SortKey.FAVORITES || sortKey.get() == SortKey.TRACK;
+        if (!movesThroughRows || listIndex < 0) { return false; }
         var listSize = listItems.size();
         selectListItem(listItems.get((listIndex + offset + listSize) % listSize));
         moveSelectionTo(offset > 0 ? selectedTracks.getFirst() : selectedTracks.getLast());

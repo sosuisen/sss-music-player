@@ -9,6 +9,8 @@ public enum SortKey {
     ALBUM("Album"),
     /** Sorts the albums by album artist name. */
     ARTIST("Artist"),
+    /** Shows all tracks sorted by title instead of the albums. */
+    TRACK("Track"),
     /** Shows the favorite albums and tracks in the order they were added. */
     FAVORITES("Favorites");
 

@@ -117,6 +117,19 @@ public class LibraryManagerViewModel {
     }
 
     private void updateAlbums() {
+        if (sortKey.get() == SortKey.TRACK) {
+            listItems.setAll(
+                appModel.getFiles().stream()
+                    .sorted(
+                        Comparator.comparing(
+                            LibraryManagerViewModel::titleOf, String.CASE_INSENSITIVE_ORDER
+                        )
+                    )
+                    .<AlbumListItem>map(TrackItem::new)
+                    .toList()
+            );
+            return;
+        }
         var albums = new AlbumDetector(appModel.getFiles()).detect();
         if (sortKey.get() == SortKey.FAVORITES) {
             listItems.setAll(
@@ -191,7 +204,7 @@ public class LibraryManagerViewModel {
 
     private Comparator<Album> albumComparator() {
         return switch (sortKey.get()) {
-            case ALBUM, FAVORITES -> Comparator
+            case ALBUM, TRACK, FAVORITES -> Comparator
                 .comparing(Album::name, String.CASE_INSENSITIVE_ORDER);
             case ARTIST -> Comparator.comparing(Album::artist, String.CASE_INSENSITIVE_ORDER);
         };
@@ -219,7 +232,7 @@ public class LibraryManagerViewModel {
     public String albumRowText(Album album) {
         Objects.requireNonNull(album, "album must not be null");
         return switch (sortKey.get()) {
-            case ALBUM, FAVORITES -> album.name() + " - " + album.artist();
+            case ALBUM, TRACK, FAVORITES -> album.name() + " - " + album.artist();
             case ARTIST -> album.artist() + " - " + album.name();
         };
     }

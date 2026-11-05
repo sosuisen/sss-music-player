@@ -12,6 +12,7 @@ import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.repository.InMemoryFavoriteRepository;
@@ -22,13 +23,15 @@ import com.sosuisha.presentation.WindowManager;
 import com.sosuisha.presentation.appmodel.FavoritesAppModel;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
+import com.sosuisha.presentation.screens.librarymanager.AlbumListItem.AlbumItem;
 import com.sosuisha.presentation.screens.librarymanager.AlbumListItem.TrackItem;
 import com.sosuisha.service.LibraryIndexer;
 
 import javafx.beans.property.SimpleObjectProperty;
 
 /**
- * The album list while {@link SortKey#TRACK} is chosen.
+ * The album list while {@link SortKey#TRACK} is chosen, and the search by
+ * track title in the other views.
  */
 class LibraryManagerTrackViewModelTest {
     private static final MusicFile CHERRY = new MusicFile(
@@ -122,6 +125,21 @@ class LibraryManagerTrackViewModelTest {
 
         assertEquals(new TrackItem(APPLE), viewModel.selectedListItemProperty().get());
         assertEquals(APPLE.path(), playedPaths.getLast());
+    }
+
+    @Test
+    @DisplayName("Album表示とArtist表示の絞り込みは、曲名が一致する曲を含むアルバムも残す")
+    void the_filter_of_the_album_and_artist_views_keeps_albums_with_a_matching_track_title() {
+        var viewModel = createViewModel(List.of(CHERRY, APPLE, DATE));
+        var albumA = new AlbumItem(new Album("Album A", "X", List.of(CHERRY, APPLE)));
+
+        viewModel.albumFilterProperty().set("cher");
+        var inAlbumView = List.copyOf(viewModel.getListItems());
+        viewModel.sortKeyProperty().set(SortKey.ARTIST);
+        var inArtistView = List.copyOf(viewModel.getListItems());
+
+        assertEquals(List.of(albumA), inAlbumView);
+        assertEquals(List.of(albumA), inArtistView);
     }
 
     private void finishTrack() {

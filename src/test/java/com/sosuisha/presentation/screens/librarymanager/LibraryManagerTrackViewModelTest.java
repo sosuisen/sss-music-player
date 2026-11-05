@@ -34,6 +34,9 @@ class LibraryManagerTrackViewModelTest {
         Path.of("a", "apple.mp3"), 200, new TrackMetadata("apple", "X", "Album A", "X", "2", "")
     );
     private static final MusicFile UNTITLED = new MusicFile(Path.of("b", "banana.mp3"), 300);
+    private static final MusicFile DATE = new MusicFile(
+        Path.of("c", "date.mp3"), 400, new TrackMetadata("Date", "Zed", "Album C", "Zed", "1", "")
+    );
 
     @Test
     @DisplayName("Trackを選ぶと、左のリストは全曲を曲名の昇順（大文字小文字無視）で並べ、曲名が空の曲はファイル名で並べる")
@@ -57,6 +60,21 @@ class LibraryManagerTrackViewModelTest {
 
         assertEquals("Cherry - X", viewModel.listItemText(new TrackItem(CHERRY)));
         assertEquals("banana.mp3", viewModel.listItemText(new TrackItem(UNTITLED)));
+    }
+
+    @Test
+    @DisplayName("Track表示の絞り込みは、曲名かアーティストの部分一致で、大文字小文字を無視する")
+    void the_filter_of_the_track_view_matches_the_title_or_the_artist_ignoring_case() {
+        var viewModel = createViewModel(List.of(CHERRY, APPLE, DATE));
+        viewModel.sortKeyProperty().set(SortKey.TRACK);
+
+        viewModel.albumFilterProperty().set("CHER");
+        var byTitle = List.copyOf(viewModel.getListItems());
+        viewModel.albumFilterProperty().set("zed");
+        var byArtist = List.copyOf(viewModel.getListItems());
+
+        assertEquals(List.of(new TrackItem(CHERRY)), byTitle);
+        assertEquals(List.of(new TrackItem(DATE)), byArtist);
     }
 
     private static LibraryManagerViewModel createViewModel(List<MusicFile> files) {

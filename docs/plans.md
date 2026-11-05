@@ -5,6 +5,24 @@
 
 TDDの作業用todoリスト（使い捨て）。
 
+## 保留：TestFXのテストの不安定さ
+
+原因は未特定。`mvn clean test`で、実行のたびに違うテストが少数失敗する。
+
+- 症状
+  - `FxRobotException`（行のノードが見つからない、または見えない）や`EmptyNodeQueryException`。その直後のアサーションの失敗もある
+  - `main`（45723c0）でも3回中2回失敗。`main`の直近8回のCIでは未発生（唯一の失敗は整形チェック）
+- 確かめたこと
+  - `reuseForks=false`でテストクラスごとにJVMを分けても、5回中2回失敗。JVMの共有は主な原因ではない
+  - 可変な`static`の共有オブジェクトは、プロダクションコードにもテストにもない
+  - `lookup`は全ウィンドウを探すので、閉じ忘れたウィンドウが行を隠すことはない
+- 未確認の候補
+  - [ ] 同じクラスのテストが同じprimary stageを使い回していること（`@Start`に渡されるStage）。別ウィンドウも閉じていない
+  - [ ] `robot.interact(setFiles)`の直後に行を探していて、セルが作られる描画より先に探す競合。並列のフォークの負荷で起きやすくなる可能性。`forkCount=1`で比べると切り分けられる
+- 1回だけ出て未調査
+  - [ ] `WavConverterTest`の`FileNotFoundException`
+  - [ ] `MediaMusicPlayerTest`のフォークのJVMクラッシュ（終了コード-1073741819）
+
 ## 曲表示と曲検索
 
 - [x] ソートキーのComboBoxの項目は、Album・Artist・Track・Favoritesである（View）

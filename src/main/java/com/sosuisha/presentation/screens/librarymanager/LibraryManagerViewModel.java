@@ -126,6 +126,7 @@ public class LibraryManagerViewModel {
                         )
                     )
                     .<AlbumListItem>map(TrackItem::new)
+                    .filter(this::matchesFilter)
                     .toList()
             );
             return;

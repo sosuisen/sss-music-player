@@ -3,8 +3,12 @@ package com.sosuisha.presentation.screens.librarymanager;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReference;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -37,6 +41,9 @@ class LibraryManagerTrackViewModelTest {
     private static final MusicFile DATE = new MusicFile(
         Path.of("c", "date.mp3"), 400, new TrackMetadata("Date", "Zed", "Album C", "Zed", "1", "")
     );
+
+    private final AtomicReference<@Nullable Runnable> onFinished = new AtomicReference<>();
+    private final List<Path> playedPaths = new ArrayList<>();
 
     @Test
     @DisplayName("Trackを選ぶと、左のリストは全曲を曲名の昇順（大文字小文字無視）で並べ、曲名が空の曲はファイル名で並べる")
@@ -77,7 +84,25 @@ class LibraryManagerTrackViewModelTest {
         assertEquals(List.of(new TrackItem(DATE)), byArtist);
     }
 
-    private static LibraryManagerViewModel createViewModel(List<MusicFile> files) {
+    @Test
+    @DisplayName("Track表示では、曲が終わると次の行を選び、その曲を再生する")
+    void in_the_track_view_when_a_track_ends_the_next_row_is_selected_and_its_track_plays() {
+        var viewModel = createViewModel(List.of(APPLE, CHERRY));
+        viewModel.sortKeyProperty().set(SortKey.TRACK);
+        viewModel.playListItem(new TrackItem(APPLE));
+
+        finishTrack();
+
+        assertEquals(new TrackItem(CHERRY), viewModel.selectedListItemProperty().get());
+        assertEquals(List.of(CHERRY), viewModel.getSelectedTracks());
+        assertEquals(CHERRY.path(), playedPaths.getLast());
+    }
+
+    private void finishTrack() {
+        Objects.requireNonNull(onFinished.get(), "no track finished callback").run();
+    }
+
+    private LibraryManagerViewModel createViewModel(List<MusicFile> files) {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()), new SimpleObjectProperty<>()
         );
@@ -87,7 +112,17 @@ class LibraryManagerTrackViewModelTest {
             appModel,
             new SettingsAppModel(new NullSettingsRepository()),
             new FavoritesAppModel(new InMemoryFavoriteRepository(List.of())),
-            new NullMusicPlayer(),
+            new NullMusicPlayer() {
+                @Override
+                public void play(Path path) {
+                    playedPaths.add(path);
+                }
+
+                @Override
+                public void setOnFinished(Runnable callback) {
+                    onFinished.set(callback);
+                }
+            },
             _ -> {
             }
         );

@@ -48,6 +48,17 @@ class LibraryManagerTrackViewModelTest {
         );
     }
 
+    @Test
+    @DisplayName("Track表示の行は「曲名 - アーティスト」で表示し、アーティストが空なら曲名だけを表示する")
+    void a_row_of_the_track_view_shows_the_title_and_the_artist_or_only_the_title_without_an_artist() {
+        var viewModel = createViewModel(List.of(CHERRY, UNTITLED));
+
+        viewModel.sortKeyProperty().set(SortKey.TRACK);
+
+        assertEquals("Cherry - X", viewModel.listItemText(new TrackItem(CHERRY)));
+        assertEquals("banana.mp3", viewModel.listItemText(new TrackItem(UNTITLED)));
+    }
+
     private static LibraryManagerViewModel createViewModel(List<MusicFile> files) {
         var appModel = new MusicLibraryAppModel(
             new LibraryIndexer(new NullLibraryRepository()), new SimpleObjectProperty<>()

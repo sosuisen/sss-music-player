@@ -55,6 +55,23 @@ class LibraryManagerListTest extends LibraryManagerViewTestBase {
     }
 
     @Test
+    @DisplayName("Trackを選ぶと、左のリストに曲の行が表示され、行をクリックするとその曲が選ばれる")
+    void choosing_track_shows_the_track_rows_and_clicking_a_row_selects_the_track(FxRobot robot) {
+        var track = new MusicFile(
+            Path.of("a/one.mp3"), 100,
+            new TrackMetadata("Song One", "Artist X", "Album A", "Artist X", "1", "")
+        );
+        robot.interact(() -> {
+            viewModel.setFiles(List.of(track));
+            viewModel.sortKeyProperty().set(SortKey.TRACK);
+        });
+
+        robot.clickOn("Song One - Artist X");
+
+        assertEquals(track, viewModel.selectedTrackProperty().get());
+    }
+
+    @Test
     @DisplayName("ソートキーのComboBox（初期値Album）が表示され、アルバムリストはアルバム名の昇順（大文字小文字無視）で並ぶ")
     void the_album_list_is_sorted_by_album_name_ignoring_case_with_album_as_the_default_key(
         FxRobot robot) {

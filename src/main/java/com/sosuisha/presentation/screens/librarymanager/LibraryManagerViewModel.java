@@ -324,8 +324,10 @@ public class LibraryManagerViewModel {
     /**
      * Returns the rows of the album list. For the album and artist sort keys,
      * the rows are the albums recognized in the music library. For
-     * {@link SortKey#FAVORITES}, the rows are the favorite albums and tracks
-     * found in the library, in the order they were added. The list is updated
+     * {@link SortKey#TRACK}, the rows are all tracks sorted by title, ignoring
+     * case. For {@link SortKey#FAVORITES}, the rows are the favorite albums and
+     * tracks found in the library, in the order they were added. The list is
+     * updated
      * whenever the files of the library, the sort key, or the filter text
      * change.
      *
@@ -512,8 +514,9 @@ public class LibraryManagerViewModel {
 
     /**
      * Moves the selection to the next track of the selected album, wrapping
-     * to the first track at the end. While the favorites are shown, the end
-     * of the selected row moves instead to the first track of the next row,
+     * to the first track at the end. While the favorites or the tracks are
+     * shown, the end of the selected row moves instead to the first track of
+     * the next row,
      * and the last row wraps to the first row. When a track is playing, the
      * moved-to track is played immediately. Does nothing when the album has
      * no tracks.
@@ -524,8 +527,9 @@ public class LibraryManagerViewModel {
 
     /**
      * Moves the selection to the previous track of the selected album,
-     * wrapping to the last track at the head. While the favorites are shown,
-     * the head of the selected row moves instead to the last track of the
+     * wrapping to the last track at the head. While the favorites or the
+     * tracks are shown, the head of the selected row moves instead to the last
+     * track of the
      * previous row, and the first row wraps to the last row. When a track is
      * playing, the moved-to track is played immediately. Does nothing when
      * the album has no tracks.
@@ -540,14 +544,14 @@ public class LibraryManagerViewModel {
         var size = selectedTracks.size();
         var movedIndex = index + offset;
         var leavesRow = index >= 0 && (movedIndex < 0 || movedIndex >= size);
-        if (leavesRow && moveToAdjacentFavoriteRow(offset)) { return; }
+        if (leavesRow && moveToAdjacentRow(offset)) { return; }
         moveSelectionTo(selectedTracks.get((movedIndex + size) % size));
     }
 
-    // Among the favorites, the playback goes on through the rows of the list.
-    // Returns false when the selected row is not shown, so that the caller
-    // wraps inside the row as for an album.
-    private boolean moveToAdjacentFavoriteRow(int offset) {
+    // Among the favorites and the tracks, the playback goes on through the rows
+    // of the list. Returns false when the selected row is not shown, so that
+    // the caller wraps inside the row as for an album.
+    private boolean moveToAdjacentRow(int offset) {
         var listIndex = listItems.indexOf(selectedListItem.get());
         var movesThroughRows =
             sortKey.get() == SortKey.FAVORITES || sortKey.get() == SortKey.TRACK;

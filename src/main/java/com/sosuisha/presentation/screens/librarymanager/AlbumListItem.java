@@ -7,7 +7,7 @@ import com.sosuisha.domain.model.MusicFile;
 
 /**
  * A row of the album list: an album, or a single track shown among the
- * favorites.
+ * favorites or in the track view.
  */
 public sealed interface AlbumListItem {
     /**

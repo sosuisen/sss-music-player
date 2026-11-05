@@ -385,7 +385,9 @@ public class LibraryManagerViewModel {
     /**
      * Returns the text of a row in the album list. An album row is shown as
      * {@link #albumRowText(Album)} returns. A track row is shown by the title
-     * of the track, or by its file name when the title is empty.
+     * of the track, or by its file name when the title is empty. While
+     * {@link SortKey#TRACK} is chosen, the artist follows the title as
+     * "title - artist", unless the artist is empty.
      *
      * @param item row of the album list
      * @return text of the row
@@ -395,8 +397,14 @@ public class LibraryManagerViewModel {
         Objects.requireNonNull(item, "item must not be null");
         return switch (item) {
             case AlbumItem(Album album) -> albumRowText(album);
-            case TrackItem(MusicFile track) -> titleOf(track);
+            case TrackItem(MusicFile track) -> trackListItemText(track);
         };
+    }
+
+    private String trackListItemText(MusicFile track) {
+        var artist = track.tag().artist();
+        if (sortKey.get() != SortKey.TRACK || artist.isEmpty()) { return titleOf(track); }
+        return titleOf(track) + " - " + artist;
     }
 
     /**

@@ -1,12 +1,15 @@
 package com.sosuisha.presentation.appmodel;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import com.sosuisha.domain.exception.TagReadException;
 import com.sosuisha.domain.model.Album;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.service.LibraryIndexer;
+import com.sosuisha.service.TagReadFailure;
 
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ObjectProperty;
@@ -33,6 +36,9 @@ public class MusicLibraryAppModel {
     private final ObjectProperty<Album> selectedAlbum = new SimpleObjectProperty<>();
     private final LibraryIndexer scanner;
     private final ObservableValue<Path> musicLibraryPath;
+
+    private record ScanOutcome(List<MusicFile> files, List<TagReadFailure> failures) {
+    }
 
     /**
      * Creates the app model. It follows the given music library path: whenever
@@ -62,29 +68,49 @@ public class MusicLibraryAppModel {
      * list is updated on the JavaFX application thread. When the scan fails,
      * its exception is rethrown on the JavaFX application thread, so it reaches
      * the uncaught exception handler of that thread instead of the caller.
+     * When the scan finishes but the tags of some files could not be read, the
+     * list is updated first, and then a {@link TagReadException} for the first
+     * failure reaches the same handler.
      *
      * @param folderPath path of the folder to scan
      */
     private void scanFolder(Path folderPath) {
         scanning.set(true);
-        var task = new Task<List<MusicFile>>() {
+        var task = new Task<ScanOutcome>() {
             @Override
-            protected List<MusicFile> call() {
+            protected ScanOutcome call() {
+                var failures = new ArrayList<TagReadFailure>();
                 // updateMessage publishes the value to messageProperty on the
                 // FX thread, coalescing rapid updates.
-                return scanner.scan(folderPath, path -> updateMessage(path.toString()));
+                var scanned = scanner.scan(
+                    folderPath, path -> updateMessage(path.toString()), failures::add
+                );
+                return new ScanOutcome(scanned, failures);
             }
         };
         scanningFile.bind(task.messageProperty());
         task.setOnSucceeded(_ -> {
-            files.setAll(task.getValue());
+            var outcome = task.getValue();
+            files.setAll(outcome.files());
             scanning.set(false);
+            if (!outcome.failures().isEmpty()) { throw toTagReadException(outcome.failures()); }
         });
         task.setOnFailed(_ -> {
             scanning.set(false);
             throw rethrow(task.getException());
         });
         Thread.ofVirtual().start(task);
+    }
+
+    // Only the first failure is reported. One broken class fails every file
+    // that needs it, so the later failures have the same cause.
+    private static TagReadException toTagReadException(List<TagReadFailure> failures) {
+        var first = failures.getFirst();
+        return new TagReadException(
+            "Could not read the tags of " + failures.size() + " file(s). The first file is: "
+                + first.path(),
+            first.error()
+        );
     }
 
     private static RuntimeException rethrow(Throwable exception) {

@@ -296,8 +296,7 @@ class MusicLibraryAppModelTest {
             @Override
             public List<MusicFile> scan(
                 Path folderPath, Consumer<Path> onFileRead,
-                Consumer<TagReadFailure> onTagReadFailure
-            ) {
+                Consumer<TagReadFailure> onTagReadFailure) {
                 onTagReadFailure.accept(new TagReadFailure(first, firstError));
                 onTagReadFailure.accept(
                     new TagReadFailure(second, new NoClassDefFoundError("second broken class"))

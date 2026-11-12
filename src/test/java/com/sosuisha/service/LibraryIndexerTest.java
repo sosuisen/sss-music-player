@@ -328,6 +328,30 @@ class LibraryIndexerTest {
     }
 
     @Test
+    @DisplayName("LinkageErrorが出たファイルは、DBに保存されない")
+    void file_whose_tag_read_fails_with_LinkageError_is_not_saved_to_the_database()
+        throws Exception {
+        // The file is left out of the cache, so the next scan reads its tag again.
+        var bad = Files.write(folder.resolve("a-bad.mp3"), new byte[10]);
+        var good = Files.write(folder.resolve("b-good.mp3"), new byte[20]);
+        var savedPaths = new ArrayList<Path>();
+        var database = new NullLibraryRepository() {
+            @Override
+            public void save(MusicFile musicFile, FileTime lastModified) {
+                savedPaths.add(musicFile.path());
+            }
+        };
+        var indexer = new LibraryIndexer(database, path -> {
+            if (path.equals(bad)) { throw new NoClassDefFoundError("broken class"); }
+            return TrackMetadata.EMPTY;
+        });
+
+        indexer.scan(folder);
+
+        assertEquals(List.of(good), savedPaths);
+    }
+
+    @Test
     @DisplayName("フォルダが読めない場合、scanはLibraryScanExceptionを投げる")
     void scan_throws_LibraryScanException_when_the_folder_cannot_be_read() {
         var scanner = new LibraryIndexer(new NullLibraryRepository());

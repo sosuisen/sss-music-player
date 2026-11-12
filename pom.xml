@@ -318,6 +318,8 @@
               <buildArgs>
                 <!-- Embeds the icon in the exe. See src/windows/sss-music-player.rc. -->
                 <buildArg>-H:NativeLinkerOption=${project.basedir}/src/windows/sss-music-player.res</buildArg>
+                <!-- Adds the extended charsets. TagRecovery needs MS932, and it is not in a native image by default. -->
+                <buildArg>-H:+AddAllCharsets</buildArg>
               </buildArgs>
             </configuration>
           </plugin>

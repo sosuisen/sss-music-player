@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,11 +29,13 @@ import org.testfx.framework.junit5.Start;
 import org.testfx.util.WaitForAsyncUtils;
 
 import com.sosuisha.domain.exception.LibraryScanException;
+import com.sosuisha.domain.exception.TagReadException;
 import com.sosuisha.domain.model.MusicFile;
 import com.sosuisha.domain.model.TrackMetadata;
 import com.sosuisha.domain.repository.LibraryRepository;
 import com.sosuisha.domain.repository.NullLibraryRepository;
 import com.sosuisha.service.LibraryIndexer;
+import com.sosuisha.service.TagReadFailure;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.stage.Stage;
@@ -280,6 +283,43 @@ class MusicLibraryAppModelTest {
         });
 
         assertInstanceOf(LibraryScanException.class, caught);
+    }
+
+    @Test
+    @DisplayName("タグを読めなかったファイルがあると、一覧の更新後に、最初の失敗がFXスレッドの未捕捉例外ハンドラに届く")
+    void failed_tag_reads_update_the_files_and_then_deliver_the_first_failure_to_the_uncaught_exception_handler_of_the_fx_thread(
+        FxRobot robot) throws Exception {
+        var first = folder.resolve("song1.mp3");
+        var second = folder.resolve("song2.mp3");
+        var firstError = new NoClassDefFoundError("first broken class");
+        var indexer = new LibraryIndexer(new NullLibraryRepository()) {
+            @Override
+            public List<MusicFile> scan(
+                Path folderPath, Consumer<Path> onFileRead,
+                Consumer<TagReadFailure> onTagReadFailure
+            ) {
+                onTagReadFailure.accept(new TagReadFailure(first, firstError));
+                onTagReadFailure.accept(
+                    new TagReadFailure(second, new NoClassDefFoundError("second broken class"))
+                );
+                return List.of(new MusicFile(first, 42), new MusicFile(second, 43));
+            }
+        };
+        var musicLibraryPath = new SimpleObjectProperty<Path>();
+        var appModel = new MusicLibraryAppModel(indexer, musicLibraryPath);
+
+        var caught = withFxThreadExceptionsCaptured(robot, captured -> {
+            robot.interact(() -> musicLibraryPath.set(folder));
+
+            WaitForAsyncUtils.waitFor(5, TimeUnit.SECONDS, () -> captured.get() != null);
+        });
+
+        assertEquals(
+            List.of(new MusicFile(first, 42), new MusicFile(second, 43)), appModel.getFiles()
+        );
+        assertEquals(false, appModel.scanningProperty().get());
+        assertInstanceOf(TagReadException.class, caught);
+        assertEquals(firstError, caught.getCause());
     }
 
     @FunctionalInterface

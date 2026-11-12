@@ -27,10 +27,10 @@ TDDの作業用todoリスト（使い捨て）。
 
 native exeで`MS932`が見つからず、1ファイルの`LinkageError`でスキャン全体が落ちた不具合への対応。捕まえるのは`LinkageError`だけ。
 
-- [ ] タグ読み取りで`LinkageError`が出たファイルは空タグになり、残りのファイルのスキャンは続く（LibraryIndexer）
-- [ ] `LinkageError`が出たファイルのパスとエラーは、コールバックへ通知される（LibraryIndexer）
-- [ ] `LinkageError`が出たファイルは、DBに保存されない。次のスキャンで読み直すため（LibraryIndexer）
-- [ ] タグを読めなかったファイルがあると、一覧の更新後に、その失敗がFXスレッドの未捕捉例外ハンドラに1回届く（MusicLibraryAppModel）
+- [x] タグ読み取りで`LinkageError`が出たファイルは空タグになり、残りのファイルのスキャンは続く（LibraryIndexer）
+- [x] `LinkageError`が出たファイルのパスとエラーは、コールバックへ通知される（LibraryIndexer）
+- [x] `LinkageError`が出たファイルは、DBに保存されない。次のスキャンで読み直すため（LibraryIndexer）
+- [x] タグを読めなかったファイルがあると、一覧の更新後に、その失敗がFXスレッドの未捕捉例外ハンドラに1回届く（MusicLibraryAppModel）
 
 ## 曲表示と曲検索
 

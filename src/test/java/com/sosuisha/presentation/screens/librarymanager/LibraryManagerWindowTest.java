@@ -29,6 +29,7 @@ import com.sosuisha.presentation.appmodel.FavoritesAppModel;
 import com.sosuisha.presentation.appmodel.MusicLibraryAppModel;
 import com.sosuisha.presentation.appmodel.SettingsAppModel;
 import com.sosuisha.service.LibraryIndexer;
+import com.sosuisha.service.TagReadFailure;
 
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Label;
@@ -134,8 +135,10 @@ class LibraryManagerWindowTest extends LibraryManagerViewTestBase {
         var scanFinished = new CountDownLatch(1);
         var blockingScanner = new LibraryIndexer(new NullLibraryRepository()) {
             @Override
-            public List<MusicFile> scan(Path folderPath, Consumer<Path> onFileRead) {
-                var result = super.scan(folderPath, onFileRead);
+            public List<MusicFile> scan(
+                Path folderPath, Consumer<Path> onFileRead,
+                Consumer<TagReadFailure> onTagReadFailure) {
+                var result = super.scan(folderPath, onFileRead, onTagReadFailure);
                 // Keeps the scan running until the test releases it, so the
                 // dialog stays open while the label is checked.
                 try {

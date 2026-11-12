@@ -59,6 +59,8 @@ public class LibraryIndexer {
      * matched ignoring case. A hidden file whose name starts with a dot is
      * skipped. A file whose tag cannot be read gets {@link TrackMetadata#EMPTY}.
      * After the scan, a database entry whose file no longer exists is deleted.
+     * The failed tag reads described in {@link #scan(Path, Consumer, Consumer)}
+     * are not reported.
      *
      * @param folderPath path of the folder to scan
      * @return list of audio files in the folder and its subfolders
@@ -68,32 +70,18 @@ public class LibraryIndexer {
      */
     public List<MusicFile> scan(Path folderPath) throws LibraryScanException {
         return scan(folderPath, _ -> {
+        }, _ -> {
         });
     }
 
     /**
-     * Scans like {@link #scan(Path)} and also notifies the path of each file to
-     * the given callback just before the file is read.
-     *
-     * @param folderPath path of the folder to scan
-     * @param onFileRead callback that receives the path of each file being read
-     * @return list of audio files in the folder and its subfolders
-     * @throws NullPointerException if folderPath or onFileRead is null
-     * @throws LibraryScanException if the folder or a found file cannot be read
-     * @throws RepositoryException if the library database cannot be accessed
-     */
-    public List<MusicFile> scan(Path folderPath, Consumer<Path> onFileRead)
-        throws LibraryScanException {
-        return scan(folderPath, onFileRead, _ -> {
-        });
-    }
-
-    /**
-     * Scans like {@link #scan(Path, Consumer)} and also notifies each failed
-     * tag read to the given callback. A tag read fails when it stops with a
+     * Scans like {@link #scan(Path)} and also notifies two things to the given
+     * callbacks: the path of each file just before the file is read, and each
+     * failed tag read. A tag read fails when it stops with a
      * {@link LinkageError}, for example when a class that the read needs cannot
      * be loaded. The scan goes on, and the file gets
-     * {@link TrackMetadata#EMPTY}.
+     * {@link TrackMetadata#EMPTY}. The file is not saved to the database, so
+     * the next scan reads its tag again.
      *
      * @param folderPath path of the folder to scan
      * @param onFileRead callback that receives the path of each file being read

@@ -269,7 +269,8 @@ class LibraryIndexerTest {
         var second = Files.createFile(folder.resolve("second.mp3"));
         var notified = new ArrayList<Path>();
 
-        new LibraryIndexer(new NullLibraryRepository()).scan(folder, notified::add);
+        new LibraryIndexer(new NullLibraryRepository()).scan(folder, notified::add, _ -> {
+        });
 
         assertEquals(List.of(first, second), notified.stream().sorted().toList());
     }

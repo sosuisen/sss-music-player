@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.FieldKey;
@@ -33,6 +34,7 @@ public class LibraryIndexer {
     private static final Set<String> SUPPORTED_EXTENSIONS = Set.of(".mp3", ".m4a");
 
     private final LibraryRepository database;
+    private final Function<Path, TrackMetadata> tagReader;
 
     /**
      * Creates the indexer.
@@ -41,7 +43,14 @@ public class LibraryIndexer {
      * @throws NullPointerException if database is null
      */
     public LibraryIndexer(LibraryRepository database) {
+        this(database, LibraryIndexer::readTrackMetadata);
+    }
+
+    // A test replaces the tag reader to make a read fail with an Error, which
+    // a real audio file cannot cause.
+    LibraryIndexer(LibraryRepository database, Function<Path, TrackMetadata> tagReader) {
         this.database = Objects.requireNonNull(database, "database must not be null");
+        this.tagReader = Objects.requireNonNull(tagReader, "tagReader must not be null");
     }
 
     /**
@@ -108,11 +117,19 @@ public class LibraryIndexer {
             var lastModified = Files.getLastModifiedTime(path);
             var cached = database.find(path, size, lastModified);
             if (cached.isPresent()) { return new MusicFile(path, size, cached.get()); }
-            var musicFile = new MusicFile(path, size, readTrackMetadata(path));
+            var musicFile = new MusicFile(path, size, readTagOrEmpty(path));
             database.save(musicFile, lastModified);
             return musicFile;
         } catch (IOException e) {
             throw new LibraryScanException("Could not read the file: " + path, e);
+        }
+    }
+
+    private TrackMetadata readTagOrEmpty(Path path) {
+        try {
+            return tagReader.apply(path);
+        } catch (LinkageError e) {
+            return TrackMetadata.EMPTY;
         }
     }
 

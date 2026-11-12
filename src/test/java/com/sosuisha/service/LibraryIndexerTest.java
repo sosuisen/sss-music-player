@@ -309,6 +309,25 @@ class LibraryIndexerTest {
     }
 
     @Test
+    @DisplayName("LinkageErrorが出たファイルのパスとエラーは、コールバックへ通知される")
+    void the_path_and_the_error_of_a_failed_tag_read_are_notified_to_the_callback()
+        throws Exception {
+        var bad = Files.write(folder.resolve("a-bad.mp3"), new byte[10]);
+        Files.write(folder.resolve("b-good.mp3"), new byte[20]);
+        var error = new NoClassDefFoundError("broken class");
+        var indexer = new LibraryIndexer(new NullLibraryRepository(), path -> {
+            if (path.equals(bad)) { throw error; }
+            return TrackMetadata.EMPTY;
+        });
+        var failures = new ArrayList<TagReadFailure>();
+
+        indexer.scan(folder, _ -> {
+        }, failures::add);
+
+        assertEquals(List.of(new TagReadFailure(bad, error)), failures);
+    }
+
+    @Test
     @DisplayName("フォルダが読めない場合、scanはLibraryScanExceptionを投げる")
     void scan_throws_LibraryScanException_when_the_folder_cannot_be_read() {
         var scanner = new LibraryIndexer(new NullLibraryRepository());

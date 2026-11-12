@@ -142,20 +142,19 @@ public class LibraryIndexer {
             var lastModified = Files.getLastModifiedTime(path);
             var cached = database.find(path, size, lastModified);
             if (cached.isPresent()) { return new MusicFile(path, size, cached.get()); }
-            var musicFile = new MusicFile(path, size, readTagOrEmpty(path, onTagReadFailure));
+            TrackMetadata tag;
+            try {
+                tag = tagReader.apply(path);
+            } catch (LinkageError e) {
+                // The file is not saved, so the next scan reads its tag again.
+                onTagReadFailure.accept(new TagReadFailure(path, e));
+                return new MusicFile(path, size, TrackMetadata.EMPTY);
+            }
+            var musicFile = new MusicFile(path, size, tag);
             database.save(musicFile, lastModified);
             return musicFile;
         } catch (IOException e) {
             throw new LibraryScanException("Could not read the file: " + path, e);
-        }
-    }
-
-    private TrackMetadata readTagOrEmpty(Path path, Consumer<TagReadFailure> onTagReadFailure) {
-        try {
-            return tagReader.apply(path);
-        } catch (LinkageError e) {
-            onTagReadFailure.accept(new TagReadFailure(path, e));
-            return TrackMetadata.EMPTY;
         }
     }
 

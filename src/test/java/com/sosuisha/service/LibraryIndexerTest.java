@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -268,7 +269,8 @@ class LibraryIndexerTest {
         var second = Files.createFile(folder.resolve("second.mp3"));
         var notified = new ArrayList<Path>();
 
-        new LibraryIndexer(new NullLibraryRepository()).scan(folder, notified::add);
+        new LibraryIndexer(new NullLibraryRepository()).scan(folder, notified::add, _ -> {
+        });
 
         assertEquals(List.of(first, second), notified.stream().sorted().toList());
     }
@@ -283,6 +285,71 @@ class LibraryIndexerTest {
         List<MusicFile> musicFiles = scanner.scan(folder);
 
         assertEquals(List.of(new MusicFile(file, 123)), musicFiles);
+    }
+
+    @Test
+    @DisplayName("タグ読み取りでLinkageErrorが出たファイルは空タグになり、残りのファイルのスキャンは続く")
+    void file_whose_tag_read_fails_with_LinkageError_has_empty_metadata_and_the_scan_goes_on()
+        throws Exception {
+        var bad = Files.write(folder.resolve("a-bad.mp3"), new byte[10]);
+        var good = Files.write(folder.resolve("b-good.mp3"), new byte[20]);
+        var goodTag = new TrackMetadata(
+            "Good Song", "Good Artist", "Good Album", "Good Album Artist", "1", "2001"
+        );
+        var indexer = new LibraryIndexer(new NullLibraryRepository(), path -> {
+            if (path.equals(bad)) { throw new NoClassDefFoundError("broken class"); }
+            return goodTag;
+        });
+
+        var musicFiles = indexer.scan(folder);
+
+        assertEquals(
+            List.of(new MusicFile(bad, 10, TrackMetadata.EMPTY), new MusicFile(good, 20, goodTag)),
+            musicFiles.stream().sorted(Comparator.comparing(MusicFile::path)).toList()
+        );
+    }
+
+    @Test
+    @DisplayName("LinkageErrorが出たファイルのパスとエラーは、コールバックへ通知される")
+    void the_path_and_the_error_of_a_failed_tag_read_are_notified_to_the_callback()
+        throws Exception {
+        var bad = Files.write(folder.resolve("a-bad.mp3"), new byte[10]);
+        Files.write(folder.resolve("b-good.mp3"), new byte[20]);
+        var error = new NoClassDefFoundError("broken class");
+        var indexer = new LibraryIndexer(new NullLibraryRepository(), path -> {
+            if (path.equals(bad)) { throw error; }
+            return TrackMetadata.EMPTY;
+        });
+        var failures = new ArrayList<TagReadFailure>();
+
+        indexer.scan(folder, _ -> {
+        }, failures::add);
+
+        assertEquals(List.of(new TagReadFailure(bad, error)), failures);
+    }
+
+    @Test
+    @DisplayName("LinkageErrorが出たファイルは、DBに保存されない")
+    void file_whose_tag_read_fails_with_LinkageError_is_not_saved_to_the_database()
+        throws Exception {
+        // The file is left out of the cache, so the next scan reads its tag again.
+        var bad = Files.write(folder.resolve("a-bad.mp3"), new byte[10]);
+        var good = Files.write(folder.resolve("b-good.mp3"), new byte[20]);
+        var savedPaths = new ArrayList<Path>();
+        var database = new NullLibraryRepository() {
+            @Override
+            public void save(MusicFile musicFile, FileTime lastModified) {
+                savedPaths.add(musicFile.path());
+            }
+        };
+        var indexer = new LibraryIndexer(database, path -> {
+            if (path.equals(bad)) { throw new NoClassDefFoundError("broken class"); }
+            return TrackMetadata.EMPTY;
+        });
+
+        indexer.scan(folder);
+
+        assertEquals(List.of(good), savedPaths);
     }
 
     @Test

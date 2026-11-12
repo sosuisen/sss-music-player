@@ -8,6 +8,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.jaudiotagger.audio.AudioFileIO;
 import org.jaudiotagger.tag.FieldKey;
@@ -33,6 +34,7 @@ public class LibraryIndexer {
     private static final Set<String> SUPPORTED_EXTENSIONS = Set.of(".mp3", ".m4a");
 
     private final LibraryRepository database;
+    private final Function<Path, TrackMetadata> tagReader;
 
     /**
      * Creates the indexer.
@@ -41,7 +43,14 @@ public class LibraryIndexer {
      * @throws NullPointerException if database is null
      */
     public LibraryIndexer(LibraryRepository database) {
+        this(database, LibraryIndexer::readTrackMetadata);
+    }
+
+    // A test replaces the tag reader to make a read fail with an Error, which
+    // a real audio file cannot cause.
+    LibraryIndexer(LibraryRepository database, Function<Path, TrackMetadata> tagReader) {
         this.database = Objects.requireNonNull(database, "database must not be null");
+        this.tagReader = Objects.requireNonNull(tagReader, "tagReader must not be null");
     }
 
     /**
@@ -50,6 +59,8 @@ public class LibraryIndexer {
      * matched ignoring case. A hidden file whose name starts with a dot is
      * skipped. A file whose tag cannot be read gets {@link TrackMetadata#EMPTY}.
      * After the scan, a database entry whose file no longer exists is deleted.
+     * The failed tag reads described in {@link #scan(Path, Consumer, Consumer)}
+     * are not reported.
      *
      * @param folderPath path of the folder to scan
      * @return list of audio files in the folder and its subfolders
@@ -59,30 +70,40 @@ public class LibraryIndexer {
      */
     public List<MusicFile> scan(Path folderPath) throws LibraryScanException {
         return scan(folderPath, _ -> {
+        }, _ -> {
         });
     }
 
     /**
-     * Scans like {@link #scan(Path)} and also notifies the path of each file to
-     * the given callback just before the file is read.
+     * Scans like {@link #scan(Path)} and also notifies two things to the given
+     * callbacks: the path of each file just before the file is read, and each
+     * failed tag read. A tag read fails when it stops with a
+     * {@link LinkageError}, for example when a class that the read needs cannot
+     * be loaded. The scan goes on, and the file gets
+     * {@link TrackMetadata#EMPTY}. The file is not saved to the database, so
+     * the next scan reads its tag again.
      *
      * @param folderPath path of the folder to scan
      * @param onFileRead callback that receives the path of each file being read
+     * @param onTagReadFailure callback that receives each failed tag read
      * @return list of audio files in the folder and its subfolders
-     * @throws NullPointerException if folderPath or onFileRead is null
+     * @throws NullPointerException if folderPath, onFileRead, or
+     *         onTagReadFailure is null
      * @throws LibraryScanException if the folder or a found file cannot be read
      * @throws RepositoryException if the library database cannot be accessed
      */
-    public List<MusicFile> scan(Path folderPath, Consumer<Path> onFileRead)
+    public List<MusicFile> scan(
+        Path folderPath, Consumer<Path> onFileRead, Consumer<TagReadFailure> onTagReadFailure)
         throws LibraryScanException {
         Objects.requireNonNull(folderPath, "folderPath must not be null");
         Objects.requireNonNull(onFileRead, "onFileRead must not be null");
+        Objects.requireNonNull(onTagReadFailure, "onTagReadFailure must not be null");
         try (var files = Files.walk(folderPath)) {
             var musicFiles = files
                 .filter(Files::isRegularFile)
                 .filter(path -> !isHiddenFile(path))
                 .filter(LibraryIndexer::isSupportedAudioFile)
-                .map(path -> toMusicFile(path, onFileRead))
+                .map(path -> toMusicFile(path, onFileRead, onTagReadFailure))
                 .toList();
             deleteEntriesOfMissingFiles();
             return musicFiles;
@@ -101,14 +122,23 @@ public class LibraryIndexer {
         }
     }
 
-    private MusicFile toMusicFile(Path path, Consumer<Path> onFileRead) {
+    private MusicFile toMusicFile(
+        Path path, Consumer<Path> onFileRead, Consumer<TagReadFailure> onTagReadFailure) {
         onFileRead.accept(path);
         try {
             var size = Files.size(path);
             var lastModified = Files.getLastModifiedTime(path);
             var cached = database.find(path, size, lastModified);
             if (cached.isPresent()) { return new MusicFile(path, size, cached.get()); }
-            var musicFile = new MusicFile(path, size, readTrackMetadata(path));
+            TrackMetadata tag;
+            try {
+                tag = tagReader.apply(path);
+            } catch (LinkageError e) {
+                // The file is not saved, so the next scan reads its tag again.
+                onTagReadFailure.accept(new TagReadFailure(path, e));
+                return new MusicFile(path, size, TrackMetadata.EMPTY);
+            }
+            var musicFile = new MusicFile(path, size, tag);
             database.save(musicFile, lastModified);
             return musicFile;
         } catch (IOException e) {

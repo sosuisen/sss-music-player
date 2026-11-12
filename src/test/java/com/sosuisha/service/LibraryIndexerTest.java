@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -283,6 +284,28 @@ class LibraryIndexerTest {
         List<MusicFile> musicFiles = scanner.scan(folder);
 
         assertEquals(List.of(new MusicFile(file, 123)), musicFiles);
+    }
+
+    @Test
+    @DisplayName("タグ読み取りでLinkageErrorが出たファイルは空タグになり、残りのファイルのスキャンは続く")
+    void file_whose_tag_read_fails_with_LinkageError_has_empty_metadata_and_the_scan_goes_on()
+        throws Exception {
+        var bad = Files.write(folder.resolve("a-bad.mp3"), new byte[10]);
+        var good = Files.write(folder.resolve("b-good.mp3"), new byte[20]);
+        var goodTag = new TrackMetadata(
+            "Good Song", "Good Artist", "Good Album", "Good Album Artist", "1", "2001"
+        );
+        var indexer = new LibraryIndexer(new NullLibraryRepository(), path -> {
+            if (path.equals(bad)) { throw new NoClassDefFoundError("broken class"); }
+            return goodTag;
+        });
+
+        var musicFiles = indexer.scan(folder);
+
+        assertEquals(
+            List.of(new MusicFile(bad, 10, TrackMetadata.EMPTY), new MusicFile(good, 20, goodTag)),
+            musicFiles.stream().sorted(Comparator.comparing(MusicFile::path)).toList()
+        );
     }
 
     @Test
